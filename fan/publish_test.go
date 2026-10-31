@@ -274,15 +274,26 @@ func TestCommanderContainers(t *testing.T) {
 }
 
 func TestMatchContainers(t *testing.T) {
-	list := "homarr\tghcr.io/homarr-labs/homarr:latest\nweb\tnginx\nweb2\tlibrary/nginx\nother\tredis:7\n"
-	if got := matchContainers(list, "ghcr.io/homarr-labs/homarr:latest"); len(got) != 1 || got[0] != "homarr" {
-		t.Fatalf("homarr: %v", got)
+	list := "homarr\tghcr.io/homarr-labs/homarr:latest\nweb\tnginx\nweb2\tlibrary/nginx\nother\tredis:7\nwp\twordpress\nbs\tlscr.io/linuxserver/bookstack\nnc\tnextcloud:latest\nreg\tlocalhost:5000/app\n"
+	cases := []struct {
+		image string
+		want  string
+	}{
+		{"ghcr.io/homarr-labs/homarr:latest", "homarr"},
+		{"nginx:latest", "web web2"},
+		{"wordpress:latest", "wp"},
+		{"docker.io/library/wordpress:latest", "wp"},
+		{"lscr.io/linuxserver/bookstack:latest", "bs"},
+		{"nextcloud", "nc"},
+		{"redis:7", "other"},
+		{"redis:latest", ""},
+		{"localhost:5000/app:latest", "reg"},
+		{"nope", ""},
 	}
-	if got := matchContainers(list, "nginx"); len(got) != 2 || got[0] != "web" || got[1] != "web2" {
-		t.Fatalf("library/ prefix must not matter: %v", got)
-	}
-	if got := matchContainers(list, "nope"); len(got) != 0 {
-		t.Fatalf("nope: %v", got)
+	for _, c := range cases {
+		if got := strings.Join(matchContainers(list, c.image), " "); got != c.want {
+			t.Errorf("%s: got %q, want %q", c.image, got, c.want)
+		}
 	}
 }
 

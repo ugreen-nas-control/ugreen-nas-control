@@ -597,7 +597,10 @@ func (c *commander) handle(raw []byte, now time.Time) (res cmdResult, after func
 				return reject("no such update")
 			}
 			names, err := c.containers(cmd.Name)
-			if err != nil || len(names) == 0 {
+			if err != nil {
+				return reject("docker could not be run: " + err.Error())
+			}
+			if len(names) == 0 {
 				return reject("no container found for that image")
 			}
 			for _, n := range names {
@@ -642,15 +645,26 @@ func dockerContainers(image string) ([]string, error) {
 }
 
 func matchContainers(listing, image string) []string {
-	norm := func(s string) string { return strings.TrimPrefix(strings.TrimSpace(s), "library/") }
 	var names []string
 	for _, l := range strings.Split(listing, "\n") {
 		f := strings.SplitN(l, "\t", 2)
-		if len(f) == 2 && norm(f[1]) == norm(image) {
+		if len(f) == 2 && normImage(f[1]) == normImage(image) {
 			names = append(names, strings.TrimSpace(f[0]))
 		}
 	}
 	return names
+}
+
+// normImage makes the two spellings of one image equal: Unraid lists "wordpress:latest" where docker ps shows
+// the image as the container was created, "wordpress"; "library/" and "docker.io/" are the same registry paths.
+func normImage(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "docker.io/")
+	s = strings.TrimPrefix(s, "library/")
+	if i := strings.LastIndex(s, "/"); !strings.Contains(s[i+1:], ":") && !strings.Contains(s[i+1:], "@") {
+		s += ":latest"
+	}
+	return s
 }
 
 func execRun(name string, args ...string) error {
