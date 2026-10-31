@@ -115,6 +115,7 @@ type PubNet struct {
 	MaxMbit   int    `json:"max_mbit"`
 	RxBps     int64  `json:"rx_bps"`
 	TxBps     int64  `json:"tx_bps"`
+	IP        string `json:"ip,omitempty"`
 }
 
 type Alarm struct {
@@ -472,7 +473,7 @@ func (c *collector) state(now time.Time) PubState {
 	}
 	for _, p := range c.hw.Net {
 		r := c.rates[p.Name]
-		s.Net = append(s.Net, PubNet{Name: p.Name, Link: p.Link, SpeedMbit: p.SpeedMbit, MaxMbit: p.MaxMbit, RxBps: r[0], TxBps: r[1]})
+		s.Net = append(s.Net, PubNet{Name: p.Name, Link: p.Link, SpeedMbit: p.SpeedMbit, MaxMbit: p.MaxMbit, RxBps: r[0], TxBps: r[1], IP: ifaceIPv4(p.Name)})
 	}
 	s.Alarms = buildAlarms(sensors.CPU, c.hw.Bays, c.hw.NVMe, st, cfg)
 	return s
