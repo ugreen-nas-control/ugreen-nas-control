@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ugreen-nas-control">
 <!ENTITY author    "Alexander Schubert">
-<!ENTITY version   "4.5">
+<!ENTITY version   "4.6">
 <!ENTITY launch    "Settings/UGREENNASControl">
 <!ENTITY repo      "https://raw.githubusercontent.com/ugreen-nas-control/ugreen-nas-control">
 <!ENTITY gitURL    "&repo;/v&version;">
@@ -24,6 +24,10 @@
 >
 
 <CHANGES>
+
+### 4.6
+- MQTT: updating a container from a display no longer fails with "no container found" for a container whose image `docker ps` shows without a tag (`wordpress`, where Unraid lists `wordpress:latest`), or with `docker.io/` or `library/` in front. If docker itself cannot be run, the answer now says so. The `storage` of the `state` topic also lists each data disk of the array by itself (`array.disks`). Each network port in `net` carries its IPv4 address (`ip`); the address of a bridge or bond the port belongs to counts for the port.
+- MQTT: a display can update all containers that have an update in one go (`target` `containers`, with `mqtt_control_containers`), and every update reports its progress in `cmd_result`: one answer per step (`step`, `total`, `name`) and a last one with `done`. While a command runs, a second one is refused ("busy").
 
 ### 4.5
 - MQTT: the `state` topic now carries the free space of the array and the pools (read from Unraid's disks.ini, no disk is woken up) and, while one runs, the progress of a parity check, rebuild or clear with speed and the time left (read from var.ini).
@@ -285,7 +289,7 @@
 <!-- Static binary built by the "Tag release" workflow and attached to the release -->
 <FILE Name="&srcDIR;/backend/ugreen-nas-fan">
 <URL>&releaseURL;/ugreen-nas-fan</URL>
-<MD5>f03f9da96a2e0f8d8e28eeaec527f781</MD5>
+<MD5>bdc05d746371f7bf50dec77be4b4013d</MD5>
 </FILE>
 
 <FILE Name="&srcDIR;/api.php">

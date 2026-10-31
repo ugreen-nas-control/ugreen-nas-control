@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"math"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -55,6 +57,12 @@ func TestReadStorage(t *testing.T) {
 	s := readStorage(p)
 	if s == nil || s.Array == nil || s.Array.Size != 4000*1024 || s.Array.Used != 1100*1024 || s.Array.Free != 2900*1024 {
 		t.Fatalf("array: %+v", s)
+	}
+	if len(s.Array.Disks) != 2 || s.Array.Disks[0].Name != "disk1" || s.Array.Disks[0].Used != 600*1024 || s.Array.Disks[1].Name != "disk2" || s.Array.Disks[1].Size != 3000*1024 {
+		t.Fatalf("each data disk by itself, in order: %+v", s.Array.Disks)
+	}
+	if b, _ := json.Marshal(s.Array); !strings.Contains(string(b), `"size_bytes":4096000`) || !strings.Contains(string(b), `"disks":[{"name":"disk1"`) {
+		t.Fatalf("array JSON: %s", b)
 	}
 	if len(s.Pools) != 1 || s.Pools[0].Name != "fast" || s.Pools[0].FS != "btrfs" || s.Pools[0].Size != 2000*1024 {
 		t.Fatalf("pools must hold the real pool only, not boot, flash or a pool without a file system: %+v", s.Pools)

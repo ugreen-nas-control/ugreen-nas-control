@@ -20,8 +20,14 @@ type PubSpace struct {
 // PubStorage is the array (all data disks together) and the pools, without the boot stick and without pools that
 // have no file system (a disk that is not formatted or not mounted).
 type PubStorage struct {
-	Array *PubSpace  `json:"array"`
+	Array *PubArray  `json:"array"`
 	Pools []PubSpace `json:"pools"`
+}
+
+// PubArray is the array as a whole and, in Disks, each data disk by itself (name disk1, disk2, ...).
+type PubArray struct {
+	PubSpace
+	Disks []PubSpace `json:"disks"`
 }
 
 // PubParity is a running parity check, rebuild or clear. It is nil while nothing runs.
@@ -71,7 +77,7 @@ func readStorage(path string) *PubStorage {
 		return nil
 	}
 	st := &PubStorage{Pools: []PubSpace{}}
-	var arr PubSpace
+	var arr PubArray
 	for _, m := range secs {
 		sp, ok := space(m)
 		if !ok {
@@ -80,6 +86,7 @@ func readStorage(path string) *PubStorage {
 		switch m["type"] {
 		case "Data":
 			arr.Size, arr.Used, arr.Free = arr.Size+sp.Size, arr.Used+sp.Used, arr.Free+sp.Free
+			arr.Disks = append(arr.Disks, sp)
 			st.Array = &arr
 		case "Cache":
 			st.Pools = append(st.Pools, sp)
