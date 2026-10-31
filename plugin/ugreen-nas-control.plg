@@ -289,7 +289,7 @@
 <!-- Static binary built by the "Tag release" workflow and attached to the release -->
 <FILE Name="&srcDIR;/backend/ugreen-nas-fan">
 <URL>&releaseURL;/ugreen-nas-fan</URL>
-<MD5>f03f9da96a2e0f8d8e28eeaec527f781</MD5>
+<MD5>bdc05d746371f7bf50dec77be4b4013d</MD5>
 </FILE>
 
 <FILE Name="&srcDIR;/api.php">
