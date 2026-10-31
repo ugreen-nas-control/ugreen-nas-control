@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"net"
 	"os"
 	"path/filepath"
@@ -270,6 +271,61 @@ func TestCommanderContainers(t *testing.T) {
 	after()
 	if len(rl.calls) != 3 || rl.calls[1][1] != "two-a" || rl.calls[2][1] != "two-b" {
 		t.Fatalf("one update per container expected: %v", rl.calls)
+	}
+}
+
+func TestCommanderAllContainers(t *testing.T) {
+	now := time.Now()
+	var got []cmdResult
+	var mu sync.Mutex
+	failOn := "b"
+	c := &commander{
+		cfg: MQTTConfig{ControlContainers: true},
+		run: func(name string, args ...string) error {
+			if len(args) == 1 && args[0] == failOn {
+				return errors.New("pull failed")
+			}
+			return nil
+		},
+		report: func(r cmdResult) { mu.Lock(); got = append(got, r); mu.Unlock() },
+		updates: func() []Update {
+			return []Update{{Kind: "container", Name: "img-a"}, {Kind: "plugin", Name: "p", File: "p.plg"}, {Kind: "container", Name: "img-b"}, {Kind: "container", Name: "img-c"}, {Kind: "container", Name: "img-none"}}
+		},
+		containers: func(image string) ([]string, error) {
+			return map[string][]string{"img-a": {"a"}, "img-b": {"b"}, "img-c": {"c1", "c2"}}[image], nil
+		},
+	}
+	res, after := c.handle(cmdJSON(command{Cmd: "update", Target: "containers", TS: now.Unix(), Nonce: "x1"}), now)
+	if !res.OK || after == nil {
+		t.Fatalf("update of all containers: %+v", res)
+	}
+	if r2, a2 := c.handle(cmdJSON(command{Cmd: "update", Target: "containers", TS: now.Add(15 * time.Second).Unix(), Nonce: "x2"}), now.Add(15*time.Second)); r2.OK || a2 != nil || !strings.Contains(r2.Text, "busy") {
+		t.Fatalf("a second command must wait while the first runs: %+v", r2)
+	}
+	after()
+	if len(got) != 6 {
+		t.Fatalf("running per step (4), one failure and the end: %+v", got)
+	}
+	steps := ""
+	for _, r := range got {
+		steps += r.Name + ":" + r.Text + ","
+	}
+	if !strings.Contains(steps, "a:running,") || !strings.Contains(steps, "b:failed: pull failed,") || !strings.Contains(steps, "c2:running,") {
+		t.Fatalf("steps: %s", steps)
+	}
+	last := got[len(got)-1]
+	if !last.Done || last.OK || last.Step != 4 || last.Total != 4 || last.Nonce != "x1" || last.Text != "1 of 4 failed" {
+		t.Fatalf("last answer: %+v", last)
+	}
+	failOn = ""
+	later := now.Add(40 * time.Second)
+	res, after = c.handle(cmdJSON(command{Cmd: "update", Target: "containers", TS: later.Unix(), Nonce: "x3"}), later)
+	if !res.OK {
+		t.Fatalf("after the first run the next command may start: %+v", res)
+	}
+	after()
+	if last := got[len(got)-1]; !last.Done || !last.OK || last.Text != "done" {
+		t.Fatalf("clean run: %+v", last)
 	}
 }
 

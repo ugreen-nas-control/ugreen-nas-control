@@ -489,10 +489,22 @@ type command struct {
 	Nonce  string `json:"nonce"`
 }
 
+// cmdResult answers a command. The first answer is "started" or the reason for a refusal; while the command runs,
+// more answers with Step and Total follow, one when a step starts and a last one with Done set.
 type cmdResult struct {
 	Nonce string `json:"nonce"`
 	OK    bool   `json:"ok"`
 	Text  string `json:"text"`
+	Step  int    `json:"step,omitempty"`
+	Total int    `json:"total,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Done  bool   `json:"done,omitempty"`
+}
+
+// job is one program a command runs; label is what a display shows for it.
+type job struct {
+	label string
+	prog  []string
 }
 
 const (
@@ -507,11 +519,30 @@ type commander struct {
 	// containers returns the names of the containers that were created from an image.
 	containers func(image string) ([]string, error)
 	run        func(name string, args ...string) error
-	delay      time.Duration
+	// report sends the answers that follow the first one (nil in tests that do not look at them).
+	report func(cmdResult)
+	delay  time.Duration
 
 	mu    sync.Mutex
 	seen  map[string]time.Time
 	lastC time.Time
+	busy  bool
+}
+
+// containerJobs is one update job per container that was created from image.
+func (c *commander) containerJobs(image string) ([]job, string) {
+	names, err := c.containers(image)
+	if err != nil {
+		return nil, "docker could not be run: " + err.Error()
+	}
+	var jobs []job
+	for _, n := range names {
+		if !containerNameRe.MatchString(n) {
+			return nil, "container name not allowed"
+		}
+		jobs = append(jobs, job{n, []string{updateContainerBin, n}})
+	}
+	return jobs, ""
 }
 
 // handle checks one command and returns the answer. The program is started by `after`, which the caller runs once
@@ -557,7 +588,11 @@ func (c *commander) handle(raw []byte, now time.Time) (res cmdResult, after func
 		return reject("too fast, wait a moment")
 	}
 
-	var progs [][]string
+	if c.busy {
+		return reject("busy, the last command is still running")
+	}
+
+	var jobs []job
 	switch cmd.Cmd {
 	case "reboot", "shutdown":
 		if !c.cfg.Control {
@@ -567,7 +602,7 @@ func (c *commander) handle(raw []byte, now time.Time) (res cmdResult, after func
 		if cmd.Cmd == "reboot" {
 			prog = append(prog, "-r")
 		}
-		progs = [][]string{prog}
+		jobs = []job{{cmd.Cmd, prog}}
 	case "update":
 		switch cmd.Target {
 		case "plugin":
@@ -583,32 +618,38 @@ func (c *commander) handle(raw []byte, now time.Time) (res cmdResult, after func
 			if file == "" || filepath.Base(file) != file {
 				return reject("no such update")
 			}
-			progs = [][]string{{pluginBin, "update", file}}
-		case "container":
+			jobs = []job{{cmd.Name, []string{pluginBin, "update", file}}}
+		case "container", "containers":
 			if !c.cfg.ControlContainers {
 				return reject("container updates from the display are switched off")
 			}
-			known := false
+			var images []string
 			for _, u := range c.updates() {
-				if u.Kind == "container" && u.Name == cmd.Name {
-					known = true
+				if u.Kind != "container" {
+					continue
+				}
+				if cmd.Target == "containers" || u.Name == cmd.Name {
+					images = append(images, u.Name)
 				}
 			}
-			if !known {
+			if len(images) == 0 {
 				return reject("no such update")
 			}
-			names, err := c.containers(cmd.Name)
-			if err != nil {
-				return reject("docker could not be run: " + err.Error())
-			}
-			if len(names) == 0 {
-				return reject("no container found for that image")
-			}
-			for _, n := range names {
-				if !containerNameRe.MatchString(n) {
-					return reject("container name not allowed")
+			seen := map[string]bool{}
+			for _, img := range images {
+				js, bad := c.containerJobs(img)
+				if bad != "" {
+					return reject(bad)
 				}
-				progs = append(progs, []string{updateContainerBin, n})
+				for _, j := range js {
+					if !seen[j.label] {
+						seen[j.label] = true
+						jobs = append(jobs, j)
+					}
+				}
+			}
+			if len(jobs) == 0 {
+				return reject("no container found for that image")
 			}
 		default:
 			return reject("only plugin and container updates can be installed this way")
@@ -617,18 +658,34 @@ func (c *commander) handle(raw []byte, now time.Time) (res cmdResult, after func
 		return reject("unknown command")
 	}
 
-	c.lastC = now
-	for _, p := range progs {
-		fmt.Printf("command %q accepted: %s\n", cmd.Cmd, strings.Join(p, " "))
+	c.lastC, c.busy = now, true
+	for _, j := range jobs {
+		fmt.Printf("command %q accepted: %s\n", cmd.Cmd, strings.Join(j.prog, " "))
 	}
 	res.OK, res.Text = true, "started"
 	return res, func() {
-		time.Sleep(c.delay)
-		for _, p := range progs {
-			if err := c.run(p[0], p[1:]...); err != nil {
-				fmt.Printf("command %q failed: %v\n", cmd.Cmd, err)
+		defer func() { c.mu.Lock(); c.busy = false; c.mu.Unlock() }()
+		say := func(r cmdResult) {
+			r.Nonce = cmd.Nonce
+			if c.report != nil {
+				c.report(r)
 			}
 		}
+		time.Sleep(c.delay)
+		failed := 0
+		for i, j := range jobs {
+			say(cmdResult{OK: true, Text: "running", Step: i + 1, Total: len(jobs), Name: j.label})
+			if err := c.run(j.prog[0], j.prog[1:]...); err != nil {
+				failed++
+				fmt.Printf("command %q failed: %s: %v\n", cmd.Cmd, j.label, err)
+				say(cmdResult{Text: "failed: " + err.Error(), Step: i + 1, Total: len(jobs), Name: j.label})
+			}
+		}
+		text := "done"
+		if failed > 0 {
+			text = fmt.Sprintf("%d of %d failed", failed, len(jobs))
+		}
+		say(cmdResult{OK: failed == 0, Text: text, Step: len(jobs), Total: len(jobs), Done: true})
 	}
 }
 
@@ -715,6 +772,10 @@ func runPublish() error {
 		if cfg.Control || cfg.ControlUpdates || cfg.ControlContainers {
 			_ = client.subscribe(prefix + "cmd")
 		}
+	}
+	cmdr.report = func(r cmdResult) {
+		b, _ := json.Marshal(r)
+		_ = client.publish(prefix+"cmd_result", b, false)
 	}
 	client.onMessage = func(topic string, payload []byte) {
 		if topic != prefix+"cmd" {
