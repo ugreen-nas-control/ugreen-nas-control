@@ -236,7 +236,12 @@ func (p *Petter) tickITE(c *Chip, now time.Time) (st WatchdogStatus, ok bool, er
 	p.status.Armed, p.status.Counter = false, nil
 
 	if p.Yield {
-		p.counting, p.sample = false, iteSample{}
+		// The module owns the timer: this process no longer fed it, and a marker of an earlier stop is moot.
+		p.counting, p.sample, p.petted = false, iteSample{}, false
+		if !p.marked {
+			p.marked = true
+			removeWdtMarker()
+		}
 		p.status.State = WdtYielded
 		p.record(now)
 		return p.status, true, nil
@@ -250,7 +255,7 @@ func (p *Petter) tickITE(c *Chip, now time.Time) (st WatchdogStatus, ok bool, er
 		return p.status, true, err
 	}
 	if cur.val == 0 {
-		p.counting, p.sample = false, iteSample{}
+		p.counting, p.sample, p.petted = false, iteSample{}, false
 		if m := readWdtMarker(); m != nil && !p.marked {
 			// A clean stop disarmed a timer the BIOS had armed: put it back, then feed it as before.
 			if err := c.WatchdogRestore(*m); err != nil {
@@ -319,15 +324,19 @@ func (p *Petter) proveCounting(cur ITEWdt, now time.Time) {
 
 // Stop ends the feeding on a clean daemon stop. An IT8613E timer this process fed is stopped (value 0), so that a
 // stopped daemon does not leave a timer nobody feeds, and a marker records what to put back: the next daemon start
-// restores it. The EC clears its enable byte in EC.Restore instead. Nothing is written if this process never fed the
-// timer or while it87_wdt owns it.
+// restores it, but only if the timer still reads non-zero right before the disarm (a timer that was stopped from
+// outside stays off). The EC clears its enable byte in EC.Restore instead. Nothing is written if this process never
+// fed the timer or while it87_wdt owns it. The disarm always happens; a failing marker is returned after it.
 func (p *Petter) Stop(chip Fans) error {
 	c, ok := chip.(*Chip)
 	if !ok || !p.petted || p.Yield {
 		return nil
 	}
-	if err := writeJSONAtomic(iteWdtMarkerPath, wdtMarker{Cfg: p.petCfg, Value: uint16(wdtUnits(p.petCfg, p.timeout()))}); err != nil {
-		return err
+	var markErr error
+	if cur, err := c.WatchdogRead(); err != nil {
+		markErr = err
+	} else if cur.val != 0 {
+		markErr = writeJSONAtomic(iteWdtMarkerPath, wdtMarker{Cfg: p.petCfg, Value: uint16(wdtUnits(p.petCfg, p.timeout()))})
 	}
 	if err := c.DisarmWatchdog(); err != nil {
 		removeWdtMarker()
@@ -336,7 +345,7 @@ func (p *Petter) Stop(chip Fans) error {
 	p.petted, p.counting = false, false
 	p.status.Armed, p.status.State = false, WdtOff
 	p.record(time.Now())
-	return nil
+	return markErr
 }
 
 // ReadWatchdogStatus is the last state a Petter wrote, nil if none (no EC, or nothing ticked since boot).
