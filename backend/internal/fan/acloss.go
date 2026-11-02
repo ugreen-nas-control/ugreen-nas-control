@@ -15,7 +15,7 @@ import (
 //   - IT8613E, LDN 4 registers 0xF2 and 0xF4: v = (F2[5] << 2) | F4[6:5]; 1 = on, 3 = off, 7 = last, anything else
 //     unknown. Set = one bit at a time, F2 then F4 (ug_it86x-sio.c:153-203,260-301). An older BIOS encodes it
 //     differently (dh2600/ug_it86x-sio-dh2600.c:182-255): `get` then reports unknown with the raw bytes, and `set`
-//     writes the three target bits from there and checks them by reading back.
+//     refuses without --force; forced, it writes the three target bits from there and checks them by reading back.
 //   - IT5571 EC of the DXP4800 GT: bare commands 0x88 (on) and 0x89 (off) on port 0x66, no read at all; the vendor
 //     keeps a RAM cache (ug_it55_4800gt_functions.c:55-57,109-188).
 //   - iDX6011/6012 and iDX6011 Pro: dword at physical 0xFE001020, bit 0 set = stay off, clear = power on. Accessed

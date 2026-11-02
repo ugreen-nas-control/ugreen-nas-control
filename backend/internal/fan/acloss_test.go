@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -544,6 +545,43 @@ func TestStatusNeverTouchesPowerAC(t *testing.T) {
 	for k := range out {
 		if k == "power_ac" || k == "power_on_ac" {
 			t.Fatalf("status has %q", k)
+		}
+	}
+}
+
+// From a value this tool cannot decode, `set` needs --force; the refusal names the raw bytes and writes nothing.
+func TestPowerACSetFromUnknownNeedsForce(t *testing.T) {
+	setup := func() (*acEnv, *fakeSIO) {
+		env, f := acRig(t, "DXP4800")
+		f.regs[[2]byte{4, iteRegACF2}], f.regs[[2]byte{4, iteRegACF4}] = 0x00, 0x40
+		return env, f
+	}
+	env, f := setup()
+	_, err := runPowerAC([]string{"set", "on"}, "DXP4800", env, noRival, time.Unix(1, 0))
+	if !errors.Is(err, errACUnknown) || len(f.wlog) != 0 || readACRecord() != nil {
+		t.Fatalf("err %v writes %v", err, f.wlog)
+	}
+	for _, want := range []string{"F2 0x00", "F4 0x40", "may differ", "--force"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("message %q lacks %q", err, want)
+		}
+	}
+
+	env, f = setup()
+	out, err := runPowerAC([]string{"set", "on", "--force"}, "DXP4800", env, noRival, time.Unix(1, 0))
+	if err != nil || out["mode"] != acOn || out["verified"] != true || len(f.wlog) == 0 {
+		t.Fatalf("forced: %v %v writes %v", out, err, f.wlog)
+	}
+
+	// A known value needs no flag; --force alone or in the wrong place is a usage error.
+	env, _ = acRig(t, "DXP4800")
+	if _, err := runPowerAC([]string{"set", "on"}, "DXP4800", env, noRival, time.Unix(1, 0)); err != nil {
+		t.Fatalf("known value: %v", err)
+	}
+	for _, args := range [][]string{{"--force"}, {"set", "--force", "on"}, {"set", "on", "--forced"}} {
+		env, f = acRig(t, "DXP4800")
+		if _, err := runPowerAC(args, "DXP4800", env, noRival, time.Now()); !errors.Is(err, errACUsage) || f.access != 0 {
+			t.Errorf("%v: %v", args, err)
 		}
 	}
 }
