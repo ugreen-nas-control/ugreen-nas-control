@@ -145,6 +145,8 @@ type Petter struct {
 	counting bool
 	sample   iteSample
 	petted   bool
+	petCfg   byte // the config the last feed wrote, kept in the marker of a clean stop
+	marked   bool // the marker of an earlier clean stop was handled
 }
 
 // iteSample is one reading of the IT8613E value with the time and the config it was read under.
@@ -249,11 +251,28 @@ func (p *Petter) tickITE(c *Chip, now time.Time) (st WatchdogStatus, ok bool, er
 	}
 	if cur.val == 0 {
 		p.counting, p.sample = false, iteSample{}
+		if m := readWdtMarker(); m != nil && !p.marked {
+			// A clean stop disarmed a timer the BIOS had armed: put it back, then feed it as before.
+			if err := c.WatchdogRestore(*m); err != nil {
+				return p.status, true, err
+			}
+			removeWdtMarker()
+			p.marked, p.counting, p.petted, p.petCfg, p.last = true, true, true, m.Cfg, now
+			n := int(m.Value)
+			p.status.Counter, p.status.Armed, p.status.LastPet = &n, true, now.Unix()
+			p.status.State = watchdogState(p.status, now)
+			p.record(now)
+			return p.status, true, nil
+		}
 		p.status.State = WdtOff
 		p.record(now)
 		return p.status, true, nil
 	}
 
+	if !p.marked { // the timer runs on its own: an old marker is moot
+		p.marked = true
+		removeWdtMarker()
+	}
 	if !p.counting {
 		p.proveCounting(cur, now)
 	}
@@ -269,7 +288,7 @@ func (p *Petter) tickITE(c *Chip, now time.Time) (st WatchdogStatus, ok bool, er
 	p.status.State = ""
 	if p.last.IsZero() || now.Sub(p.last) >= wdtInterval(timeout) {
 		if err = c.WatchdogPet(cur, timeout); err == nil {
-			p.last, p.petted = now, true
+			p.last, p.petted, p.petCfg = now, true, cur.cfg
 			p.status.LastPet = now.Unix()
 		}
 	}
@@ -299,14 +318,19 @@ func (p *Petter) proveCounting(cur ITEWdt, now time.Time) {
 }
 
 // Stop ends the feeding on a clean daemon stop. An IT8613E timer this process fed is stopped (value 0), so that a
-// stopped daemon does not leave a timer nobody feeds; the EC clears its enable byte in EC.Restore instead. Nothing is
-// written if this process never fed the timer or while it87_wdt owns it.
+// stopped daemon does not leave a timer nobody feeds, and a marker records what to put back: the next daemon start
+// restores it. The EC clears its enable byte in EC.Restore instead. Nothing is written if this process never fed the
+// timer or while it87_wdt owns it.
 func (p *Petter) Stop(chip Fans) error {
 	c, ok := chip.(*Chip)
 	if !ok || !p.petted || p.Yield {
 		return nil
 	}
+	if err := writeJSONAtomic(iteWdtMarkerPath, wdtMarker{Cfg: p.petCfg, Value: uint16(wdtUnits(p.petCfg, p.timeout()))}); err != nil {
+		return err
+	}
 	if err := c.DisarmWatchdog(); err != nil {
+		removeWdtMarker()
 		return err
 	}
 	p.petted, p.counting = false, false
