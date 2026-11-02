@@ -56,7 +56,7 @@ Everything `just check` runs (format, PHP syntax, XML, docs links, models, gener
 
 ## Labels
 
-- Type, matching the `.changes` fragment type: `bug` = fix, `enhancement` = feat, `model` = model, `documentation` = docs, `chore` = chore. `no-changelog`: the CI guard skips the fragment check. Set it before opening the PR: the guard reads the labels of the PR event, so a label added later needs a new push (or close and reopen); re-running the job is not enough.
+- Type, matching the `.changes` fragment type: `bug` = fix, `enhancement` = feat, `model` = model, `documentation` = docs, `chore` = chore. `no-changelog`: the CI guard skips the fragment check. The guard reads the labels when it runs: after adding the label later, re-run the failed `guard` job.
 - Area: `area: fans`, `area: leds`, `area: ui`, `area: panel`, `area: widget`, `area: mqtt`, `area: install`, `area: site`, `area: tooling`.
 - Status: `needs hardware test` (writes registers or unconfirmed hardware: test on a device before release), `release` (release prep and tracking).
 - Other: `model-report`, `good first issue`, `help wanted`.
