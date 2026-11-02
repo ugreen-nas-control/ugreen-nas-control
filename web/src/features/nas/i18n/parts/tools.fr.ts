@@ -76,6 +76,10 @@ export const toolsFr: Record<keyof typeof toolsEn, string> = {
     'watchdog.hint_action':
         "Le watchdog est armé mais n'a plus été alimenté depuis un moment : le NAS peut redémarrer tout seul. Vérifiez que le service de ventilation tourne.",
     'watchdog.none': 'Pas encore de mesure',
+    'watchdog.state.not_counting':
+        "Ne compte pas : rien n'est alimenté tant que la valeur ne décroît pas (une ancienne valeur avec le watchdog du BIOS éteint est normale)",
+    'watchdog.hint_kill':
+        "Tant que le watchdog du BIOS est armé, un arrêt brutal du service de ventilation (kill -9, manque de mémoire) le laisse sans alimentation et le NAS redémarre à l'expiration du délai. Un arrêt ou un redémarrage normal est sans risque.",
     'backlight.title': "Luminosité de l'écran",
     'backlight.hint': 'Luminosité du LCD en façade.'
 };

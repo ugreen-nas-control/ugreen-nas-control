@@ -76,6 +76,9 @@ export const toolsIt: Record<keyof typeof toolsEn, string> = {
     'watchdog.hint_action':
         "Il watchdog è armato ma da un po' non viene alimentato, quindi il NAS può riavviarsi da solo. Controlla che il servizio delle ventole sia attivo.",
     'watchdog.none': 'Ancora nessuna lettura',
+    'watchdog.state.not_counting': 'Non conta: non si alimenta finché il valore non scende (un valore vecchio con il watchdog del BIOS spento è normale)',
+    'watchdog.hint_kill':
+        'Finché il watchdog del BIOS è armato, una chiusura forzata del servizio delle ventole (kill -9, memoria esaurita) lo lascia senza alimentazione e il NAS si riavvia allo scadere del tempo. Un arresto o un riavvio normale è sicuro.',
     'backlight.title': 'Luminosità dello schermo',
     'backlight.hint': "Luminosità dell'LCD sul frontale."
 };
