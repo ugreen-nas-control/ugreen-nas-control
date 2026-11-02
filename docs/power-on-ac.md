@@ -8,7 +8,7 @@ What the NAS does when mains power returns after an outage: power on, stay off, 
 - Output: `mode` (`on`, `off`, `last`, `unknown`), `readable`, `raw` (registers as read), `settable`, `source`, `last_set` (what this tool last sent, with the time). After a `set`: `set`, `verified`.
 - A write refuses while a fan rival runs ([conflicts.md](conflicts.md)). It is a read-modify-write of the named bits, verified by reading back where the hardware allows, comparing only the bits the tool owns.
 - `/dev/mem` access (iDX dword, FCH byte) is one aligned 4-byte (iDX) or 1-byte (FCH) access through a page-aligned mmap, never a pread/pwrite of several bytes. The plain iDX6011/6012 is read only for `set` (as for every other control there): `get` works, `set` refuses with an error and writes nothing.
-- The IT8613E only accepts a write when the current value decodes under the table below; any other value is refused with the raw bytes (`F2`, `F4`), because an older BIOS encodes the same bits differently.
+- The IT8613E reports `unknown` (with the raw `F2`, `F4`) when the value does not decode under the table below, because an older BIOS encodes the same bits differently. `set` is allowed from there: it writes the three target bits and verifies them by reading back.
 - The DXP4800 GT cannot be read: `mode` is `unknown`, `readable` is false, `last_set` is the only answer, and `last` is refused. The vendor's own success check proves nothing, so a successful `set` there means the command byte was taken, not that it applied.
 
 ## Registers
