@@ -25,3 +25,29 @@ Each file is a flat object of `'key': 'text'`. `index.ts` registers all language
 2. Register it in both `index.ts` files, in `LANGS` in `web/src/core/i18n.ts`, in `UNC_LANGUAGES` in `web/plugin/include/lang.php`, and in the imports of `web/tools/check-i18n.ts` and the two `i18n.test.ts`.
 3. Add an `<option>` to the language select in `web/plugin/UGREENNASControl.page`, the code to the list in the `lang` action of `web/plugin/api.php`, and to `LANGS` in `web/demo/api.ts` and `web/demo/outer.ts`.
 4. `just web-check`, then `just harness` and switch the language in Settings.
+
+## German
+
+Address: informal "du" throughout, imperative for instructions ("Prüfe …", "Wähle …"). `web/src/features/nas/i18n/de-style.test.ts` fails on calques and stilted phrases (Dienst, erfolgt, mittels, bezüglich, seitens, basierend auf, macht Sinn, bitte beachten Sie, …).
+
+| Concept                   | German term                                          |
+| ------------------------- | ---------------------------------------------------- |
+| fan service / daemon      | Lüftersteuerung (never "Lüfterdienst")               |
+| other fan or LED tool     | andere Lüfter- / LED-Steuerung                       |
+| drive (any), HDD          | Laufwerk (any), Festplatte / Platte (HDD)            |
+| bay                       | Schacht                                              |
+| case view                 | Gehäuseansicht                                       |
+| night mode, quiet hours   | Nachtmodus (LEDs), Ruhezeiten (fans)                 |
+| fan chip                  | Lüfter-Chip                                          |
+| deadband                  | Totzone                                              |
+| armed watchdog            | aktiv; the plugin "füttert" the watchdog             |
+| array, pool, parity check | Array, Pool, Paritätsprüfung (as Unraid's German UI) |
+| identify (bay LED)        | Identifizieren                                       |
+
+- No Nominalstil ("Die Messung dauert …", not "Die Durchführung der Messung erfolgt …"); short sentences, one thought each.
+- No English word order or word-for-word compounds; ask whether a German admin would say it.
+- Keep technical terms Germans use: LED, NVMe, BIOS, Watchdog, MQTT, Home Assistant, Mover, Issue.
+- Quotes in running text are „…“; code stays in backticks.
+- Units with a space: `25 %`, `40 °C`, `2,5 Gbit/s`; "z. B."; 24-hour time, "Uhr" after a time.
+- Buttons and labels: short infinitive or noun ("Speichern", "Messung starten").
+- Write "Power-LED", "Netzwerk-LED", "LED-Steuerung": compounds with a hyphen after an abbreviation.

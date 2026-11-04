@@ -72,8 +72,8 @@ export const de: Record<Key, string> = {
     'fxset.idle': 'Nur im Leerlauf ausführen',
     'fxset.idle_hint': 'Regenbogen und Temperatur pausieren, solange eine Platte arbeitet.',
 
-    'led.power': 'Power LED',
-    'led.netdev': 'Netzwerk LED',
+    'led.power': 'Power-LED',
+    'led.netdev': 'Netzwerk-LED',
     'led.netdev2': 'Zweite Netzwerk-LED',
     'led.bay': 'Schacht {n}',
 
@@ -189,8 +189,8 @@ export const de: Record<Key, string> = {
     'error.response': 'Ungültige API-Antwort (HTTP {status})',
     'error.api': 'API-Fehler (HTTP {status})',
     // Messages of api.php, translated by their English text.
-    'api.Invalid schedule values': 'Ungültige Zeitplan-Werte',
-    'api.Invalid effect values': 'Ungültige Effekt-Werte',
+    'api.Invalid schedule values': 'Ungültige Zeitplanwerte',
+    'api.Invalid effect values': 'Ungültige Effektwerte',
     'api.In status mode effects apply to the power LED (and a manual network LED) only':
         'Im Statusmodus gelten Effekte nur für die Power-LED (und eine manuelle Netzwerk-LED)',
     'mode.title': 'Modus',
