@@ -256,6 +256,7 @@ export const zh: Record<Key, string> = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': '空闲',
     'case.running_at': '运行于 {speed} MT/s（最高 {max}）',
+    'case.m2_hint': '四个 M.2 插槽代替盘位，编号 01 至 04，与底部面板一致。每块 SSD 所在的插槽按 PCIe 地址顺序假设；如果你的机器不同，请提交 issue。',
 
     'safety.intro': '始终优先于曲线的上限（BIOS 模式下无效）。',
     'safety.min': '最低风扇转速',

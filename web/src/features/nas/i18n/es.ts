@@ -256,6 +256,8 @@ export const es: Record<Key, string> = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': 'libre',
     'case.running_at': 'funciona a {speed} MT/s (hasta {max})',
+    'case.m2_hint':
+        'Las cuatro ranuras M.2 hacen de bahías, numeradas del 01 al 04 como en el panel inferior. Qué SSD está en qué ranura se supone por el orden de las direcciones PCIe; si tu equipo difiere, abre un issue.',
     'safety.intro': 'Límites que siempre se imponen a las curvas (no en modo BIOS).',
     'safety.min': 'Velocidad mínima del ventilador',
     'safety.now_none_cpu': 'no se puede leer, todos al 100 %',

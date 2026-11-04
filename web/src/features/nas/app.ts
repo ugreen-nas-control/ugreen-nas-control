@@ -28,7 +28,7 @@ import type {
     Settings,
     StatusResponse
 } from '../../core/contract';
-import { caseModel, frontHtml, socket, SOCKET, type SocketKind } from './components/front';
+import { caseModel, frontHtml, socket, SOCKET, type SocketKind, withM2Bays } from './components/front';
 import { berlin, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
 import { curveAt, curveText, effectivePoints, parseCurve, rpmAt as rpmAtRows, rpmTicks as rpmTicksOf, validCurve, type CurvePoint } from '../../core/curve';
 import { hit, setRangeFill } from '../../core/dom';
@@ -681,7 +681,9 @@ function main(root: HTMLElement): void {
             : n.slot === 'system'
               ? t('slot.system')
               : n.slot === 'm2'
-                ? 'M.2'
+                ? state.hw?.bays?.some(b => b.device === n.id)
+                    ? t('case.m2_slot', { n: state.hw.bays.find(b => b.device === n.id)?.bay ?? '' })
+                    : 'M.2'
                 : t('case.m2_slot', { n: n.slot.replace('m2-', '') });
 
     function uptime(seconds: number): string {
@@ -1888,7 +1890,7 @@ function main(root: HTMLElement): void {
     // A model whose fan readings the page shows: driven (fixed, confirmed probe) or read only.
     const fanShown = () => fanKnown() || fanReadOnly();
     const panelKnown = () => hasButtons(modelName()) || hasBeeper(modelName());
-    const caseKnown = () => fanKnown() || /^(DXP4800( Plus| Pro)?|DXP8800( Plus| Pro)?|DXP2800( GT)?|iDX601[12]( Pro)?)$/.test(modelName());
+    const caseKnown = () => fanKnown() || /^(DXP4800( Plus| Pro)?|DXP8800( Plus| Pro)?|DXP2800( GT)?|DXP480T.*|iDX601[12]( Pro)?)$/.test(modelName());
 
     function renderFront(hw: Hardware, target = '#unc-front'): void {
         q(target).innerHTML = frontHtml(hw);
@@ -1942,6 +1944,9 @@ function main(root: HTMLElement): void {
                 .join('')}
             </div>`
             : emptyText(t('case.empty'));
+        // The slot order of an all-flash model is assumed: say so under the cards.
+        const hint = caseModel(hw).m2Bays ? caseModel(hw).hint : undefined;
+        if (hint) q('#unc-drive-list').insertAdjacentHTML('beforeend', `<p class="unc-note" data-i18n="${hint}">${escapeHtml(t(hint))}</p>`);
     }
 
     const REAR_FAN_SVG =
@@ -2121,6 +2126,29 @@ function main(root: HTMLElement): void {
             </div>`;
     }
 
+    // After the manual of the DXP480T Plus: a vent of slots over one row of ports. The fans sit on the underside.
+    function rear480Html(hw: Hardware, dc: string): string {
+        const k = rearKit(hw);
+        const row = 60;
+
+        return `
+            <div class="unc-rear6800 unc-rear480">
+                <div class="r-body"></div>
+                <svg class="r-slots" viewBox="0 0 520 22" preserveAspectRatio="none" aria-hidden="true">
+                    <defs><pattern id="unc-480slots" width="10.4" height="22" patternUnits="userSpaceOnUse"><rect x="1.6" y="0" width="6" height="22" rx="3"/></pattern></defs>
+                    <rect width="520" height="22" fill="url(#unc-480slots)"/>
+                </svg>
+                ${k.port(14.7, row, 'dc', dc)}
+                ${k.port(21.9, row, 'reset', 'RESET')}
+                ${k.port(29.9, row, 'usbc', 'TB4')}${k.port(39.1, row, 'usbc', 'TB4', 'usbc2')}
+                ${k.port(50, row, 'usba', 'USB3.2')}
+                ${k.port(62.7, row, 'hdmi', 'HDMI')}
+                ${k.port(72.8, row, 'jack', '3.5 mm')}
+                ${k.lan(0, 81.9, row, 'LAN 10G')}
+                <i class="r-foot" style="left:5%"></i><i class="r-foot" style="left:88%"></i>
+            </div>`;
+    }
+
     function rearFanHtml(count = 1): string {
         const fans = caseFans(state.data?.fans);
         const one = (i: number): string => {
@@ -2170,6 +2198,11 @@ function main(root: HTMLElement): void {
 
         if (model.rear8800) {
             q(target).innerHTML = rear8800Html(hw);
+            return;
+        }
+
+        if (model.rear480) {
+            q(target).innerHTML = rear480Html(hw, model.dc || t('case.dc'));
             return;
         }
 
@@ -2684,7 +2717,7 @@ function main(root: HTMLElement): void {
         try {
             // The tool prints a list it found nothing for (no NVMe, no dmidecode, no NIC) as null.
             const hw = await api.get('hardware');
-            state.hw = hw && { ...hw, memory: hw.memory || [], nvme: hw.nvme || [], net: hw.net || [] };
+            state.hw = hw && withM2Bays({ ...hw, memory: hw.memory || [], nvme: hw.nvme || [], net: hw.net || [] });
             state.hwError = false;
         } catch (error) {
             // A failed read keeps the last picture: dropping it would shrink the page under the reader and jump to the top.

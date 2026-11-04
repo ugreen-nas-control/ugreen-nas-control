@@ -265,6 +265,8 @@ export const nl: Record<Key, string> = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': 'vrij',
     'case.running_at': 'draait op {speed} MT/s (tot {max})',
+    'case.m2_hint':
+        'De vier M.2-slots vervangen de bays en zijn genummerd van 01 tot 04 zoals op het onderpaneel. Welke SSD in welk slot zit, is aangenomen uit de volgorde van de PCIe-adressen; wijkt jouw apparaat af, open dan een issue.',
 
     'safety.intro': 'Grenzen die altijd winnen van de curves (niet in BIOS-modus).',
     'safety.min': 'Laagste ventilatortoerental',

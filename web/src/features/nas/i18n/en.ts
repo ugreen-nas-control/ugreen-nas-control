@@ -262,6 +262,8 @@ export const en = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': 'free',
     'case.running_at': 'runs at {speed} MT/s (up to {max})',
+    'case.m2_hint':
+        'The four M.2 slots stand in for bays, numbered 01 to 04 as on the bottom panel. Which SSD sits in which slot is assumed from the order of the PCIe addresses; open an issue if your box differs.',
 
     'safety.intro': 'Limits that always win over the curves (not in BIOS mode).',
     'safety.min': 'Lowest fan speed',

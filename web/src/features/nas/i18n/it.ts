@@ -264,6 +264,8 @@ export const it: Record<Key, string> = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': 'libero',
     'case.running_at': 'funziona a {speed} MT/s (fino a {max})',
+    'case.m2_hint':
+        'I quattro slot M.2 fanno da vani, numerati da 01 a 04 come sul pannello inferiore. Quale SSD si trova in quale slot è presunto dall’ordine degli indirizzi PCIe; se il tuo dispositivo è diverso, apri una issue.',
 
     'safety.intro': 'Limiti che prevalgono sempre sulle curve (non in modalità BIOS).',
     'safety.min': 'Velocità minima delle ventole',

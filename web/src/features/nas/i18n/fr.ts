@@ -265,6 +265,8 @@ export const fr: Record<Key, string> = {
     'case.pcie_slot': 'PCIe 4.0 x4',
     'case.free': 'libre',
     'case.running_at': 'fonctionne à {speed} MT/s (jusqu’à {max})',
+    'case.m2_hint':
+        'Les quatre emplacements M.2 tiennent lieu de baies, numérotés de 01 à 04 comme sur le panneau inférieur. Le SSD de chaque emplacement est supposé d’après l’ordre des adresses PCIe ; ouvrez un ticket si votre appareil diffère.',
 
     'safety.intro': 'Limites qui l’emportent toujours sur les courbes (hors mode BIOS).',
     'safety.min': 'Vitesse minimale des ventilateurs',
