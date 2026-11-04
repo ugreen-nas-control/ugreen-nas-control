@@ -204,11 +204,23 @@ func (r Roots) hwmon() (out []Conflict) {
 	return out
 }
 
-func (r Roots) daemons() (out []Conflict) {
+// Process is a running rival: the program that matched, its pid and what it controls.
+type Process struct {
+	ID       string // program or script name
+	Name     string
+	Controls []string
+	PID      int
+}
+
+// Running lists the rival processes with their pids (the first pid of each program), by the same match as the
+// daemon findings.
+func (r Roots) Running() []Process {
 	dirs, _ := filepath.Glob(filepath.Join(r.Proc, "[0-9]*"))
+	var out []Process
 	seen := map[string]bool{}
 	for _, dir := range dirs {
-		if pid, err := strconv.Atoi(filepath.Base(dir)); err != nil || pid == r.Self {
+		pid, err := strconv.Atoi(filepath.Base(dir))
+		if err != nil || pid == r.Self {
 			continue
 		}
 		b, err := os.ReadFile(filepath.Join(dir, "cmdline"))
@@ -216,14 +228,45 @@ func (r Roots) daemons() (out []Conflict) {
 			continue
 		}
 		for _, d := range daemons {
-			if seen[d.arg] || program(string(b)) != d.arg {
+			if program(string(b)) != d.arg {
+				continue
+			}
+			if seen[d.arg] {
+				// The lowest pid is the parent of a script's children.
+				for i := range out {
+					if out[i].ID == d.arg && pid < out[i].PID {
+						out[i].PID = pid
+					}
+				}
 				continue
 			}
 			seen[d.arg] = true
-			out = append(out, Conflict{Kind: KindDaemon, ID: d.arg, Name: d.name, Controls: d.controls, Severity: SeverityBlock})
+			out = append(out, Process{ID: d.arg, Name: d.name, Controls: d.controls, PID: pid})
 		}
 	}
-	slices.SortFunc(out, func(a, b Conflict) int { return strings.Compare(a.ID, b.ID) })
+	slices.SortFunc(out, func(a, b Process) int { return strings.Compare(a.ID, b.ID) })
+	return out
+}
+
+func (r Roots) daemons() (out []Conflict) {
+	for _, p := range r.Running() {
+		out = append(out, Conflict{Kind: KindDaemon, ID: p.ID, Name: p.Name, Controls: p.Controls, Severity: SeverityBlock})
+	}
+	return out
+}
+
+// KnownPlugin is a rival plugin the detector looks for.
+type KnownPlugin struct {
+	ID, Name string
+	Controls []string
+}
+
+// Known lists the rival plugins by the name they install under.
+func Known() []KnownPlugin {
+	out := make([]KnownPlugin, len(plugins))
+	for i, p := range plugins {
+		out[i] = KnownPlugin{p.id, p.name, p.controls}
+	}
 	return out
 }
 

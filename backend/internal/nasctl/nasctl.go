@@ -30,6 +30,8 @@ const usageText = `Usage:
   ugreen-nas-ctl led-import                  take over the settings of UGREEN LED Control
   ugreen-nas-ctl led-boot                    bring the LEDs up (install, boot), if enabled
   ugreen-nas-ctl report                      anonymised JSON for a model report
+  ugreen-nas-ctl diag                        anonymised read-only diagnostics as Markdown for a bug report
+                                             (loads i2c-dev for the I2C scan, the only change it makes)
   ugreen-nas-ctl event stopping              array stop hook: signals shutdown on the power LED
 `
 
@@ -121,6 +123,8 @@ func (c *Ctl) Main(args []string) int {
 		return 0
 	case "report":
 		return c.report()
+	case "diag":
+		return c.diag()
 	case "event":
 		if len(args) > 1 && args[1] == "stopping" {
 			c.eventStopping()
