@@ -3,15 +3,15 @@ import type { Key } from './en';
 export const de: Record<Key, string> = {
     'alerts.title': 'Unraid-Warnungen',
     'alerts.intro':
-        'Bei ungelesenen Unraid-Meldungen blinkt die Power-LED. Liest oder archivierst du sie in Unraid, kehrt sie in ihren normalen Zustand zurück. Geprüft wird jede Minute.',
+        'Bei ungelesenen Unraid-Benachrichtigungen blinkt die Power-LED. Liest oder archivierst du sie in Unraid, kehrt sie in ihren normalen Zustand zurück. Geprüft wird jede Minute.',
     'alerts.enable': 'Warnungen an der Power-LED anzeigen',
     'alerts.level': 'Anzeigen bei',
     'alerts.level_warning': 'Warnungen und Alarmen',
     'alerts.level_alert': 'Nur Alarmen',
     'alerts.color': 'Farbe',
-    'alerts.state_off': 'Aus – die Power-LED zeigt keine Unraid-Meldungen.',
-    'alerts.state_none': 'Keine ungelesenen Meldungen.',
-    'alerts.state_active': '{n} ungelesene Meldung(en) – die Power-LED blinkt.',
+    'alerts.state_off': 'Aus – die Power-LED zeigt keine Unraid-Benachrichtigungen.',
+    'alerts.state_none': 'Keine ungelesenen Benachrichtigungen.',
+    'alerts.state_active': '{n} ungelesene Benachrichtigung(en) – die Power-LED blinkt.',
     'alerts.saved': 'Warnungen gespeichert',
     'warn.title': 'Der LED-Monitor von „ugreenleds-driver“ läuft.',
     'warn.text':
@@ -87,10 +87,10 @@ export const de: Record<Key, string> = {
     'bays.errors': '{n} Lese-/Schreibfehler',
     'case.error': 'Fehler',
     'sync.check': 'Paritätsprüfung läuft: {percent} %',
-    'sync.recon': 'Rebuild läuft: {percent} %',
+    'sync.recon': 'Datenwiederherstellung läuft: {percent} %',
     'sync.clear': 'Platte wird gelöscht: {percent} %',
     'display.title': 'Statusanzeige',
-    'display.sync': 'Paritätsprüfung und Rebuild anzeigen',
+    'display.sync': 'Paritätsprüfung und Datenwiederherstellung anzeigen',
     'display.sync_hint': 'Array-Platten atmen in dieser Farbe, solange Unraid prüft oder neu aufbaut. Platten mit Fehler bleiben in der Fehlerfarbe.',
     'display.sync_color': 'Farbe bei Prüfung',
     'display.standby': 'Platten im Standby',
@@ -215,5 +215,5 @@ export const de: Record<Key, string> = {
     'brightness.label_for': 'Helligkeit {led}',
     'effect.label_for': 'Effekt {led}',
     'view.drives': 'Laufwerksstatus',
-    'view.alerts': 'Meldungen & Herunterfahren'
+    'view.alerts': 'Benachrichtigungen & Herunterfahren'
 };

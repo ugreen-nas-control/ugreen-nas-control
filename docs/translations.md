@@ -28,6 +28,8 @@ Each file is a flat object of `'key': 'text'`. `index.ts` registers all language
 
 ## German
 
+Unraid concepts follow the official German pack unraid/lang-de_DE (other languages use the matching unraid/lang-xx_XX pack), so the texts match the rest of the Unraid UI; where a pack term is stilted, the natural word wins, but menu and page names stay as Unraid shows them. Drives stay "Laufwerk" (hardware), where Unraid says "Datenträger".
+
 Address: informal "du" throughout, imperative for instructions ("Prüfe …", "Wähle …"). `web/src/features/nas/i18n/de-style.test.ts` fails on calques and stilted phrases (Dienst, erfolgt, mittels, bezüglich, seitens, basierend auf, macht Sinn, bitte beachten Sie, …).
 
 | Concept                   | German term                                          |
@@ -42,6 +44,8 @@ Address: informal "du" throughout, imperative for instructions ("Prüfe …", "W
 | deadband                  | Totzone                                              |
 | armed watchdog            | aktiv; the plugin "füttert" the watchdog             |
 | array, pool, parity check | Array, Pool, Paritätsprüfung (as Unraid's German UI) |
+| notifications             | Benachrichtigungen (not "Meldungen")                 |
+| parity rebuild            | Datenwiederherstellung (not "Rebuild")               |
 | identify (bay LED)        | Identifizieren                                       |
 
 - No Nominalstil ("Die Messung dauert …", not "Die Durchführung der Messung erfolgt …"); short sentences, one thought each.
