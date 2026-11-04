@@ -71,7 +71,7 @@ Never collected: serial numbers, UUIDs, asset tags, MAC and IP addresses, the ho
 
 The _Model_ section compares what was detected with the model registry (`web/models/`): per area the registry state and what is still open, and expected against detected for bays, M.2 slots, LAN ports, fan chip and headers, LED controller and watchdog; a difference shows in _Checks_ as `MISMATCH`. The last block is the same result as JSON (`"schema": "diag/1"`) and can be attached as evidence for a model; the visual checks (Identify blinks the right bay, the case view matches) still come from the _Confirm my device_ form.
 
-Read only: no LED, fan, EC or Super-I/O register is written. The one change is `modprobe i2c-dev` when the module is missing, because the I2C scan needs `/dev/i2c-*`; the output says so (`loaded i2c-dev for the scan`). `diag` does not load `i2c_i801`: without the SMBus adapter it skips `ugreen-led-ctl status` and says why.
+No hardware writes: no LED, fan, EC or Super-I/O register is written. The only system change is `modprobe i2c-dev` when the module is missing, because the I2C scan needs `/dev/i2c-*`; the tools it runs keep their own lock and cache files as in normal use. The output says so (`loaded i2c-dev for the scan`). `diag` does not load `i2c_i801`: without the SMBus adapter it skips `ugreen-led-ctl status` and says why.
 
 ## Report a model
 

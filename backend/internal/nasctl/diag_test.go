@@ -3,9 +3,11 @@ package nasctl
 import (
 	"encoding/json"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fan"
 )
@@ -225,13 +227,13 @@ ignore_drives="WDC_WD80_SECRET"
 notify_email_addr="me@example.org"
 min_pct="10"
 `
-	got := strings.Join(redactCfg([]byte(cfg), 100), "\n")
+	got := strings.Join(redactCfg([]byte(cfg), 100, fanCfgShown), "\n")
 	for _, no := range []string{"broker.lan", "jens", "hunter2", "home/nas", "abc", "WDC_WD80_SECRET", "me@example.org"} {
 		if strings.Contains(got, no) {
 			t.Errorf("settings leak %q:\n%s", no, got)
 		}
 	}
-	for _, want := range []string{`mode=custom`, `mqtt_enabled=1`, `min_pct=10`, `mqtt_host=<redacted>`} {
+	for _, want := range []string{`mode=custom`, `mqtt_enabled=1`, `min_pct=10`, `mqtt_host: <hidden>`, `api_token: <hidden>`} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q:\n%s", want, got)
 		}
@@ -311,7 +313,7 @@ func TestRivalsShowWhoRunsNowAndWhoIsOnlyInstalled(t *testing.T) {
 	if first != "CONFLICT: FanCtrl Plus 2 is running (pid 4242) and writes the same fan chip" {
 		t.Errorf("first check: %q", first)
 	}
-	for _, want := range []string{"rival installed, not running: Dynamix Auto Fan Control", "CONFLICT? user script writes fans or LEDs: Secret Fan Script (scheduled true)", "pwm in manual mode: it8613 pwm1 manual"} {
+	for _, want := range []string{"rival installed, not running: Dynamix Auto Fan Control", "CONFLICT? a user script calls a fan or LED tool: pwm1 (scheduled)", "pwm in manual mode: it8613 pwm1 manual"} {
 		if !strings.Contains(checks, want) {
 			t.Errorf("missing %q:\n%s", want, checks)
 		}
@@ -320,13 +322,16 @@ func TestRivalsShowWhoRunsNowAndWhoIsOnlyInstalled(t *testing.T) {
 		t.Errorf("a running rival is also listed as not running:\n%s", checks)
 	}
 	body := rivalSection(d).Body
-	for _, want := range []string{"RUNNING: FanCtrl Plus 2 (fanctrlplus2_loop.sh) pid 4242, up 15m0s", "UGREEN LED Control", "leftover folder, no .plg", "it87 (fan)", "cron entries that run such tools: cron.d/root: autofan,pwm1", "yields: no"} {
+	for _, want := range []string{"RUNNING: FanCtrl Plus 2 (fanctrlplus2_loop.sh) pid 4242, up 15m0s", "UGREEN LED Control", "leftover folder, no .plg", "it87 (fan)", "cron files that run such tools: 1 (1: autofan,pwm1)", "yields: no"} {
 		if want == "UGREEN LED Control" {
 			want = "UGREEN LEDs driver: leftover folder, no .plg"
 		}
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q:\n%s", want, body)
 		}
+	}
+	if strings.Contains(body, "Secret Fan Script") || strings.Contains(body, "cron.d") || strings.Contains(body, "root:") {
+		t.Errorf("a user-chosen name leaked:\n%s", body)
 	}
 	if strings.Contains(body, "hunter2") {
 		t.Errorf("a cron argument leaked:\n%s", body)
@@ -464,3 +469,97 @@ func TestEvidenceSectionIsValidJSON(t *testing.T) {
 		t.Errorf("%d lines", lines)
 	}
 }
+
+func TestSettingsAllowListHidesUnknownKeysAndInputNames(t *testing.T) {
+	cfg := "mode=\"custom\"\ncase_input=\"script:mysecretscript\"\nfan.fan1.input=\"nic:eth0\"\nfan.fan1.deadband=\"3\"\nfoo_bar=\"x\"\nignore_drives=\"disk1\"\n"
+	got := strings.Join(redactCfg([]byte(cfg), 100, fanCfgShown), "\n")
+	for _, no := range []string{"mysecretscript", "eth0", "=x", "disk1"} {
+		if strings.Contains(got, no) {
+			t.Errorf("leak %q:\n%s", no, got)
+		}
+	}
+	for _, want := range []string{"case_input=script", "fan.fan1.input=nic", "fan.fan1.deadband=3", "foo_bar: <hidden>", "ignore_drives: <hidden>"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q:\n%s", want, got)
+		}
+	}
+}
+
+func TestITKunyRunningShowsOnceAsRunning(t *testing.T) {
+	d := RivalDiag{
+		Procs:   []RivalProc{{Name: "UGREEN fan control (IT-Kuny)", Program: "ugreen-fan-control", Plugin: "ugreen-it87", Controls: "fan", PID: 9}},
+		Plugins: []RivalPlugin{{ID: "ugreen-it87", Name: "UGREEN it87 driver (IT-Kuny)", Plg: true}},
+	}
+	body, checks := rivalSection(d).Body, strings.Join(rivalChecks(d), "\n")
+	if strings.Count(body, "IT-Kuny") != 1 || strings.Contains(body, "installed, not running") || strings.Contains(checks, "not running") {
+		t.Errorf("body:\n%s\nchecks:\n%s", body, checks)
+	}
+}
+
+func TestRunningRivalIsOneCheckLine(t *testing.T) {
+	f := Facts{Rivals: RivalDiag{Procs: []RivalProc{{Name: "FanCtrl Plus", Program: "fanctrlplus_loop.sh", Controls: "fan", PID: 7}}},
+		FanSt: &fanStatus{Conflicts: []struct {
+			Kind     string `json:"kind"`
+			ID       string `json:"id"`
+			Severity string `json:"severity"`
+			Detail   string `json:"detail"`
+		}{{Kind: "daemon", ID: "fanctrlplus_loop.sh", Severity: "block"}}}}
+	if got := strings.Join(diagChecks(f), "\n"); strings.Contains(got, "rival running") {
+		t.Errorf("duplicate:\n%s", got)
+	}
+}
+
+func TestIPv4KeepsVersions(t *testing.T) {
+	a := Anon{}
+	for _, keep := range []string{"1.00.00.05", "V1.0.0.12", "5.0.0", "BIOS 1.00.00.05 (2024)"} {
+		if got := a.Text(keep); got != keep {
+			t.Errorf("%q became %q", keep, got)
+		}
+	}
+	for in, want := range map[string]string{"192.168.1.10": "<removed>", "10.0.0.2/24": "<removed>/24", "at 192.168.1.10.": "at <removed>.", "ip=10.1.2.3, x": "ip=<removed>, x"} {
+		if got := a.Text(in); got != want {
+			t.Errorf("%q became %q, want %q", in, got, want)
+		}
+	}
+	if got := a.Meta("1.0.0.12"); got != "1.0.0.12" {
+		t.Errorf("header: %q", got)
+	}
+}
+
+func TestCutIsRuneSafe(t *testing.T) {
+	if got := cut("aä", 2); got != "a..." || !utf8.ValidString(got) {
+		t.Errorf("%q", got)
+	}
+	if got := short(strings.Repeat("ü", 300), 201); !utf8.ValidString(got) {
+		t.Errorf("%q", got)
+	}
+}
+
+func TestPanickingSectionKeepsTheRest(t *testing.T) {
+	var s sections
+	s.add("a", func() Section { panic("boom") })
+	s.add("b", func() Section { return Section{Title: "b", Body: "ok"} })
+	if len(s.list) != 2 || s.list[1].Body != "ok" || !strings.Contains(s.list[0].Err, "boom") || len(s.failed) != 1 {
+		t.Errorf("%+v", s)
+	}
+	if guard(func() { panic("x") }) == "" {
+		t.Error("guard swallowed the panic silently")
+	}
+}
+
+func TestTimeoutKillsTheProcessGroup(t *testing.T) {
+	start := time.Now()
+	_, err := runTimeout(300*time.Millisecond, "/bin/sh", "-c", "sleep 30 & sleep 30")
+	if err == nil || time.Since(start) > 5*time.Second {
+		t.Errorf("err %v after %s", err, time.Since(start))
+	}
+}
+
+func TestOwnFilesKeepKnownNames(t *testing.T) {
+	if got := ownFiles([]string{"fan.cfg", "my-notes.txt", "leds.cfg"}); strings.Join(got, ",") != "fan.cfg,leds.cfg" {
+		t.Errorf("%v", got)
+	}
+}
+
+// secretKeyRe: JSON field names of the evidence must not look like they hold a credential, host or drive.
+var secretKeyRe = regexp.MustCompile(`(?i)pass|token|secret|host|user|ip|mac|topic|key|url|addr|serial|ignore|script|path|drive`)

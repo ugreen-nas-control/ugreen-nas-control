@@ -125,20 +125,21 @@ var modules = []module{
 
 type daemon struct {
 	arg      string // basename of the program (argv[0], or the script behind an interpreter)
+	plugin   string // id of the plugin that starts it, as in plugins
 	name     string
 	controls []string
 }
 
 // Processes that write the chips, matched by the program they run, never by a later argument.
 var daemons = []daemon{
-	{"fanctrlplus2_loop.sh", "FanCtrl Plus 2", []string{Fan}},
-	{"fanctrlplus_loop.sh", "FanCtrl Plus", []string{Fan}},
-	{"autofan", "Dynamix Auto Fan Control", []string{Fan}},
-	{"ugreen-fan-control", "UGREEN fan control (IT-Kuny)", []string{Fan}},
-	{"ugreen-gt-leds", "UGREEN DXP4800 GT LED driver", []string{LED}},
-	{"ugreen-pro-leds", "UGREEN DXP4800 Pro LEDs", []string{LED}},
-	{"ugreen-leds", "UGREEN LEDs driver", []string{LED}},
-	{"panel_dash", "UGREEN iDX6011 Pro", []string{Fan, LED}},
+	{"fanctrlplus2_loop.sh", "fanctrlplus2", "FanCtrl Plus 2", []string{Fan}},
+	{"fanctrlplus_loop.sh", "fanctrlplus", "FanCtrl Plus", []string{Fan}},
+	{"autofan", "dynamix.system.autofan", "Dynamix Auto Fan Control", []string{Fan}},
+	{"ugreen-fan-control", "ugreen-it87", "UGREEN fan control (IT-Kuny)", []string{Fan}},
+	{"ugreen-gt-leds", "UGREEN-DXP4800GT-LED-Driver", "UGREEN DXP4800 GT LED driver", []string{LED}},
+	{"ugreen-pro-leds", "UGREEN-DXP4800Pro-LEDs", "UGREEN DXP4800 Pro LEDs", []string{LED}},
+	{"ugreen-leds", "ugreenleds-driver", "UGREEN LEDs driver", []string{LED}},
+	{"panel_dash", "ugreen-idx6011-pro", "UGREEN iDX6011 Pro", []string{Fan, LED}},
 }
 
 // hwmon names of the Super-I/O chips this plugin drives.
@@ -207,6 +208,7 @@ func (r Roots) hwmon() (out []Conflict) {
 // Process is a running rival: the program that matched, its pid and what it controls.
 type Process struct {
 	ID       string // program or script name
+	Plugin   string // id of the plugin it belongs to, as in Known
 	Name     string
 	Controls []string
 	PID      int
@@ -241,7 +243,7 @@ func (r Roots) Running() []Process {
 				continue
 			}
 			seen[d.arg] = true
-			out = append(out, Process{ID: d.arg, Name: d.name, Controls: d.controls, PID: pid})
+			out = append(out, Process{ID: d.arg, Plugin: d.plugin, Name: d.name, Controls: d.controls, PID: pid})
 		}
 	}
 	slices.SortFunc(out, func(a, b Process) int { return strings.Compare(a.ID, b.ID) })

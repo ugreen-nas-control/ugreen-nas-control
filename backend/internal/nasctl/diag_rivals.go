@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -14,9 +15,9 @@ import (
 
 // RivalProc is a rival process that runs now.
 type RivalProc struct {
-	Name, Program, Controls string
-	PID                     int
-	Up                      string
+	Name, Program, Controls, Plugin string // Plugin: id of the plugin that starts it
+	PID                             int
+	Up                              string
 }
 
 // RivalPlugin is a known rival plugin and what of it is on the box.
@@ -31,14 +32,31 @@ type RivalDiag struct {
 	Plugins   []RivalPlugin // only the ones with a .plg or a folder
 	Modules   []string      // "it87 (fan)"
 	Hwmon     []string      // pwm outputs in manual mode
-	Cron      []string      // "file: tool"
-	Scripts   []string      // User Scripts that write fans or LEDs
+	Cron      []string      // "tool,tool" per cron file, no file names
+	Scripts   []string      // "tool (scheduled)" per User Script that calls a fan or LED tool, no script names
 	FanYields []string      // what the fan daemon yields to now
 	FanOn     bool
 	LEDBlock  string
 }
 
 func controlsText(c []string) string { return strings.Join(c, "+") }
+
+// running says whether a process of the plugin with this id runs now.
+func (d RivalDiag) running(pluginID string) bool {
+	return slices.ContainsFunc(d.Procs, func(p RivalProc) bool { return p.Plugin != "" && p.Plugin == pluginID })
+}
+
+// numbered: "1: a" per entry, counted; user-chosen file and script names never show.
+func numbered(list []string) string {
+	if len(list) == 0 {
+		return "none"
+	}
+	var l []string
+	for i, s := range list {
+		l = append(l, fmt.Sprintf("%d: %s", i+1, s))
+	}
+	return fmt.Sprintf("%d (%s)", len(list), strings.Join(l, "; "))
+}
 
 func rivalSection(d RivalDiag) Section {
 	var l []string
@@ -53,13 +71,7 @@ func rivalSection(d RivalDiag) Section {
 		l = append(l, fmt.Sprintf("RUNNING: %s (%s) pid %d%s, writes %s", p.Name, p.Program, p.PID, up, p.Controls))
 	}
 	for _, p := range d.Plugins {
-		running := false
-		for _, r := range d.Procs {
-			if r.Name == p.Name {
-				running = true
-			}
-		}
-		if running {
+		if d.running(p.ID) {
 			continue
 		}
 		state := "installed, not running"
@@ -70,8 +82,8 @@ func rivalSection(d RivalDiag) Section {
 	}
 	l = append(l, "kernel modules holding our devices: "+orDash(strings.Join(d.Modules, ", ")))
 	l = append(l, "hwmon pwm in manual mode (someone sets the speed): "+orDash(strings.Join(d.Hwmon, "; ")))
-	l = append(l, "cron entries that run such tools: "+orDash(strings.Join(d.Cron, "; ")))
-	l = append(l, "user scripts that write fans or LEDs: "+orDash(strings.Join(d.Scripts, "; ")))
+	l = append(l, "cron files that run such tools: "+numbered(d.Cron))
+	l = append(l, "user scripts that call a fan or LED tool: "+numbered(d.Scripts))
 	yield := "no"
 	if len(d.FanYields) > 0 {
 		yield = "yes, to " + strings.Join(d.FanYields, ", ")
@@ -91,16 +103,10 @@ func rivalChecks(d RivalDiag) []string {
 		out = append(out, fmt.Sprintf("CONFLICT: %s is running (pid %d) and writes the same %s", p.Name, p.PID, strings.ReplaceAll(p.Controls, "fan", "fan chip")))
 	}
 	for _, s := range d.Scripts {
-		out = append(out, "CONFLICT? user script writes fans or LEDs: "+s)
+		out = append(out, "CONFLICT? a user script calls a fan or LED tool: "+s)
 	}
 	for _, p := range d.Plugins {
-		running := false
-		for _, r := range d.Procs {
-			if r.Name == p.Name {
-				running = true
-			}
-		}
-		if !running && p.Plg {
+		if !d.running(p.ID) && p.Plg {
 			out = append(out, "rival installed, not running: "+p.Name)
 		}
 	}
@@ -115,27 +121,16 @@ var (
 	scriptToolRe = regexp.MustCompile(`(?i)pwm\d*(_enable)?|i2cset|ugreen[\w-]*|it87\w*|fanctrl\w*`)
 )
 
-// cronTools names the tools a cron file runs, never its command lines.
-func cronTools(dir, file string, data []byte) string {
-	set := map[string]bool{}
+// cronTools names the tools a cron file runs, never its command lines or its file name.
+func cronTools(data []byte) string {
+	var found []string
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		for _, m := range cronToolRe.FindAllString(line, -1) {
-			set[strings.ToLower(m)] = true
+		if line != "" && !strings.HasPrefix(line, "#") {
+			found = append(found, cronToolRe.FindAllString(line, -1)...)
 		}
 	}
-	if len(set) == 0 {
-		return ""
-	}
-	var names []string
-	for n := range set {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	return filepath.Join(filepath.Base(dir), file) + ": " + strings.Join(names, ",")
+	return strings.Join(uniqueLower(found), ",")
 }
 
 func (c *Ctl) cronEntries() []string {
@@ -161,7 +156,7 @@ func (c *Ctl) cronEntries() []string {
 			if err != nil {
 				continue
 			}
-			if s := cronTools(dir, filepath.Base(f), data); s != "" {
+			if s := cronTools(data); s != "" {
 				out = append(out, s)
 			}
 		}
@@ -169,7 +164,7 @@ func (c *Ctl) cronEntries() []string {
 	return out
 }
 
-// userScripts names the User Scripts that touch fans or LEDs and says whether they are scheduled.
+// userScripts lists the tools each User Script that touches fans or LEDs calls and whether it is scheduled; never the script name.
 func (c *Ctl) userScripts() []string {
 	root := filepath.Join(c.Env.PluginsBoot, "user.scripts")
 	var sched map[string]struct {
@@ -185,8 +180,8 @@ func (c *Ctl) userScripts() []string {
 		if err != nil {
 			continue
 		}
-		m := scriptToolRe.FindAllString(string(data), -1)
-		if len(m) == 0 {
+		tools := uniqueLower(scriptToolRe.FindAllString(string(data), -1))
+		if len(tools) == 0 {
 			continue
 		}
 		scheduled := false
@@ -195,7 +190,11 @@ func (c *Ctl) userScripts() []string {
 				scheduled = true
 			}
 		}
-		out = append(out, fmt.Sprintf("%s (scheduled %t)", filepath.Base(d), scheduled))
+		state := "not scheduled"
+		if scheduled {
+			state = "scheduled"
+		}
+		out = append(out, strings.Join(tools, ",")+" ("+state+")")
 	}
 	sort.Strings(out)
 	return out
@@ -206,7 +205,7 @@ func (c *Ctl) rivalDiag(st *fanStatus) RivalDiag {
 	r.PluginsBoot, r.PluginsWeb, r.ProcModules, r.Proc, r.Hwmon = c.Env.PluginsBoot, c.Env.PluginsWeb, c.Env.ProcModules, c.Env.Proc, c.Env.Hwmon
 	d := RivalDiag{LEDBlock: c.ledBlocker(), FanOn: !c.fanOff()}
 	for _, p := range r.Running() {
-		rp := RivalProc{Name: p.Name, Program: p.ID, Controls: controlsText(p.Controls), PID: p.PID}
+		rp := RivalProc{Name: p.Name, Program: p.ID, Controls: controlsText(p.Controls), Plugin: p.Plugin, PID: p.PID}
 		if up, ok := procUptime(c.Env.Proc, p.PID); ok {
 			rp.Up = up.String()
 		}
@@ -241,4 +240,17 @@ func (c *Ctl) rivalDiag(st *fanStatus) RivalDiag {
 		d.FanYields = st.Daemon.Conflict
 	}
 	return d
+}
+
+func uniqueLower(in []string) []string {
+	set := map[string]bool{}
+	for _, s := range in {
+		set[strings.ToLower(s)] = true
+	}
+	out := make([]string, 0, len(set))
+	for s := range set {
+		out = append(out, s)
+	}
+	sort.Strings(out)
+	return out
 }

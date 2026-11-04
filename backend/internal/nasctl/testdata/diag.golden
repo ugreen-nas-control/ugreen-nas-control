@@ -83,8 +83,8 @@ ugreen-led-ctl status:
 RUNNING: FanCtrl Plus (fanctrlplus_loop.sh) pid 7, up 1h0m0s, writes fan
 kernel modules holding our devices: -
 hwmon pwm in manual mode (someone sets the speed): -
-cron entries that run such tools: -
-user scripts that write fans or LEDs: -
+cron files that run such tools: none
+user scripts that call a fan or LED tool: none
 UGREEN NAS Control fan daemon yields: no
 LED blocker: -
 ```
@@ -130,7 +130,7 @@ Unassigned Devices plugin installed: false
 
 </details>
 
-<details><summary>Settings (secret-looking values redacted)</summary>
+<details><summary>Settings (known keys only, other values hidden)</summary>
 
 ```
 fan.cfg:

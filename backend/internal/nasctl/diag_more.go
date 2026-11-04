@@ -5,21 +5,30 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
+
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fan"
 )
 
 // Result is the answer of one read-only tool call.
 type Result struct{ Title, Out, Err string }
 
-func short(s string, n int) string {
-	s = strings.Join(strings.Fields(s), " ")
-	if len(s) > n {
-		return s[:n] + "..."
+func short(s string, n int) string { return cut(strings.Join(strings.Fields(s), " "), n) }
+
+// cut shortens s to n bytes at a rune boundary and marks the cut.
+func cut(s string, n int) string {
+	if len(s) <= n {
+		return s
 	}
-	return s
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+	return s[:n] + "..."
 }
 
 // dmiNames are the DMI files that name the model; serial numbers, UUID and asset tags are never read.
@@ -120,11 +129,7 @@ var (
 func dmesgSection(a Anon, out string, err string) Section {
 	var lines []string
 	for _, l := range filterLines(out, dmesgRe, 40) {
-		l = a.Line(l)
-		if len(l) > 300 {
-			l = l[:300] + "..."
-		}
-		lines = append(lines, l)
+		lines = append(lines, cut(a.Line(l), 300))
 	}
 	return Section{Title: "dmesg (chip, I2C and UGREEN lines)", Body: orDashLines(lines), Err: err}
 }
@@ -201,11 +206,15 @@ func drivesSection(data []byte, readErr error, unassigned bool) Section {
 	return Section{Title: "Drives (no serials, ids, models or labels)", Body: strings.Join(l, "\n")}
 }
 
-var secretKeyRe = regexp.MustCompile(`(?i)pass|token|secret|host|user|ip|mac|topic|key|url|addr|serial|ignore|script|path|drive`)
+// fanCfgShown are the fan.cfg keys whose value is printed. fan.KnownSetting is the allow-list of what the fan
+// daemon reads; ignore_drives names the owner's drives and stays hidden. Any other key prints as "<key>: <hidden>".
+func fanCfgShown(k string) bool {
+	return k == "mqtt_enabled" || (k != "ignore_drives" && fan.KnownSetting(k))
+}
 
-// redactCfg lists the key="value" lines of a settings file; the value of anything that can name a person, a
-// host, a drive or a credential is replaced, and every mqtt_* value except the switch.
-func redactCfg(data []byte, limit int) []string {
+// redactCfg lists the key="value" lines of a settings file. Only keys that pass shown print their value; the last
+// line of a key wins. A fan input prints its kind only (script and NIC inputs carry a name).
+func redactCfg(data []byte, limit int, shown func(string) bool) []string {
 	last := map[string]string{}
 	var order []string
 	for _, line := range strings.Split(string(data), "\n") {
@@ -213,19 +222,23 @@ func redactCfg(data []byte, limit int) []string {
 		if m == nil {
 			continue
 		}
-		k, v := m[1], m[2]
-		if (secretKeyRe.MatchString(k) || (strings.HasPrefix(k, "mqtt_") && k != "mqtt_enabled")) && v != "" {
-			v = "<redacted>"
+		if _, seen := last[m[1]]; !seen {
+			order = append(order, m[1])
 		}
-		if _, seen := last[k]; !seen {
-			order = append(order, k)
-		}
-		last[k] = short(v, 200)
+		last[m[1]] = m[2]
 	}
 	sort.Strings(order)
 	var out []string
 	for _, k := range order {
-		out = append(out, k+"="+last[k])
+		v := last[k]
+		switch {
+		case !shown(k):
+			out = append(out, k+": <hidden>")
+			continue
+		case k == "input" || strings.HasSuffix(k, "_input") || strings.HasSuffix(k, ".input"):
+			v, _, _ = strings.Cut(v, ":")
+		}
+		out = append(out, k+"="+short(v, 200))
 	}
 	if len(out) > limit {
 		out = append(out[:limit], "...")
@@ -235,20 +248,20 @@ func redactCfg(data []byte, limit int) []string {
 
 func settingsSection(fanCfg, ledCfg []byte, fanErr, ledErr error, mqttRunning bool) Section {
 	var l []string
-	add := func(title string, data []byte, err error) {
+	add := func(title string, data []byte, err error, shown func(string) bool) {
 		l = append(l, title+":")
 		if err != nil {
 			l = append(l, "  not readable: "+err.Error())
 			return
 		}
-		for _, line := range redactCfg(data, 120) {
+		for _, line := range redactCfg(data, 120, shown) {
 			l = append(l, "  "+line)
 		}
 	}
-	add("fan.cfg", fanCfg, fanErr)
-	add("leds.cfg", ledCfg, ledErr)
+	add("fan.cfg", fanCfg, fanErr, fanCfgShown)
+	add("leds.cfg", ledCfg, ledErr, func(k string) bool { return slices.Contains(ledCfgKeys, k) })
 	l = append(l, fmt.Sprintf("MQTT publisher running: %t", mqttRunning))
-	return Section{Title: "Settings (secret-looking values redacted)", Body: strings.Join(l, "\n")}
+	return Section{Title: "Settings (known keys only, other values hidden)", Body: strings.Join(l, "\n")}
 }
 
 // procUptime is how long a process has run: its start time in clock ticks (100 per second) against the uptime.
@@ -353,6 +366,8 @@ func plgVersions(dir string, names []string) map[string]string {
 }
 
 // leftoverFolders: a plugin folder of a known LED/fan tool without its .plg is what an uninstall left behind.
+var leftoverRe = regexp.MustCompile(`(?i)ugreen|fanctrl|autofan|it87`)
+
 func leftoverFolders(names []string) []string {
 	have := map[string]bool{}
 	for _, n := range names {
@@ -361,7 +376,7 @@ func leftoverFolders(names []string) []string {
 	var out []string
 	for _, n := range names {
 		base := strings.TrimSuffix(n, "/")
-		if !strings.HasSuffix(n, "/") || base == "ugreen-nas-control" || !regexp.MustCompile(`(?i)ugreen|fanctrl|autofan|it87`).MatchString(base) {
+		if !strings.HasSuffix(n, "/") || base == "ugreen-nas-control" || !leftoverRe.MatchString(base) {
 			continue
 		}
 		if !have[base+".plg"] {
@@ -426,7 +441,7 @@ func diagChecks(f Facts) []string {
 			out = append(out, "fan chip error: "+st.ChipError)
 		}
 		for _, c := range st.Conflicts {
-			if c.Severity == "block" {
+			if c.Severity == "block" && !slices.ContainsFunc(f.Rivals.Procs, func(p RivalProc) bool { return p.Program == c.ID }) {
 				out = append(out, "rival running: "+c.Kind+" "+c.ID)
 			}
 		}

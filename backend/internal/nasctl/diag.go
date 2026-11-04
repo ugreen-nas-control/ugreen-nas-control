@@ -13,6 +13,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fan"
@@ -44,7 +45,9 @@ func serialLike(tok string) bool {
 }
 
 // Text is for every output: addresses, host name, labelled values, /mnt paths.
-func (a Anon) Text(s string) string {
+func (a Anon) Text(s string) string { return a.text(s, true) }
+
+func (a Anon) text(s string, ip bool) string {
 	for _, h := range a.Hostnames {
 		if len(h) < 2 {
 			continue
@@ -57,10 +60,18 @@ func (a Anon) Text(s string) string {
 	}
 	s = macRe.ReplaceAllString(s, "<removed>")
 	s = ipv6Re.ReplaceAllString(s, "<removed>")
-	s = ipv4Re.ReplaceAllString(s, "<removed>")
+	if ip {
+		s = scrubIPv4(s)
+	}
 	s = labelRe.ReplaceAllString(s, "$1$2<removed>")
 	s = mntRe.ReplaceAllString(s, "/mnt/<removed>")
 	return s
+}
+
+// Meta is Text without the IPv4 pass, for the header: its version numbers (1.0.0.12) look like addresses, and the
+// report values were scrubbed when they were read.
+func (a Anon) Meta(s string) string {
+	return a.text(s, false)
 }
 
 // Line is Text plus the serial-looking tokens; for log lines, where nothing names a model on purpose.
@@ -97,7 +108,7 @@ func RenderDiag(a Anon, now time.Time, kernel string, r Report, checks []string,
 		return strings.TrimRight(a.Text(text), "\n")
 	}
 	b.WriteString("## ugreen-nas-ctl diag\n\n")
-	fmt.Fprintf(&b, "```\n%s\n```\n\n", strings.TrimRight(a.Text(diagHeader(now, kernel, r)), "\n"))
+	fmt.Fprintf(&b, "```\n%s\n```\n\n", strings.TrimRight(a.Meta(diagHeader(now, kernel, r)), "\n"))
 	if len(checks) == 0 {
 		checks = []string{"no problem detected"}
 	}
@@ -313,7 +324,7 @@ func compactJSON(s string) string {
 
 var ledCfgKeys = []string{"mode", "status", "netdev_status", "netdev_speed_enabled", "alert_enabled", "sync_enabled", "night_enabled", "night_action", "fx_name", "fx_leds", "cs201x_leds", "shutdown_effect", "shutdown_blink"}
 
-var cfgLineRe = regexp.MustCompile(`^([a-z0-9_]+)="(.*)"$`)
+var cfgLineRe = regexp.MustCompile(`^([a-z0-9_.]+)="(.*)"$`)
 
 // ledConfig keeps the allow-listed settings of leds.cfg (the last line of a key wins); nothing else is read out.
 func ledConfig(data []byte) []string {
@@ -554,11 +565,7 @@ func logLines(a Anon, text string, n int) []string {
 	var out []string
 	for _, line := range strings.Split(text, "\n") {
 		if logTagRe.MatchString(line) {
-			line = a.Line(line)
-			if len(line) > 300 {
-				line = line[:300] + "..."
-			}
-			out = append(out, line)
+			out = append(out, cut(a.Line(line), 300))
 		}
 	}
 	if len(out) > n {
@@ -576,11 +583,19 @@ func logSection(lines []string, err string) Section {
 
 // runTimeout runs a tool with a deadline and returns its stdout; the error holds its stderr or why it failed.
 func runTimeout(d time.Duration, path string, args ...string) (string, error) {
+	if dl := diagDeadline(); !dl.IsZero() {
+		left := time.Until(dl)
+		if left <= 0 {
+			return "", fmt.Errorf("skipped: the %s time budget of diag is used up", diagBudget)
+		}
+		d = min(d, left)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), d)
 	defer cancel()
 	var out, errb bytes.Buffer
 	cmd := exec.CommandContext(ctx, path, args...)
 	cmd.Stdout, cmd.Stderr = &out, &errb
+	ownGroup(cmd)
 	cmd.WaitDelay = time.Second
 	err := cmd.Run()
 	if ctx.Err() != nil {
@@ -679,7 +694,32 @@ func hostnames() []string {
 const (
 	toolTimeout = 15 * time.Second
 	scanTimeout = 30 * time.Second
+	diagBudget  = 60 * time.Second // all tool calls of one diag run together
 )
+
+var deadlineNano atomic.Int64
+
+// diagDeadline is the end of the budget; the zero time while no diag run set one.
+func diagDeadline() time.Time {
+	if n := deadlineNano.Load(); n != 0 {
+		return time.Unix(0, n)
+	}
+	return time.Time{}
+}
+
+// sections collects the output blocks; a panic or error stays in its own block.
+type sections struct {
+	list   []Section
+	failed []string // titles of the blocks that produced nothing but an error
+}
+
+func (s *sections) add(title string, fn func() Section) {
+	sec := section(title, fn)
+	if sec.Err != "" && sec.Body == "" {
+		s.failed = append(s.failed, title)
+	}
+	s.list = append(s.list, sec)
+}
 
 // section runs one collector; a panic or error stays in its own section.
 func section(title string, fn func() Section) (s Section) {
@@ -691,7 +731,8 @@ func section(title string, fn func() Section) (s Section) {
 	return fn()
 }
 
-// i2cDev loads i2c-dev when it is missing and says so. It is the only change diag makes to the system.
+// i2cDev loads i2c-dev when it is missing and says so. No hardware writes; this is the only system change diag
+// makes (the tools it runs keep their own lock and cache files, as in normal use).
 func (c *Ctl) i2cDev() string {
 	if slices.Contains(moduleNames(c.Env.ProcModules), "i2c_dev") {
 		return ""
@@ -702,7 +743,7 @@ func (c *Ctl) i2cDev() string {
 	if _, err := runTimeout(toolTimeout, "modprobe", "-q", "i2c-dev"); err != nil {
 		return "i2c-dev was not loaded and modprobe i2c-dev failed: " + err.Error()
 	}
-	return "loaded i2c-dev for the scan (modprobe i2c-dev, the only change diag makes)"
+	return "loaded i2c-dev for the scan (modprobe i2c-dev, the only system change diag makes)"
 }
 
 // i2cAdapters are the names of the I2C adapters the kernel registered.
@@ -795,43 +836,54 @@ func (c *Ctl) diag() int {
 		c.errf("ERROR: run diag as root on the Unraid box.\n")
 		return 1
 	}
+
 	anon := Anon{Hostnames: hostnames()}
 	now := time.Now()
+	deadlineNano.Store(now.Add(diagBudget).UnixNano())
+	defer deadlineNano.Store(0)
 
-	in := Inputs{Env: c.Env, Blocker: c.ledBlocker(), Rivals: c.rivalList()}
-	in.Hardware = fan.ReadHardware()
-	in.BayPorts = fan.BayPorts(in.Hardware.Model)
-	if out, err := runTimeout(toolTimeout, c.Env.FanTool, "probe"); err == nil || out != "" {
-		in.FanProbe = []byte(out)
-	}
-	if in.Blocker != "model" {
-		in.LEDRan = true
-		out, err := runTimeout(toolTimeout, c.Env.LEDI2C, "probe")
-		in.LEDOK, in.LEDProbe = err == nil, []byte(out)
-	}
-	rep := Build(in)
-	model := rep.Machine.Product
-
-	facts := Facts{Report: rep}
-	facts.Env = EnvDiag{Plugins: dirNames(c.Env.PluginsBoot), Modules: moduleNames(c.Env.ProcModules)}
-	facts.Env.Versions = plgVersions(c.Env.PluginsBoot, facts.Env.Plugins)
-	facts.Env.OwnFiles = dirNames(filepath.Join(c.Env.PluginsBoot, "ugreen-nas-control"))
-	facts.Env.Hwmon, facts.Env.DevI2C = hwmonNames(c.Env.Hwmon), i2cDevices(c.Env.Dev)
-
-	var secs []Section
-	add := func(title string, fn func() Section) {
-		s := section(title, fn)
-		if s.Err != "" && s.Body == "" {
-			facts.Failed = append(facts.Failed, title)
+	var (
+		in    Inputs
+		rep   Report
+		facts Facts
+		secs  sections
+		model string
+	)
+	// Everything that can panic runs under guard or section, so one broken read never costs the rest of the output.
+	if msg := guard(func() {
+		in = Inputs{Env: c.Env, Blocker: c.ledBlocker(), Rivals: c.rivalList()}
+		in.Hardware = fan.ReadHardware()
+		in.BayPorts = fan.BayPorts(in.Hardware.Model)
+		if out, err := runTimeout(toolTimeout, c.Env.FanTool, "probe"); err == nil || out != "" {
+			in.FanProbe = []byte(out)
 		}
-		secs = append(secs, s)
+		if in.Blocker != "model" {
+			in.LEDRan = true
+			out, err := runTimeout(toolTimeout, c.Env.LEDI2C, "probe")
+			in.LEDOK, in.LEDProbe = err == nil, []byte(out)
+		}
+		rep = Build(in)
+	}); msg != "" {
+		secs.add("Report", func() Section { return Section{Title: "Report", Err: msg} })
 	}
-	add("DMI", func() Section { return dmiSection(c.Env.DMIDir) })
-	add("LED", func() Section {
+	model = rep.Machine.Product
+
+	facts.Report = rep
+	if msg := guard(func() {
+		facts.Env = EnvDiag{Plugins: dirNames(c.Env.PluginsBoot), Modules: moduleNames(c.Env.ProcModules)}
+		facts.Env.Versions = plgVersions(c.Env.PluginsBoot, facts.Env.Plugins)
+		facts.Env.OwnFiles = ownFiles(dirNames(filepath.Join(c.Env.PluginsBoot, "ugreen-nas-control")))
+		facts.Env.Hwmon, facts.Env.DevI2C = hwmonNames(c.Env.Hwmon), i2cDevices(c.Env.Dev)
+	}); msg != "" {
+		secs.add("Environment facts", func() Section { return Section{Title: "Environment facts", Err: msg} })
+	}
+
+	secs.add("DMI", func() Section { return dmiSection(c.Env.DMIDir) })
+	secs.add("LED", func() Section {
 		facts.LED = c.ledDiag(rep, in.Hardware)
 		return ledSection(facts.LED)
 	})
-	add("Fans", func() Section {
+	secs.add("Fans", func() Section {
 		facts.Fan = c.fanDiag(model)
 		facts.FanDaemonDown = !facts.Fan.DaemonRunning
 		var st fanStatus
@@ -840,21 +892,22 @@ func (c *Ctl) diag() int {
 		}
 		return fanSection(facts.Fan)
 	})
-	add("Other fan and LED tools", func() Section {
+	secs.add("Other fan and LED tools", func() Section {
 		facts.Rivals = c.rivalDiag(facts.FanSt)
 		return rivalSection(facts.Rivals)
 	})
-	add("Drives", func() Section {
+	secs.add("Drives", func() Section {
 		data, err := os.ReadFile(c.Env.DisksINI)
 		return drivesSection(data, err, isFile(filepath.Join(c.Env.PluginsBoot, "unassigned.devices.plg")))
 	})
-	add("Settings", func() Section {
+	secs.add("Settings", func() Section {
 		fanCfg, e1 := os.ReadFile(c.Env.FanCfg)
 		ledCfg, e2 := os.ReadFile(c.Env.LEDCfg)
 		return settingsSection(fanCfg, ledCfg, e1, e2, c.running(c.Env.PubPidFile))
 	})
-	syslog := tail(c.Env.Syslog, 1<<20)
-	add("Plugin state", func() Section {
+	var syslog string
+	guard(func() { syslog = tail(c.Env.Syslog, 1<<20) })
+	secs.add("Plugin state", func() Section {
 		st := StateDiag{Version: rep.PluginVersion, OwnFiles: facts.Env.OwnFiles, CronPresent: isFile(c.Env.LEDCron)}
 		if data, err := os.ReadFile(filepath.Join(c.Env.PluginsBoot, "ugreen-nas-control.plg")); err == nil {
 			if m := entityRe("pluginURL").FindSubmatch(data); m != nil {
@@ -862,41 +915,74 @@ func (c *Ctl) diag() int {
 			}
 		}
 		st.Daemons = []string{c.daemonLine("fan daemon", c.Env.PidFile), c.daemonLine("led daemon", c.Env.LEDPidFile), c.daemonLine("mqtt publisher", c.Env.PubPidFile)}
-		for _, l := range filterLines(syslog, regexp.MustCompile(`(?i)plugin: .*ugreen-nas-control|ugreen-nas-control.*plugin`), 10) {
+		for _, l := range filterLines(syslog, pluginLineRe, 10) {
 			st.InstallLines = append(st.InstallLines, anon.Line(l))
 		}
 		return stateSection(st)
 	})
-	add("Environment", func() Section { return envSection(facts.Env) })
-	add("hwmon", func() Section { return hwmonSection(c.Env.Hwmon) })
-	add("I/O ports", func() Section { return ioportsSection(c.Env.Proc) })
-	add("PCI", func() Section {
+	secs.add("Environment", func() Section { return envSection(facts.Env) })
+	secs.add("hwmon", func() Section { return hwmonSection(c.Env.Hwmon) })
+	secs.add("I/O ports", func() Section { return ioportsSection(c.Env.Proc) })
+	secs.add("PCI", func() Section {
 		out, err := runTimeout(toolTimeout, "lspci", "-nn")
 		return lspciSection(anon, out, errString(err))
 	})
-	add("dmesg", func() Section {
+	secs.add("dmesg", func() Section {
 		out, err := runTimeout(toolTimeout, "dmesg")
 		return dmesgSection(anon, out, errString(err))
 	})
-	add("Log", func() Section {
+	secs.add("Log", func() Section {
 		if syslog == "" {
 			return logSection(nil, "cannot read the syslog")
 		}
 		return logSection(logLines(anon, syslog, 50), "")
 	})
+	facts.Failed = secs.failed
 
-	var reg *RegModel
-	if models, err := loadRegistry(modelsJSON); err == nil {
-		reg = matchModel(models, model)
+	var checks []string
+	list := secs.list
+	if msg := guard(func() {
+		var reg *RegModel
+		if models, err := loadRegistry(modelsJSON); err == nil {
+			reg = matchModel(models, model)
+		}
+		ev := BuildEvidence(EvInputs{Reg: reg, Now: now, Report: rep, Fan: facts.Fan, FanSt: facts.FanSt, LED: facts.LED, Rivals: facts.Rivals})
+		modelSec, modelChecks := modelSection(reg, ev)
+		list = append(append([]Section{modelSec}, list...), evidenceSection(ev))
+		checks = modelChecks
+	}); msg != "" {
+		list = append(list, Section{Title: "Model", Err: msg})
 	}
-	ev := BuildEvidence(EvInputs{Reg: reg, Now: now, Report: rep, Fan: facts.Fan, FanSt: facts.FanSt, LED: facts.LED, Rivals: facts.Rivals})
-	modelSec, modelChecks := modelSection(reg, ev)
-	secs = append([]Section{modelSec}, secs...)
-	js := evidenceSection(ev)
-	js.Lang = "json"
-	secs = append(secs, js)
-	c.out("%s", RenderDiag(anon, now, kernelVersion(c.Env.Proc), rep, append(diagChecks(facts), modelChecks...), secs))
+	var out string
+	if msg := guard(func() {
+		checks = append(diagChecks(facts), checks...)
+		out = RenderDiag(anon, now, kernelVersion(c.Env.Proc), rep, checks, list)
+	}); msg != "" {
+		c.errf("ERROR: diag failed while writing the output: %s\n", msg)
+		return 1
+	}
+	c.out("%s", out)
 	return 0
+}
+
+var pluginLineRe = regexp.MustCompile(`(?i)plugin: .*ugreen-nas-control|ugreen-nas-control.*plugin`)
+
+// guard runs fn and returns the panic as text, "" when fn returned normally.
+func guard(fn func()) (msg string) {
+	defer func() {
+		if r := recover(); r != nil {
+			msg = fmt.Sprint("internal error: ", r)
+		}
+	}()
+	fn()
+	return ""
+}
+
+var ownFileNames = []string{"fan.cfg", "leds.cfg", "fan_rpm.json", "led.enabled", "ugreen-nas-control.cron"}
+
+// ownFiles keeps the names the plugin writes itself; a file somebody else put there shows nowhere.
+func ownFiles(names []string) []string {
+	return slices.DeleteFunc(names, func(n string) bool { return !slices.Contains(ownFileNames, n) })
 }
 
 func errString(err error) string {
