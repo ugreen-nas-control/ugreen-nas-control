@@ -252,6 +252,8 @@ export const nl: Record<Key, string> = {
     'in.front': 'Voorkant',
     'case.inside_hint_gt':
         'Het serviceluik aan de onderkant, voorkant links. De nummering van RAM 1 / RAM 2 en M.2-1 / M.2-2 is aangenomen; wijkt jouw apparaat af, open dan een issue.',
+    'case.inside_hint_8800':
+        'Het serviceluik aan de onderkant volgens de UGREEN-handleiding: twee RAM-sockets, M.2 eronder en ernaast; de PCIe-sleuf zit in het frame. De nummering van RAM 1 / RAM 2 en M.2-1 / M.2-2 is aangenomen; wijkt jouw apparaat af, open dan een issue.',
     'in.slot_empty': '{label} · leeg',
     'nvme.boot': 'Opstart-SSD van Unraid',
     'nvme.role': 'SSD in groep “{name}”',

@@ -249,6 +249,8 @@ export const en = {
     'in.front': 'Front',
     'case.inside_hint_gt':
         'The underside service panel, front at the left. RAM 1 / RAM 2 and M.2-1 / M.2-2 are numbered by assumption; open an issue if your box differs.',
+    'case.inside_hint_8800':
+        "The bottom service panel after UGREEN's manual: two RAM sockets, M.2 below and beside them; the PCIe slot sits inside the frame. RAM 1 / RAM 2 and M.2-1 / M.2-2 are numbered by assumption; open an issue if your box differs.",
     'in.slot_empty': '{label} · empty',
     'nvme.boot': 'Unraid boot SSD',
     'nvme.role': 'Pool SSD “{name}”',

@@ -39,6 +39,7 @@ export interface CaseModel {
     inside6800?: boolean;
     inside4800gt?: boolean;
     inside2800gt?: boolean;
+    inside8800?: boolean;
     pcie?: boolean;
     sys?: boolean;
     hint?: Key;
@@ -134,7 +135,7 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
             noInside: true
         }
     ],
-    // DXP8800 Plus: eight bays; the back after a photo (rear8800Html). No inside view, no fan control.
+    // DXP8800 Plus: eight bays; the back after a photo (rear8800Html); the inside after UGREEN's manual. No fan control.
     [
         /^DXP8800( Plus| Pro)?$/,
         {
@@ -146,7 +147,9 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
             ],
             rear8800: true,
             rear: [],
-            noInside: true
+            pcie: true,
+            inside8800: true,
+            hint: 'case.inside_hint_8800'
         }
     ],
     [

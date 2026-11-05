@@ -251,6 +251,8 @@ export const it: Record<Key, string> = {
     'in.front': 'Fronte',
     'case.inside_hint_gt':
         'Il pannello di servizio sul fondo, fronte a sinistra. La numerazione di RAM 1 / RAM 2 e M.2-1 / M.2-2 è presunta; se il tuo dispositivo è diverso, apri una issue.',
+    'case.inside_hint_8800':
+        'Il pannello di servizio sul fondo secondo il manuale UGREEN: due zoccoli RAM, M.2 sotto e accanto; lo slot PCIe si trova nel telaio. La numerazione di RAM 1 / RAM 2 e M.2-1 / M.2-2 è presunta; se il tuo dispositivo è diverso, apri una issue.',
     'in.slot_empty': '{label} · vuoto',
     'nvme.boot': 'SSD di avvio Unraid',
     'nvme.role': 'SSD del pool «{name}»',
