@@ -47,3 +47,33 @@ export function modelBox(model: string, facts: ModelFacts | null, t: T): string 
 
 /** The phrase of the empty case view. */
 export const caseText = (t: T): string => t(VIEWS.none);
+
+export type LedState = 'verified' | 'confirmed' | 'untested' | 'power' | 'none';
+
+export interface TableRow {
+    series: string;
+    name: string;
+    /** The model's DMI pattern. */
+    re: RegExp;
+    leds: LedState;
+    view: ViewKind;
+    fans: boolean;
+}
+
+interface TableEntry extends RegistryEntry {
+    series: string;
+    name: string;
+    verified: { leds: { status: string } };
+}
+
+/** The word of the LED cell: no LEDs or power LED only from the registry's led kind, else its leds evidence (community and partial = confirmed, expected = untested). */
+function ledState(m: TableEntry): LedState {
+    if (m.led !== 'bays') return m.led;
+    const s = m.verified.leds.status;
+    return s === 'verified' ? 'verified' : s === 'community' || s === 'partial' ? 'confirmed' : 'untested';
+}
+
+/** The rows of About → Supported models, in registry order (series, then name). */
+export function modelRows(models: readonly TableEntry[] = registry.models as TableEntry[]): TableRow[] {
+    return models.map(m => ({ series: m.series, name: m.name, re: new RegExp(m.dmiPattern), leds: ledState(m), view: m.caseView, fans: m.fan !== null }));
+}

@@ -342,7 +342,6 @@ export const it: Record<Key, string> = {
     'models.col_fans': 'Ventole',
     'models.st_verified': 'verificato',
     'models.st_confirmed': 'confermato',
-    'models.st_reported': 'segnalato',
     'models.st_untested': 'non testato',
     'models.st_power': 'solo LED di alimentazione',
     'models.st_none': 'non offerto',
@@ -350,7 +349,7 @@ export const it: Record<Key, string> = {
     'models.case_fr': 'frontale, retro',
     'models.mine': 'il tuo dispositivo',
     'models.footnote':
-        'Verificato: testato dall’autore o da miskcoo. Confermato o segnalato: utenti l’hanno visto sul proprio dispositivo. Non testato: il plugin attiva i LED ma l’ordine dei vani è ipotizzato; controlla con «Identifica». Il controllo delle ventole esiste solo dove il cablaggio è noto; sugli altri modelli il plugin non tocca il chip delle ventole.',
+        'Verificato: testato dall’autore o da miskcoo. Confermato: utenti l’hanno visto sul proprio dispositivo. Non testato: il plugin attiva i LED ma l’ordine dei vani è ipotizzato; controlla con «Identifica». Il controllo delle ventole esiste solo dove il cablaggio è noto; sugli altri modelli il plugin non tocca il chip delle ventole.',
     'about.tagline': 'Controllo di ventole e LED e info di sistema per NAS UGREEN con Unraid',
     'about.license_badge': 'Licenza MIT',
     'about.github_hint': 'Codice sorgente, release e modifiche',

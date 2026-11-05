@@ -332,7 +332,6 @@ export const es: Record<Key, string> = {
     'models.col_fans': 'Ventiladores',
     'models.st_verified': 'verificado',
     'models.st_confirmed': 'confirmado',
-    'models.st_reported': 'informado',
     'models.st_untested': 'sin probar',
     'models.st_power': 'solo LED de encendido',
     'models.st_none': 'no ofrecido',
@@ -340,7 +339,7 @@ export const es: Record<Key, string> = {
     'models.case_fr': 'frontal, trasera',
     'models.mine': 'tu equipo',
     'models.footnote':
-        'Verificado: probado por el autor o por miskcoo. Confirmado o informado: usuarios lo vieron en su equipo. Sin probar: el plugin activa los LED pero el orden de las bahías es estimado; comprueba con «Identificar». El control de ventiladores solo existe donde se conoce el cableado; en los demás modelos el plugin no toca el chip de los ventiladores.',
+        'Verificado: probado por el autor o por miskcoo. Confirmado: usuarios lo vieron en su equipo. Sin probar: el plugin activa los LED pero el orden de las bahías es estimado; comprueba con «Identificar». El control de ventiladores solo existe donde se conoce el cableado; en los demás modelos el plugin no toca el chip de los ventiladores.',
     'about.tagline': 'Control de ventiladores y LED e información del sistema para UGREEN NAS en Unraid',
     'about.license_badge': 'Licencia MIT',
     'about.github_hint': 'Código fuente, versiones y cambios',

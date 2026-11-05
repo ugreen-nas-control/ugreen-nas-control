@@ -338,7 +338,6 @@ export const en = {
     'models.col_fans': 'Fans',
     'models.st_verified': 'verified',
     'models.st_confirmed': 'confirmed',
-    'models.st_reported': 'reported',
     'models.st_untested': 'untested',
     'models.st_power': 'power LED only',
     'models.st_none': 'not offered',
@@ -346,7 +345,7 @@ export const en = {
     'models.case_fr': 'front, rear',
     'models.mine': 'your device',
     'models.footnote':
-        'Verified: tested by the author or by miskcoo. Confirmed or reported: users saw it on their device. Untested: the plugin enables the LEDs but the bay order is guessed; check with "Identify". Fan control exists only where the wiring is known; on the other models the plugin does not touch the fan chip.',
+        'Verified: tested by the author or by miskcoo. Confirmed: users saw it on their device. Untested: the plugin enables the LEDs but the bay order is guessed; check with "Identify". Fan control exists only where the wiring is known; on the other models the plugin does not touch the fan chip.',
     'about.tagline': 'Fan control, LED control and system info for UGREEN NAS on Unraid',
     'about.license_badge': 'MIT licence',
     'about.github_hint': 'Source code, releases and changes',
