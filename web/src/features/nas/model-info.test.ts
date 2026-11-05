@@ -57,7 +57,7 @@ test('the models table has one row per registry model with its case view, fans a
         expect(r.series).toBe(m.series);
         expect(r.re.test(m.fixtureDmi)).toBe(true);
         expect(r.view).toBe(m.caseView as ViewKind);
-        expect(r.fans).toBe(m.fan !== null);
+        expect(r.fans).toBe(modelFacts(m.fixtureDmi)!.fans);
         const word = m.led !== 'bays' ? m.led : { verified: 'verified', community: 'confirmed', partial: 'confirmed' }[m.verified.leds.status] || 'untested';
         expect(r.leds).toBe(word as typeof r.leds);
     }

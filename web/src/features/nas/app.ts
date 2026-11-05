@@ -824,7 +824,7 @@ function main(root: HTMLElement): void {
                         <td><b>${escapeHtml(name)}</b>${re.test(mine) ? ` <small class="unc-muted">${escapeHtml(t('models.mine'))}</small>` : ''}</td>
                         ${cell(leds, t(`models.st_${leds}`))}
                         ${cell(view, view === 'none' ? '–' : t(view === 'full' ? 'models.case_full' : 'models.case_fr'))}
-                        ${cell(fans ? 'yes' : 'none', fans ? '✓' : '–')}
+                        ${cell(fans === 'none' ? 'none' : 'yes', fans === 'fixed' ? '✓' : fans === 'none' ? '–' : t('models.fan_test'))}
                     </tr>`
                     )
                     .join('')}
