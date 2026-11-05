@@ -392,6 +392,19 @@ function main(root: HTMLElement): void {
         about: 'sub.about'
     };
 
+    // The intro names only what the model has: M.2 slots as drives, an inside view or not.
+    function caseIntro(): Key {
+        const model = state.hw && caseModel(state.hw);
+        if (model?.m2Bays) return 'case.intro_m2';
+        return model?.noInside ? 'case.intro_noinside' : 'case.intro';
+    }
+
+    // The "Bay LEDs & Identify" button is for models whose LED controller has bay LEDs.
+    function paintDriveLedButton(): void {
+        const none = Boolean(state.hw && caseModel(state.hw).m2Bays) || Boolean(state.ledStatus && !state.ledBays);
+        qa('[data-nav="led:drives"]').forEach(button => button.classList.toggle('unc-nobays', none));
+    }
+
     function renderTitle() {
         const nav = state.nav;
 
@@ -403,7 +416,9 @@ function main(root: HTMLElement): void {
                     : 'probe.title'
                 : nav === 'curves' && fanReadOnly()
                   ? 'readonly.sub'
-                  : SUBTITLES[nav] || 'sub.overview'
+                  : nav === 'case'
+                    ? caseIntro()
+                    : SUBTITLES[nav] || 'sub.overview'
         );
         qa('[data-model]').forEach(element => {
             element.textContent = state.data?.info?.model || 'UGREEN NAS';
@@ -2634,6 +2649,7 @@ function main(root: HTMLElement): void {
             return;
         }
         renderDriveList(state.hw);
+        paintDriveLedButton();
         renderRear(state.hw);
         renderInside(state.hw);
     }
@@ -2678,6 +2694,7 @@ function main(root: HTMLElement): void {
             state.leds = all.leds || {};
             state.ledMode = { mode: status.mode, fx: status.fx };
             state.ledBays = Number(status.bays) || 0;
+            paintDriveLedButton();
             state.ledStatus = status;
             state.ledMisses = status.i2c_address ? 0 : (state.ledMisses || 0) + 1;
             if (state.data) renderSystem();
@@ -2724,6 +2741,7 @@ function main(root: HTMLElement): void {
             if (!state.hw) state.hwError = true;
         }
         keepScroll(() => {
+            renderTitle();
             renderCase();
             if (state.data?.ok) {
                 renderFans();
@@ -2837,7 +2855,7 @@ function main(root: HTMLElement): void {
                 ${mt ? `<span class="unc-muted">${mt} MT/s</span>` : ''}</p>`
                     : emptyText(t('cc.none'))
             }
-            ${link('case', 'ov.inside')}`;
+            ${hw && caseModel(hw).noInside ? '' : link('case', 'ov.inside')}`;
 
         const ports = lanPorts();
         const nics = data.sensors?.nic || [];

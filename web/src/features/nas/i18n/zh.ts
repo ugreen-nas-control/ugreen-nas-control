@@ -258,6 +258,8 @@ export const zh: Record<Key, string> = {
     'case.running_at': '运行于 {speed} MT/s（最高 {max}）',
     'case.m2_hint': '四个 M.2 插槽代替盘位，编号 01 至 04，与底部面板一致。每块 SSD 所在的插槽按 PCIe 地址顺序假设；如果你的机器不同，请提交 issue。',
 
+    'case.intro_noinside': '硬盘详情和背面。带盘位的正面请见概览。',
+    'case.intro_m2': 'M.2 硬盘详情和背面。正面请见概览。',
     'safety.intro': '始终优先于曲线的上限（BIOS 模式下无效）。',
     'safety.min': '最低风扇转速',
     'safety.now_none_cpu': '无法读取，所有风扇 100 %',

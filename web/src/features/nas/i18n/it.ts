@@ -266,6 +266,8 @@ export const it: Record<Key, string> = {
     'case.running_at': 'funziona a {speed} MT/s (fino a {max})',
     'case.m2_hint':
         'I quattro slot M.2 fanno da vani, numerati da 01 a 04 come sul pannello inferiore. Quale SSD si trova in quale slot è presunto dall’ordine degli indirizzi PCIe; se il tuo dispositivo è diverso, apri una issue.',
+    'case.intro_noinside': 'I dischi nel dettaglio e il retro. Il frontale con i vani è nella Panoramica.',
+    'case.intro_m2': 'I dischi M.2 nel dettaglio e il retro. Il frontale è nella Panoramica.',
 
     'safety.intro': 'Limiti che prevalgono sempre sulle curve (non in modalità BIOS).',
     'safety.min': 'Velocità minima delle ventole',

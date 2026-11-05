@@ -267,6 +267,8 @@ export const fr: Record<Key, string> = {
     'case.running_at': 'fonctionne à {speed} MT/s (jusqu’à {max})',
     'case.m2_hint':
         'Les quatre emplacements M.2 tiennent lieu de baies, numérotés de 01 à 04 comme sur le panneau inférieur. Le SSD de chaque emplacement est supposé d’après l’ordre des adresses PCIe ; ouvrez un ticket si votre appareil diffère.',
+    'case.intro_noinside': 'Les disques en détail et l’arrière. La façade avec les baies se trouve dans l’aperçu.',
+    'case.intro_m2': 'Les disques M.2 en détail et l’arrière. La façade se trouve dans l’aperçu.',
 
     'safety.intro': 'Limites qui l’emportent toujours sur les courbes (hors mode BIOS).',
     'safety.min': 'Vitesse minimale des ventilateurs',

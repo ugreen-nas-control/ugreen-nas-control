@@ -266,6 +266,8 @@ export const de: Record<Key, string> = {
     'case.running_at': 'läuft mit {speed} MT/s (bis {max})',
     'case.m2_hint':
         'Die vier M.2-Plätze ersetzen die Schächte und sind wie auf der Unterseite von 01 bis 04 nummeriert. Welche SSD in welchem Platz steckt, ist aus der Reihenfolge der PCIe-Adressen angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
+    'case.intro_noinside': 'Die Laufwerke im Einzelnen und die Rückseite. Die Vorderseite mit den Schächten ist auf der Übersicht.',
+    'case.intro_m2': 'Die M.2-Laufwerke im Einzelnen und die Rückseite. Die Vorderseite ist auf der Übersicht.',
 
     'safety.intro': 'Grenzen, die immer vor den Kurven gelten (nicht im BIOS-Modus).',
     'safety.min': 'Niedrigste Lüfterdrehzahl',

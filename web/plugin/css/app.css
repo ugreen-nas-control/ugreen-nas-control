@@ -3456,3 +3456,4 @@
 .unc-rear480 .r-hdmi svg { width: 6cqi; }
 .unc-rear480 .r-jack svg { width: 2.8cqi; }
 .unc-rear480 .r-lan svg { width: 5.6cqi; }
+.unc .unc-nobays { display: none !important; }
