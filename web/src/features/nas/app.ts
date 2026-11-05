@@ -60,6 +60,7 @@ import { type Key, t, tEnum, tRaw } from './text';
 import './fan/index';
 import { isCs201xModel } from './fan/cs201x';
 import { hasBeeper, hasButtons } from './panel-models';
+import { caseText, modelBox, modelFacts } from './model-info';
 import { fanModules, type FanCtx, type FanModule } from './fan/module';
 import * as components from './ui/components';
 
@@ -195,6 +196,10 @@ function main(root: HTMLElement): void {
     }
 
     const navLink = (nav: string, key: Key): string => linkBtn(t(key), `data-nav="${nav}"`);
+
+    // "All models": opens About with the supported-models table.
+    const modelsLink = (): string => linkBtn(t('model.all'), 'data-models-link');
+    const modelNote = (text: string): string => `${escapeHtml(text)} ${modelsLink()}`;
 
     // Static spots in the page that hold a component: <span data-unc="btn" data-unc-label="<i18n key>" …>. Parameters are
     // data-unc-*; every other attribute is passed on. Inner html (card head actions) is kept. Buttons first: they sit in heads.
@@ -1750,12 +1755,15 @@ function main(root: HTMLElement): void {
         q('#unc-led-import').hidden = !led.import_available;
         // The LED pages come with the page itself: they are there once it has been loaded with the switch on.
         // Without them the LEDs group is the overview with the switch.
+        // A power-only model (DXP480T Plus) has nothing to colour, dim or schedule: those pages and controls stay away, the switch and the note remain.
+        const powerOnly = modelFacts(led.model || '')?.leds === 'power';
         qa('[data-led-only]').forEach(button => {
-            button.hidden = !(led.enabled && window.UNC_LED);
+            button.hidden = !(led.enabled && window.UNC_LED) || powerOnly;
         });
+        document.getElementById('ulc')?.toggleAttribute('hidden', powerOnly);
 
         q('#unc-led-limited').hidden = fanKnown();
-        q('#unc-led-limited').textContent = fanKnown() ? '' : t(caseKnown() ? 'leds.limited_fans' : 'leds.limited', { model: led.model || '?' });
+        q('#unc-led-limited').innerHTML = fanKnown() ? '' : modelNote(modelBox(led.model || '?', modelFacts(led.model || ''), t));
         q('#unc-led-untested').hidden = !led.untested;
         q('#unc-led-untested').textContent = led.untested ? t('leds.untested', { model: led.model || '?' }) : '';
 
@@ -1905,7 +1913,7 @@ function main(root: HTMLElement): void {
     // A model whose fan readings the page shows: driven (fixed, confirmed probe) or read only.
     const fanShown = () => fanKnown() || fanReadOnly();
     const panelKnown = () => hasButtons(modelName()) || hasBeeper(modelName());
-    const caseKnown = () => fanKnown() || /^(DXP4800( Plus| Pro)?|DXP8800( Plus| Pro)?|DXP2800( GT)?|DXP480T.*|iDX601[12]( Pro)?)$/.test(modelName());
+    const caseKnown = () => fanKnown() || (modelFacts(modelName())?.view ?? 'none') !== 'none';
 
     function renderFront(hw: Hardware, target = '#unc-front'): void {
         q(target).innerHTML = frontHtml(hw);
@@ -2823,7 +2831,6 @@ function main(root: HTMLElement): void {
 
     function renderHero() {
         const hw = state.hw;
-        const info: Partial<Info> = state.data?.info || {};
         const stage = q('#unc-hero');
 
         if (!hw) {
@@ -2834,7 +2841,7 @@ function main(root: HTMLElement): void {
 
         if (!caseKnown()) {
             stage.className = 'unc-hero';
-            stage.innerHTML = emptyText(t('case.unknown', { model: hw.model || info.model || '?' }), 'center');
+            stage.innerHTML = `${emptyText(caseText(t), 'center')}${linkRow(modelsLink())}`;
             return;
         }
 
@@ -3274,6 +3281,12 @@ function main(root: HTMLElement): void {
 
         qa('[data-nav]').forEach(button => {
             button.addEventListener('click', () => showView(button.dataset.nav ?? ''));
+        });
+        document.addEventListener('click', event => {
+            if (!hit(event)?.closest('[data-models-link]')) return;
+            q<HTMLDetailsElement>('#unc-models-fold').open = true;
+            showView('about');
+            q('#unc-models-card').scrollIntoView({ block: 'start' });
         });
         q('.unc-ov').addEventListener('click', event => {
             const link = hit(event)?.closest<HTMLElement>('[data-nav]');

@@ -195,10 +195,19 @@ export const zh: Record<Key, string> = {
     'leds.import_btn': '导入设置',
     'leds.import_after': '之后你可以在“插件”中卸载 UGREEN LED Control：内置的 LED 控制会取代它。',
     'leds.imported': '设置已导入',
-    'case.unknown': '{model} 暂无机箱视图：目前支持 DXP6800 Pro、DXP4800 GT、DXP4800 / Plus / Pro、DXP8800 Plus、DXP2800 以及 iDX6011 / Pro。',
-    'leds.limited':
-        '{model} 支持 LED 控制、系统信息和温度。风扇控制仅适用于型号列表中的机型（固定接线，或经检测或确认后）；机箱视图另外支持 DXP4800 / Plus / Pro、DXP8800 Plus、DXP2800 以及 iDX6011 / Pro。',
-    'leds.limited_fans': '{model} 支持 LED 控制、系统信息、温度和机箱视图。风扇控制仅适用于型号列表中的机型（固定接线，或经检测或确认后）。',
+    'model.box': '{model}：{leds}{fans}{case}',
+    'model.leds.bays': 'LED 控制涵盖盘位 LED 和电源 LED。',
+    'model.leds.power': 'LED 控制仅涵盖电源 LED（LED 控制开启时恒亮白色；不支持颜色、亮度和关闭）。',
+    'model.leds.none': '没有 LED 控制。',
+    'model.fans.fixed': '可使用风扇控制。',
+    'model.fans.probe': '风扇控制在你确认检测结果后启动。',
+    'model.fans.confirm': '风扇控制在你确认风扇后启动。',
+    'model.fans.none': '没有风扇控制。',
+    'model.case.full': '机箱视图显示正面、背面和内部。',
+    'model.case.front_rear': '机箱视图显示正面和背面。',
+    'model.case.none': '此型号暂无机箱视图。',
+    'model.unknown': '{model} 尚未列入型号列表。',
+    'model.all': '所有型号',
     'leds.untested':
         '{model} 的 LED 控制尚未测试：所有 UGREEN 型号的控制器相同，但此型号的盘位顺序和 LED 编号是推测的，或来自其他插件的反馈。请用“识别”确认亮起的是正确的 LED，如有问题请提交 issue。',
     'leds.warn_standalone':

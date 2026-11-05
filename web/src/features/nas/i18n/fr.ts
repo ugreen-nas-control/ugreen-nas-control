@@ -200,12 +200,20 @@ export const fr: Record<Key, string> = {
     'leds.import_btn': 'Reprendre les réglages',
     'leds.import_after': 'Ensuite, vous pouvez désinstaller UGREEN LED Control dans Plugins : le contrôle des LED intégré le remplace.',
     'leds.imported': 'Réglages repris',
-    'case.unknown':
-        'Il n’existe pas encore de vue du boîtier pour le {model} : elle existe pour le DXP6800 Pro, le DXP4800 GT, les DXP4800 / Plus / Pro, le DXP8800 Plus, le DXP2800 et les iDX6011 / Pro.',
-    'leds.limited':
-        'Pour le {model}, le plugin propose le contrôle des LED, les infos système et les températures. Le contrôle des ventilateurs n’existe que pour les modèles de la liste des modèles (câblage fixe, ou après un test ou une confirmation). La vue du boîtier n’existe, elle aussi, que pour les DXP4800 / Plus / Pro, le DXP8800 Plus, le DXP2800 et les iDX6011 / Pro.',
-    'leds.limited_fans':
-        'Pour le {model}, le plugin propose le contrôle des LED, les infos système, les températures et la vue du boîtier. Le contrôle des ventilateurs n’existe que pour les modèles de la liste des modèles (câblage fixe, ou après un test ou une confirmation).',
+    'model.box': 'Sur le {model} : {leds} {fans} {case}',
+    'model.leds.bays': 'Le contrôle des LED couvre les LED des baies et la LED d’alimentation.',
+    'model.leds.power':
+        'Le contrôle des LED ne couvre que la LED d’alimentation (blanc fixe tant que le contrôle des LED est activé ; couleur, luminosité et extinction ne sont pas pris en charge).',
+    'model.leds.none': 'Il n’y a pas de contrôle des LED.',
+    'model.fans.fixed': 'Le contrôle des ventilateurs est disponible.',
+    'model.fans.probe': 'Le contrôle des ventilateurs démarre après un test que vous confirmez.',
+    'model.fans.confirm': 'Le contrôle des ventilateurs démarre une fois que vous avez confirmé les ventilateurs.',
+    'model.fans.none': 'Il n’y a pas de contrôle des ventilateurs.',
+    'model.case.full': 'La vue du boîtier montre l’avant, l’arrière et l’intérieur.',
+    'model.case.front_rear': 'La vue du boîtier montre l’avant et l’arrière.',
+    'model.case.none': 'Il n’existe pas encore de vue du boîtier pour ce modèle.',
+    'model.unknown': 'Le {model} ne figure pas encore dans la liste des modèles.',
+    'model.all': 'Tous les modèles',
     'leds.untested':
         'Le contrôle des LED du {model} n’est pas testé : le contrôleur est le même sur tous les modèles UGREEN, mais l’ordre des baies et les numéros de LED sont supposés pour ce modèle ou viennent de retours d’autres plugins. Vérifiez avec « Identifier » que la bonne LED s’allume, et signalez les problèmes dans un ticket.',
     'leds.warn_standalone':

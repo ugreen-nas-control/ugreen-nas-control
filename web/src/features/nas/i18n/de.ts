@@ -199,12 +199,20 @@ export const de: Record<Key, string> = {
     'leds.import_btn': 'Einstellungen übernehmen',
     'leds.import_after': 'Danach kannst du UGREEN LED Control unter Plugins deinstallieren: die eingebaute LED-Steuerung ersetzt es.',
     'leds.imported': 'Einstellungen übernommen',
-    'case.unknown':
-        'Für die {model} gibt es noch keine Gehäuseansicht. Sie ist für folgende Modelle verfügbar: DXP6800 Pro, DXP4800 GT, DXP4800 / Plus / Pro, DXP8800 Plus, DXP2800 und iDX6011 / Pro.',
-    'leds.limited':
-        'Für die {model} stehen LED-Steuerung, Systeminfo und Temperaturen zur Verfügung. Die Lüfter steuert das Plugin nur bei Modellen aus der Modellliste, deren Verdrahtung bekannt ist oder per Test bestätigt wurde. Die Gehäuseansicht gibt es außerdem für DXP4800 / Plus / Pro, DXP8800 Plus, DXP2800 und iDX6011 / Pro.',
-    'leds.limited_fans':
-        'Für die {model} stehen LED-Steuerung, Systeminfo, Temperaturen und Gehäuseansicht zur Verfügung. Die Lüfter steuert das Plugin nur bei Modellen aus der Modellliste, deren Verdrahtung bekannt ist oder per Test bestätigt wurde.',
+    'model.box': 'Bei der {model}: {leds} {fans} {case}',
+    'model.leds.bays': 'Die LED-Steuerung umfasst die Schacht-LEDs und die Power-LED.',
+    'model.leds.power':
+        'Die LED-Steuerung umfasst nur die Power-LED (weiß leuchtend, solange die LED-Steuerung an ist; Farbe, Helligkeit und Ausschalten gibt es nicht).',
+    'model.leds.none': 'Es gibt keine LED-Steuerung.',
+    'model.fans.fixed': 'Die Lüftersteuerung ist verfügbar.',
+    'model.fans.probe': 'Die Lüftersteuerung startet nach einem Test, den du bestätigst.',
+    'model.fans.confirm': 'Die Lüftersteuerung startet, sobald du die Lüfter bestätigt hast.',
+    'model.fans.none': 'Es gibt keine Lüftersteuerung.',
+    'model.case.full': 'Die Gehäuseansicht zeigt Vorderseite, Rückseite und Innenraum.',
+    'model.case.front_rear': 'Die Gehäuseansicht zeigt Vorder- und Rückseite.',
+    'model.case.none': 'Für dieses Modell gibt es noch keine Gehäuseansicht.',
+    'model.unknown': 'Die {model} steht noch nicht in der Modellliste.',
+    'model.all': 'Alle Modelle',
     'leds.untested':
         'Die LED-Steuerung ist für die {model} ungetestet. Der Controller ist bei allen UGREEN-Modellen derselbe, aber die Reihenfolge der Schächte und die LED-Nummern sind für dieses Modell geraten oder stammen aus Berichten anderer Plugins. Prüfe mit „Schacht identifizieren“, ob die richtige LED leuchtet, und melde Probleme als Issue.',
     'leds.warn_standalone':

@@ -192,12 +192,20 @@ export const es: Record<Key, string> = {
     'leds.import_btn': 'Importar los ajustes',
     'leds.import_after': 'Después puedes desinstalar UGREEN LED Control en Plugins: el control de LED integrado lo sustituye.',
     'leds.imported': 'Ajustes importados',
-    'case.unknown':
-        'Todavía no hay vista de la caja para {model}: existe para el DXP6800 Pro, el DXP4800 GT, los DXP4800 / Plus / Pro, el DXP8800 Plus, el DXP2800 y los iDX6011 / Pro.',
-    'leds.limited':
-        'Para el {model} hay control de LED, información del sistema y temperaturas. El control de ventiladores solo está disponible para los modelos de la lista de modelos (cableado fijo, o tras una prueba o confirmación), la vista de la caja también para los DXP4800 / Plus / Pro, el DXP8800 Plus, el DXP2800 y los iDX6011 / Pro.',
-    'leds.limited_fans':
-        'Para el {model} hay control de LED, información del sistema, temperaturas y la vista de la caja. El control de ventiladores solo está disponible para los modelos de la lista de modelos (cableado fijo, o tras una prueba o confirmación).',
+    'model.box': 'En el {model}: {leds} {fans} {case}',
+    'model.leds.bays': 'El control de LED abarca los LED de las bahías y el LED de encendido.',
+    'model.leds.power':
+        'El control de LED abarca solo el LED de encendido (blanco fijo mientras el control de LED está activado; no admite color, brillo ni apagado).',
+    'model.leds.none': 'No hay control de LED.',
+    'model.fans.fixed': 'El control de ventiladores está disponible.',
+    'model.fans.probe': 'El control de ventiladores se inicia tras una prueba que confirmes.',
+    'model.fans.confirm': 'El control de ventiladores se inicia cuando confirmas los ventiladores.',
+    'model.fans.none': 'No hay control de ventiladores.',
+    'model.case.full': 'La vista de la caja muestra el frente, la parte trasera y el interior.',
+    'model.case.front_rear': 'La vista de la caja muestra el frente y la parte trasera.',
+    'model.case.none': 'Todavía no hay vista de la caja para este modelo.',
+    'model.unknown': 'El {model} todavía no está en la lista de modelos.',
+    'model.all': 'Todos los modelos',
     'leds.untested':
         'El control de LED para el {model} no está probado: el controlador es el mismo en todos los modelos UGREEN, pero el orden de las bahías y los números de LED son estimados para este modelo o proceden de informes de otros plugins. Comprueba con «Identificar» que se enciende el LED correcto e informa de los problemas en un issue.',
     'leds.warn_standalone':

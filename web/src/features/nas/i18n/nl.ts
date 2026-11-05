@@ -200,12 +200,20 @@ export const nl: Record<Key, string> = {
     'leds.import_btn': 'Instellingen overnemen',
     'leds.import_after': 'Daarna kun je UGREEN LED Control verwijderen onder Plug-ins: de ingebouwde LED-besturing neemt het over.',
     'leds.imported': 'Instellingen overgenomen',
-    'case.unknown':
-        'Voor de {model} is er nog geen behuizingsweergave: die bestaat voor de DXP6800 Pro, de DXP4800 GT, de DXP4800 / Plus / Pro, de DXP8800 Plus, de DXP2800 en de iDX6011 / Pro.',
-    'leds.limited':
-        'Voor de {model} is er LED-besturing, systeeminfo en temperaturen. Ventilatorregeling bestaat alleen voor de modellen uit de modellenlijst (vaste bedrading, of na een test of bevestiging), de behuizingsweergave ook voor de DXP4800 / Plus / Pro, de DXP8800 Plus, de DXP2800 en de iDX6011 / Pro.',
-    'leds.limited_fans':
-        'Voor de {model} is er LED-besturing, systeeminfo, temperaturen en de behuizingsweergave. Ventilatorregeling bestaat alleen voor de modellen uit de modellenlijst (vaste bedrading, of na een test of bevestiging).',
+    'model.box': 'Op de {model}: {leds} {fans} {case}',
+    'model.leds.bays': 'LED-besturing omvat de bay-LED’s en de voedings-LED.',
+    'model.leds.power':
+        'LED-besturing omvat alleen de voedings-LED (vast wit zolang LED-besturing aan staat; kleur, helderheid en uitschakelen worden niet ondersteund).',
+    'model.leds.none': 'Er is geen LED-besturing.',
+    'model.fans.fixed': 'Ventilatorregeling is beschikbaar.',
+    'model.fans.probe': 'Ventilatorregeling start na een test die je bevestigt.',
+    'model.fans.confirm': 'Ventilatorregeling start nadat je de ventilatoren hebt bevestigd.',
+    'model.fans.none': 'Er is geen ventilatorregeling.',
+    'model.case.full': 'De behuizingsweergave toont voorkant, achterkant en binnenkant.',
+    'model.case.front_rear': 'De behuizingsweergave toont voorkant en achterkant.',
+    'model.case.none': 'Voor dit model is er nog geen behuizingsweergave.',
+    'model.unknown': 'De {model} staat nog niet in de modellenlijst.',
+    'model.all': 'Alle modellen',
     'leds.untested':
         'LED-besturing voor de {model} is niet getest: de controller is op alle UGREEN-modellen hetzelfde, maar de volgorde van de bays en de LED-nummers zijn voor dit model aangenomen of komen uit meldingen van andere plug-ins. Controleer met “Identificeren” of de juiste LED oplicht en meld problemen als issue.',
     'leds.warn_standalone':
