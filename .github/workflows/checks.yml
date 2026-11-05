@@ -67,7 +67,21 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
         with:
           source-tag: v3.24.1
-      - run: nix develop .#go -c just go-test
+      - run: nix develop .#go -c just go-test-plain
+
+  go-test-race:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+        with:
+          source-tag: v3.24.1
+      - run: nix develop .#go -c just go-test-race
 
   parity:
     runs-on: ubuntu-latest
@@ -279,7 +293,7 @@ jobs:
   # Single required check. Skipped guard and release (other events and branches) count as ok; everything else must succeed.
   ci-ok:
     if: always()
-    needs: [check, go-lint, go-test, parity, build, shell, web, plugin, guard, release, workflows]
+    needs: [check, go-lint, go-test, go-test-race, parity, build, shell, web, plugin, guard, release, workflows]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions: {}
