@@ -268,6 +268,11 @@ export const it: Record<Key, string> = {
         'I quattro slot M.2 fanno da vani, numerati da 01 a 04 come sul pannello inferiore. Quale SSD si trova in quale slot è presunto dall’ordine degli indirizzi PCIe; se il tuo dispositivo è diverso, apri una issue.',
     'case.intro_noinside': 'I dischi nel dettaglio e il retro. Il frontale con i vani è nella Panoramica.',
     'case.intro_m2': 'I dischi M.2 nel dettaglio e il retro. Il frontale è nella Panoramica.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'Il pannello di servizio sul fondo. La memoria è saldata, quindi non ci sono slot RAM. M.2-1 / M.2-2 sono numerati per ipotesi; apri una segnalazione se il tuo box è diverso.',
+    'in.idx6011_ram': 'RAM · {type} · saldata',
+    'in.idx6011_pcie': 'Slot PCIe 4.0 x8',
 
     'safety.intro': 'Limiti che prevalgono sempre sulle curve (non in modalità BIOS).',
     'safety.min': 'Velocità minima delle ventole',

@@ -244,6 +244,11 @@ func TestLayoutFor(t *testing.T) {
 	if l := layoutFor("DXP480T Plus"); l.bayPorts != nil || l.otherSlot != "m2" {
 		t.Errorf("DXP480T Plus: %+v", l)
 	}
+	for _, model := range []string{"iDX6011", "iDX6011 Pro", "iDX6012"} {
+		if l := layoutFor(model); l.bayPorts != nil || l.otherSlot != "m2" {
+			t.Errorf("%s: %+v", model, l)
+		}
+	}
 	for _, model := range []string{"DX4600 Pro", ""} {
 		if l := layoutFor(model); l.bayPorts != nil || l.slots != nil {
 			t.Errorf("%q: %+v", model, l)

@@ -260,6 +260,11 @@ export const es: Record<Key, string> = {
         'Las cuatro ranuras M.2 hacen de bahías, numeradas del 01 al 04 como en el panel inferior. Qué SSD está en qué ranura se supone por el orden de las direcciones PCIe; si tu equipo difiere, abre un issue.',
     'case.intro_noinside': 'Las unidades en detalle y la parte trasera. El frontal con las bahías está en el Resumen.',
     'case.intro_m2': 'Las unidades M.2 en detalle y la parte trasera. El frontal está en el Resumen.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'El panel de servicio de la parte inferior. La memoria está soldada, no hay ranuras de RAM. M.2-1 / M.2-2 están numeradas por suposición; abre una incidencia si tu equipo es distinto.',
+    'in.idx6011_ram': 'RAM · {type} · soldada',
+    'in.idx6011_pcie': 'Ranura PCIe 4.0 x8',
     'safety.intro': 'Límites que siempre se imponen a las curvas (no en modo BIOS).',
     'safety.min': 'Velocidad mínima del ventilador',
     'safety.now_none_cpu': 'no se puede leer, todos al 100 %',

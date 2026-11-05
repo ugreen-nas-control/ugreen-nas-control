@@ -268,6 +268,11 @@ export const de: Record<Key, string> = {
         'Die vier M.2-Plätze ersetzen die Schächte und sind wie auf der Unterseite von 01 bis 04 nummeriert. Welche SSD in welchem Platz steckt, ist aus der Reihenfolge der PCIe-Adressen angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
     'case.intro_noinside': 'Die Laufwerke im Einzelnen und die Rückseite. Die Vorderseite mit den Schächten ist auf der Übersicht.',
     'case.intro_m2': 'Die M.2-Laufwerke im Einzelnen und die Rückseite. Die Vorderseite ist auf der Übersicht.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'Das Wartungsfach an der Unterseite. Der Arbeitsspeicher ist aufgelötet, es gibt keine RAM-Steckplätze. M.2-1 / M.2-2 sind angenommen nummeriert; öffne ein Issue, falls dein Gerät abweicht.',
+    'in.idx6011_ram': 'RAM · {type} · aufgelötet',
+    'in.idx6011_pcie': 'PCIe-4.0-x8-Steckplatz',
 
     'safety.intro': 'Grenzen, die immer vor den Kurven gelten (nicht im BIOS-Modus).',
     'safety.min': 'Niedrigste Lüfterdrehzahl',

@@ -257,6 +257,10 @@ export const zh: Record<Key, string> = {
     'case.free': '空闲',
     'case.running_at': '运行于 {speed} MT/s（最高 {max}）',
     'case.m2_hint': '四个 M.2 插槽代替盘位，编号 01 至 04，与底部面板一致。每块 SSD 所在的插槽按 PCIe 地址顺序假设；如果你的机器不同，请提交 issue。',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint': '机身底部的维护面板。内存为板载焊接，没有内存插槽。M.2-1 / M.2-2 的编号为推测；如果你的机器不同，请提交 issue。',
+    'in.idx6011_ram': '内存 · {type} · 板载',
+    'in.idx6011_pcie': 'PCIe 4.0 x8 插槽',
 
     'case.intro_noinside': '硬盘详情和背面。带盘位的正面请见概览。',
     'case.intro_m2': 'M.2 硬盘详情和背面。正面请见概览。',

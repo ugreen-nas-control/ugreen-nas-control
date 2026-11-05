@@ -269,6 +269,11 @@ export const nl: Record<Key, string> = {
         'De vier M.2-slots vervangen de bays en zijn genummerd van 01 tot 04 zoals op het onderpaneel. Welke SSD in welk slot zit, is aangenomen uit de volgorde van de PCIe-adressen; wijkt jouw apparaat af, open dan een issue.',
     'case.intro_noinside': 'De schijven in detail en de achterkant. De voorkant met de bays staat op het Overzicht.',
     'case.intro_m2': 'De M.2-schijven in detail en de achterkant. De voorkant staat op het Overzicht.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'Het servicepaneel aan de onderkant. Het geheugen is vastgesoldeerd, dus er zijn geen RAM-sleuven. M.2-1 / M.2-2 zijn op aanname genummerd; open een issue als jouw kast afwijkt.',
+    'in.idx6011_ram': 'RAM · {type} · vastgesoldeerd',
+    'in.idx6011_pcie': 'PCIe 4.0 x8-sleuf',
 
     'safety.intro': 'Grenzen die altijd winnen van de curves (niet in BIOS-modus).',
     'safety.min': 'Laagste ventilatortoerental',

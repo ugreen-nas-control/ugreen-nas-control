@@ -42,6 +42,7 @@ export interface CaseModel {
     inside2800gt?: boolean;
     inside8800?: boolean;
     inside4800?: boolean;
+    inside6011?: boolean;
     pcie?: boolean;
     sys?: boolean;
     hint?: Key;
@@ -121,7 +122,7 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
         }
     ],
     // iDX6011 and iDX6011 Pro: six bays and a small display at the front, the ports like the DXP6800 Pro's;
-    // the back after a photo (PCIe slot, mesh, vent, power inlet). No inside view, no fan control.
+    // the back after a photo (PCIe slot, mesh, vent, power inlet). No fan control.
     // DXP2800 GT: the same chassis in black with a grille like the DXP4800 GT; one 10G LAN port. Front after the product
     // photos: power button, LAN/DISK1/DISK2 LEDs, no bay LED bars. Inside after the manual.
     [
@@ -143,7 +144,7 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
         }
     ],
     [
-        /^iDX6011( Pro)?$/,
+        /^iDX601[12]( Pro)?$/,
         {
             front: [
                 ['sd', 'SD'],
@@ -154,7 +155,9 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
             screen: true,
             rear6011: true,
             rear: [],
-            noInside: true
+            pcie: true,
+            inside6011: true,
+            hint: 'in.idx6011_hint'
         }
     ],
     // DXP8800 Plus: eight bays; the back after a photo (rear8800Html); the inside after UGREEN's manual. No fan control.

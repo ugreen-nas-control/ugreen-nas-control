@@ -576,10 +576,10 @@
       "cpu": "Intel Core Ultra 5 125H (Pro: Core Ultra 7 255H)",
       "bays": 6,
       "m2Slots": 2,
-      "m2": null,
+      "m2": { "slots": ["m2-1", "m2-2"], "pcieSlot": true },
       "lan": { "maxMbit": [10000, 10000] },
       "led": "bays",
-      "caseView": "front-rear",
+      "caseView": "full",
       "fan": {
         "chip": "ITE IT5571 embedded controller",
         "fans": { "fan1": "cpu", "fan2": "cpu", "fan3": "case", "fan4": "case" },
@@ -600,7 +600,7 @@
         },
         "case": {
           "status": "expected",
-          "note": "Drawn after photos, not compared on a device. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
+          "note": "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. Not compared on a device. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
         },
         "sensors": { "status": "expected" }
       },

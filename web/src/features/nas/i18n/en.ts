@@ -266,6 +266,11 @@ export const en = {
         'The four M.2 slots stand in for bays, numbered 01 to 04 as on the bottom panel. Which SSD sits in which slot is assumed from the order of the PCIe addresses; open an issue if your box differs.',
     'case.intro_noinside': 'The drives in detail and the rear. The front with the bays is on the Overview.',
     'case.intro_m2': 'The M.2 drives in detail and the rear. The front is on the Overview.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'The underside service panel. The memory is soldered, so there are no RAM slots. M.2-1 / M.2-2 are numbered by assumption; open an issue if your box differs.',
+    'in.idx6011_ram': 'RAM · {type} · soldered',
+    'in.idx6011_pcie': 'PCIe 4.0 x8 slot',
 
     'safety.intro': 'Limits that always win over the curves (not in BIOS mode).',
     'safety.min': 'Lowest fan speed',

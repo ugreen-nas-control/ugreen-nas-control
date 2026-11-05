@@ -269,6 +269,11 @@ export const fr: Record<Key, string> = {
         'Les quatre emplacements M.2 tiennent lieu de baies, numérotés de 01 à 04 comme sur le panneau inférieur. Le SSD de chaque emplacement est supposé d’après l’ordre des adresses PCIe ; ouvrez un ticket si votre appareil diffère.',
     'case.intro_noinside': 'Les disques en détail et l’arrière. La façade avec les baies se trouve dans l’aperçu.',
     'case.intro_m2': 'Les disques M.2 en détail et l’arrière. La façade se trouve dans l’aperçu.',
+    // iDX6011 / iDX6012 / Pro
+    'in.idx6011_hint':
+        'Le panneau de service sur le dessous. La mémoire est soudée, il n’y a pas de barrettes. M.2-1 / M.2-2 sont numérotés par hypothèse ; ouvrez un ticket si votre boîtier diffère.',
+    'in.idx6011_ram': 'RAM · {type} · soudée',
+    'in.idx6011_pcie': 'Emplacement PCIe 4.0 x8',
 
     'safety.intro': 'Limites qui l’emportent toujours sur les courbes (hors mode BIOS).',
     'safety.min': 'Vitesse minimale des ventilateurs',

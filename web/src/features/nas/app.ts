@@ -2505,6 +2505,60 @@ function main(root: HTMLElement): void {
             </svg>`;
     }
 
+    // iDX6011 / iDX6012 / Pro: the service panel on the underside (after UGREEN's manual and the NASCompares photos): a mainboard strip with
+    // two M.2 Gen4 x4 slots stacked (M.2-1 above M.2-2, numbering assumed), the coin cell and the PCIe Gen4 x8 slot. The LPDDR5X memory is soldered:
+    // no slots, one block with the total. The Pro and the plain boxes differ in RAM size only.
+    function inside6011Html(hw: Hardware): string {
+        const ssd = (slot: string): Nvme | undefined => hw.nvme.find(d => d.slot === slot);
+        const loose = hw.nvme.filter(d => d.slot === 'm2');
+        const drives = [ssd('m2-1'), ssd('m2-2')];
+        for (let i = 0; i < drives.length; i++) if (!drives[i]) drives[i] = loose.shift();
+        const card = ssd('pcie');
+        const mem = hw.memory.filter(m => m.size_mb);
+        const total = mem.reduce((sum, m) => sum + m.size_mb, 0);
+        const type = mem.find(m => m.type)?.type || 'LPDDR5X';
+        const speed = mem[0] ? mem[0].configured_mt || mem[0].speed_mt : 0;
+        const m2 = (y: number, drive: Nvme | undefined, n: number): string => {
+            const label = t('in.m2', { n });
+            const silk = `<text x="250" y="${y - 7}" style="fill:var(--bd-text2)" font-size="10">M.2 NVMe · PCIe Gen4 ×4</text>`;
+            const connector = `<rect x="592" y="${y + 12}" width="8" height="42" rx="2" fill="#aeb6bf"/>`;
+            if (!drive) {
+                return `${silk}${connector}<rect x="250" y="${y}" width="340" height="66" rx="3" fill="none" style="stroke:var(--bd-sockedge)" stroke-width="2" stroke-dasharray="6 5"/>${boardText(60, y + 38, t('in.slot_empty', { label }))}`;
+            }
+            const role = drive.boot ? t('nvme.boot') : ssdRoleText(drive.role);
+            const roleText = role.length > 24 ? `${role.slice(0, 23)}…` : role;
+
+            return `${silk}${connector}<g transform="translate(250 ${y})">${nvmeModule(340, 66, drive, true)}</g>${tempBadge6800(60, y + 4, drive.temp)}${boardText(60, y + 38, label)}${roleText ? boardText(60, y + 52, roleText) : ''}`;
+        };
+        const packages = [0, 1, 2, 3]
+            .map(i => `<rect x="${620 + i * 76}" y="64" width="60" height="44" rx="4" style="fill:var(--bd-sock);stroke:var(--bd-sockedge)" stroke-width="2"/>`)
+            .join('');
+
+        return `
+            <svg class="unc-board-svg" viewBox="0 0 1000 590" role="img" aria-label="${escapeHtml(t('case.inside'))}">
+                <defs>
+                    <pattern id="unc-ribs" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" style="fill:var(--bd-ribA)"/><rect width="8" height="3.5" style="fill:var(--bd-ribB)"/></pattern>
+                </defs>
+                <rect x="10" y="10" width="980" height="570" rx="26" style="fill:var(--bd-g2);stroke:var(--bd-edge)" stroke-width="3"/>
+                <rect x="40" y="36" width="540" height="110" rx="8" fill="url(#unc-ribs)" style="stroke:var(--bd-plate)" stroke-width="2"/>
+                <text x="310" y="104" style="fill:var(--bd-ink)" font-size="34" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text>
+                ${packages}
+                ${boardText(620, 134, `${t('in.idx6011_ram', { type })} · ${fmtRam(total)}${speed ? ` · ${speed} MT/s` : ''}`)}
+                <rect x="40" y="170" width="920" height="380" rx="10" style="fill:var(--bd-g1);stroke:var(--bd-edge)" stroke-width="2"/>
+                <circle cx="62" cy="192" r="7" fill="#b87333"/><circle cx="938" cy="192" r="7" fill="#b87333"/><circle cx="62" cy="528" r="7" fill="#b87333"/><circle cx="938" cy="528" r="7" fill="#b87333"/>
+                ${m2(236, drives[0], 1)}
+                ${m2(346, drives[1], 2)}
+                <circle cx="760" cy="300" r="46" style="fill:var(--bd-sock);stroke:var(--bd-sockedge)" stroke-width="2"/><circle cx="760" cy="300" r="30" style="fill:var(--bd-sock2);stroke:var(--bd-sockedge)" stroke-width="2"/>
+                <rect x="250" y="456" width="690" height="26" rx="5" style="fill:var(--bd-sock);stroke:var(--bd-sockedge)" stroke-width="2"/>
+                <text x="595" y="474" style="fill:var(--bd-text2)" font-size="12" text-anchor="middle">${escapeHtml(t('in.idx6011_pcie'))}${card ? '' : ` · ${escapeHtml(t('case.free'))}`}</text>
+                ${
+                    card
+                        ? `${tempBadge6800(60, 500, card.temp)}${boardText(60, 526, t('in.pcie_card'))}${boardText(60, 540, card.boot ? t('nvme.boot') : ssdRoleText(card.role))}<g transform="translate(250 496)">${nvmeModule(340, 66, card, true)}</g>`
+                        : ''
+                }
+            </svg>`;
+    }
+
     // DXP4800, Plus and Pro: the service panel on the underside after UGREEN's manual and a photo of the open panel:
     // two SO-DIMM sockets stacked (RAM 1 on top) and two M.2 slots side by side (M.2-1 at the left), connectors at the bottom.
     function inside4800Html(hw: Hardware): string {
@@ -2623,6 +2677,13 @@ function main(root: HTMLElement): void {
             q(target).classList.add('board-svg');
             setHint(q('#unc-inside-hint'), caseModel(hw).hint);
             q(target).innerHTML = inside8800Html(hw);
+            return;
+        }
+
+        if (caseModel(hw).inside6011) {
+            q(target).classList.add('board-svg');
+            setHint(q('#unc-inside-hint'), caseModel(hw).hint);
+            q(target).innerHTML = inside6011Html(hw);
             return;
         }
 
