@@ -40,6 +40,7 @@ export interface CaseModel {
     inside4800gt?: boolean;
     inside2800gt?: boolean;
     inside8800?: boolean;
+    inside4800?: boolean;
     pcie?: boolean;
     sys?: boolean;
     hint?: Key;
@@ -83,7 +84,7 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
         }
     ],
     // DXP4800, DXP4800 Plus and DXP4800 Pro: one chassis, drawn after a photo of the Plus. The slots of the
-    // M.2 SSDs are not known, so there is no inside view; no fan control either.
+    // inside view after UGREEN's manual; no fan control either.
     // DXP2800: a shrunken DXP4800, drawn after photos: two bays, USB-C and USB-A at the front (no SD slot), one
     // 2.5G LAN port at the back. No inside view, no fan control.
     [
@@ -162,7 +163,8 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
             ],
             rear4800: true,
             rear: [],
-            noInside: true
+            inside4800: true,
+            hint: 'case.inside_hint_4800'
         }
     ]
 ];
