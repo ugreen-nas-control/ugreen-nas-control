@@ -121,6 +121,7 @@
               "xmllint"
             ];
             plugin = [
+              "go"
               "bun"
               "rsvg-convert"
               "xmllint"
