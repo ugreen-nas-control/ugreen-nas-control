@@ -3,7 +3,7 @@ name: 'Checks (lint, tests, build)'
 # Every job runs the same `just` recipes as local development, inside the flake's devShell, in parallel. `check` runs the
 # recipes no other job runs (format, php, xml, models, docs); together the jobs cover all of `just check`.
 # `changes` skips the Go, web, shell and workflow jobs on PRs into next that do not touch their paths (see its comment); `plugin` (build, plg, changes-check,
-# generated-check), `check` and `guard` always run. They add the plg artifact, the guard and the release verification.
+# the generated-files check), `check` and `guard` always run. They add the plg artifact, the guard and the release verification.
 # Nix installer: DeterminateSystems/nix-installer-action. It enables flakes by default and is quick on ephemeral
 # runners. No Nix cache action: every shell is built by cache.nixos.org already (nothing local to cache), the GHA-backed magic-nix-cache gets throttled (HTTP 418).
 # Required status check for branch protection: `ci-ok`.
