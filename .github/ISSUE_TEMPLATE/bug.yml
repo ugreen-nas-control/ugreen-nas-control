@@ -6,7 +6,7 @@ body:
     id: model
     attributes:
       label: NAS model
-      placeholder: DXP6800 Pro
+      placeholder: As shown in About
     validations:
       required: true
   - type: input

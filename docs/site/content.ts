@@ -16,7 +16,7 @@ export const HELP = {
     title: 'Help the project.',
     intro: 'The project takes no money for now. It needs test reports and test hardware.',
     test: 'Test on your model: in the plugin open About, "Confirm my device", and send the prefilled report.',
-    lend: 'Lend or donate a test device (DXP2800 GT, DXP480T Plus, DXP8800 Plus, iDX6011 Pro, DXP2800 V1.2 board).',
+    lend: 'Lend or donate a test device of a model that is not verified yet.',
     button: 'Test hardware wanted',
     url: 'https://github.com/ugreen-nas-control/ugreen-nas-control/discussions/134'
 };
@@ -26,9 +26,8 @@ export const CA_LIVE = false;
 
 /** Meta description and keywords: the one place besides the hero where the official line name appears for search. */
 export const META_DESC =
-    'The Unraid control plugin for UGREEN NAS (DX, DXP, iDX): fan curves, LEDs, case view, sensors, a dashboard tile, the hardware watchdog petted only when it is running, power on after AC loss and a read-only front-panel view. No kernel module. The page runs the real plugin interface on sample data.';
-export const KEYWORDS =
-    'UGREEN NAS, Unraid plugin, DXP6800 Pro, DXP4800, DXP8800, DXP2800 GT, iDX6011, fan control, LED control, watchdog, case view, Community Applications';
+    'The Unraid control plugin for UGREEN NAS: fan curves, LEDs, case view, sensors, a dashboard tile, the hardware watchdog petted only when it is running, power on after AC loss and a read-only front-panel view. No kernel module. The page runs the real plugin interface on sample data.';
+export const KEYWORDS = 'UGREEN NAS, Unraid plugin, fan control, LED control, watchdog, case view, Community Applications';
 export const HEADLINE = 'The Unraid control plugin for UGREEN NAS. Fans, LEDs, watchdog.';
 export const SUBLINE =
     'Your UGREEN is not a generic box. Quiet fans with a safe fallback, the hardware watchdog kept fed so a frozen box reboots itself, LEDs that say something, a live case view of every bay. One plugin, no kernel module. The box below is the real plugin: click it.';
@@ -163,7 +162,7 @@ export const EXTRAS = {
 } as const;
 
 /** The ARM models of the home series cannot run Unraid; the one sentence that says so on the site and in the README. */
-export const ARM_NOTE = "Runs on every UGREEN NAS that runs Unraid: the x86 DX, DXP and iDX series. (The ARM-based DH models can't run Unraid.)";
+export const ARM_NOTE = "Runs on UGREEN's x86 models. Models with an ARM chip can't run Unraid.";
 
 export const CASE_LABEL = { none: 'none', 'front-rear': 'front and rear', full: 'front, rear and inside' } as const;
 

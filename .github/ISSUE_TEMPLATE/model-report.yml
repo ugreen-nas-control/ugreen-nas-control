@@ -7,7 +7,7 @@ body:
     attributes:
       label: Model (DMI product name)
       description: cat /sys/class/dmi/id/product_name
-      placeholder: DXP4800 Plus
+      placeholder: As shown in About
     validations:
       required: true
   - type: input

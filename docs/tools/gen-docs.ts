@@ -1,7 +1,7 @@
 // Renders the model tables of the docs from web/models/ (the registry) between <!-- models:start --> and
 // <!-- models:end --> in README.md and docs/hardware.md. Also checks the hand-written docs: every repo-relative link
 // and anchor and every path in backticks must exist, every `just <recipe>` must be a recipe of the justfile, and
-// docs/README.md (the hand-written index) must link every Markdown file.
+// docs/README.md (the hand-written index) must link every Markdown file. README.md must not name a model outside its generated blocks.
 //
 //   bun docs/tools/gen-docs.ts           write the generated blocks
 //   bun docs/tools/gen-docs.ts --check   fail when a block is out of date or a link/recipe is broken
@@ -226,6 +226,14 @@ function problems(file: string, text: string, known: Set<string>): string[] {
     return bad;
 }
 
+/** README model facts come only from the generated blocks: any model name, id or series+digit name outside them goes stale. */
+function readmeModelMentions(text: string): string[] {
+    const outside = text.replace(/<!-- ([a-z]+):start -->[\s\S]*?<!-- \1:end -->/g, '');
+    const names = models.flatMap(m => [m.name, m.id]).map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const re = new RegExp(`(?<![\\w-])(?:${names.join('|')})(?![\\w-])|\\b(?:DXP|DX|DH|iDX)\\d`, 'gi');
+    return [...new Set(outside.match(re) ?? [])];
+}
+
 const check = process.argv.includes('--check');
 const errors: string[] = [];
 
@@ -264,6 +272,9 @@ for (const [file, render] of Object.entries(RENDER)) {
         if (!index.includes(`](${relative(join(root, 'docs'), join(root, f))})`)) errors.push(`docs/README.md: no link to ${f}`);
     }
 }
+
+for (const hit of readmeModelMentions(readFileSync(join(root, 'README.md'), 'utf8')))
+    errors.push(`README.md: "${hit}" is a hand-written model fact; model names and series belong only in the generated blocks (web/models/, run just docs)`);
 
 const known = recipes();
 for (const file of markdownFiles()) errors.push(...problems(file, readFileSync(join(root, file), 'utf8'), known));
