@@ -59,7 +59,7 @@ export default {
             version: '5.5.0',
             date: '2026-11-07',
             ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/266',
-            note: 'Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102). panel buttons --watch saw the reset button (down and up, held 0.60 s) but never the power button. The power button does start the box from off, so it may reach Linux as an ACPI power-button event instead of through this pad; not checked yet.'
+            note: 'Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102). panel buttons --watch saw the reset button (down and up, held 0.60 s) but never the power button. The power button is a standard ACPI power button (/proc/bus/input/devices: Power Button, PNP0C0C/button/input0) that Unraid handles itself: set Settings > Power Options > Power Button there. The panel pad cannot read it, so the plugin’s shutdown on a held power button does not apply on this model. The button also starts the box from off.'
         }
     },
     sources: [

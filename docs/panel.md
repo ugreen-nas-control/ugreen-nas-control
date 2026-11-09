@@ -39,6 +39,7 @@ Vendor press rules, which `--watch` follows:
 - Power: a press is reported on the first poll (the embedded controller forwards it), on the DXP2800 GT after 100 polls (5 s). A release is reported only after the button was down for 100 polls, so a short press has `down` and `up` but no `release`.
 - The DXP2800 GT driver clears bit 23 of each register at start (pin to input). The tool does not write, so it reads the pins as the firmware left them.
 - iDX6011/6012: the vendor comment says the power key sits on ACPI and cannot be read by address, yet it lists an address. Treat the power reading there as doubtful.
+- DXP4800 Plus (issue #266) and DXP8800 Plus (issue #165): the power button is a standard ACPI power button. `/proc/bus/input/devices` lists `Power Button` on `PNP0C0C/button/input0` (kbd event6 and event2), `/proc/acpi/button/` is absent, and `panel buttons --watch` never sees a press on the DXP4800 Plus. Unraid acts on it under Settings > Power Options > Power Button (`/etc/acpi/acpi_handler.sh`); the shutdown on a held power button does not apply on these models.
 
 ## Shut down on a held power button
 
@@ -105,9 +106,8 @@ The beeper test is confirmed on the DXP8800 Plus by a user, who heard the sound 
 
 ## Open on hardware
 
-- DXP4800 Plus power button (issue #266): `panel buttons --watch` sees reset, but the power pad (0xFD6A0980, 0x04000100) never changes on a press, while the button does start the box from off. Open: whether it reaches Linux as an ACPI power-button event (`/proc/bus/input/devices`, `acpi_listen`) instead of through the pad.
 - Why the DXP8800 Plus pad registers read 0xFF on some boots only (issue #165), whether other models do the same, and whether they can be mapped on the running kernel (`STRICT_DEVMEM`, a driver that claimed the range) and whether the bit meaning and levels above hold on each model.
-- DXP8800 Plus power button (issue #165): the pad shows one 0.2 s pulse only after about 10 s of holding, so the 1.5 s hold cannot fire there. The button is a standard ACPI power button: `/proc/bus/input/devices` lists `Power Button` on `PNP0C0C/button/input0` (handler kbd event2), `/proc/acpi/button/` is absent, and Unraid’s `/etc/acpi/acpi_handler.sh` acts on Settings > Power Options > Power Button. Open: what the pad pulse is.
+- DXP8800 Plus power button (issue #165): the pad shows one 0.2 s pulse only after about 10 s of holding, so the 1.5 s hold cannot fire there. Open: what the pad pulse is.
 - The shutdown on a held power button on a model whose pad follows a press: that the 1.5 s hold fires with the button still down and the array stops.
 - Whether a speaker is wired on each PC speaker model, and whether the EC and pad beepers sound.
 - The power button on iDX6011/6012 and the 5 s press on the DXP2800 GT.
