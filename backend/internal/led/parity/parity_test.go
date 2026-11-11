@@ -286,7 +286,7 @@ func scenarios() []scenario {
 		}, run: func(r *rig) { r.runs("status") }},
 
 		{name: "status-default", run: func(r *rig) { r.runs("status") }},
-		{name: "status-chip-down", run: func(r *rig) {
+		{name: "status-chip-down", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.write("stubs/chip.fail", "")
 			r.runs("status")
 		}},
