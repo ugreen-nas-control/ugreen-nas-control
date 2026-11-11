@@ -84,7 +84,6 @@ function formHtml(ctx: FanCtx, draft: MqttDraft, saved: MqttResponse): string {
     const login = (['user', 'pass', 'name', 'interval'] as const).map(field => row(ctx, field, draft, saved)).join('');
     return `${sw('enabled', 'mqtt.enabled', 'mqtt.enabled_hint')}
         <div data-state></div>
-        ${ui.sectionHead(t('mqtt.host'))}
         ${rows}
         ${sw('tls', 'mqtt.tls', 'mqtt.tls_hint')}
         ${login}
