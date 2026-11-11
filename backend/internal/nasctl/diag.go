@@ -938,8 +938,8 @@ func (c *Ctl) diag(asJSON bool) int {
 		}()
 		if in.Blocker != "model" {
 			in.LEDRan = true
-			out, err := runTimeout(toolTimeout, c.Env.LEDI2C, "probe")
-			in.LEDOK, in.LEDProbe = err == nil, []byte(out)
+			out, ok, reason := c.ledProbe()
+			in.LEDOK, in.LEDProbe, in.LEDError = ok, []byte(out), reason
 		}
 		wg.Wait()
 		if fanPanic != nil {

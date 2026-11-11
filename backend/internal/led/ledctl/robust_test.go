@@ -182,6 +182,25 @@ func TestStatusReportsRejectedController(t *testing.T) {
 	}
 }
 
+// One missed answer from the controller must not turn the list empty (the LED page greys out its controls on []).
+func TestListRetriesMissedAnswer(t *testing.T) {
+	r := newRig(t, "DXP2800")
+	r.chip.failN = 2
+	if rc := r.ctl("list"); rc != 0 {
+		t.Fatalf("rc = %d", rc)
+	}
+	if out := r.out.String(); !strings.Contains(out, `"power"`) {
+		t.Errorf("list = %q, want the LEDs", out)
+	}
+
+	r = newRig(t, "DXP2800")
+	r.chip.failN = 3
+	r.ctl("list")
+	if out := strings.TrimSpace(r.out.String()); out != "[]" {
+		t.Errorf("list after three misses = %q, want []", out)
+	}
+}
+
 func diskINI(spundown, temp string) string {
 	return fmt.Sprintf("[disk1]\nname=\"disk1\"\ndevice=\"sda\"\nstatus=\"DISK_OK\"\nspundown=%q\ntemp=%q\nid=\"X_1\"\n[disk2]\nname=\"disk2\"\ndevice=\"sdb\"\nstatus=\"DISK_DSBL\"\n", spundown, temp)
 }

@@ -19,6 +19,7 @@ type memChip struct {
 	state map[string][7]string // mode brightness R G B on off
 	calls []string
 	fail  bool
+	failN int // the next failN commands exit 1, then the chip answers
 	rc    int // when set, every command exits with it (4 = the controller rejects everything)
 }
 
@@ -38,6 +39,10 @@ func (m *memChip) Exec(args []string, stdout, _ io.Writer) int {
 	defer m.mu.Unlock()
 	m.calls = append(m.calls, strings.Join(args, " "))
 	if m.fail {
+		return 1
+	}
+	if m.failN > 0 {
+		m.failN--
 		return 1
 	}
 	if m.rc != 0 {

@@ -555,7 +555,7 @@ func (c *Ctl) ledBoot() int {
 		if !run(ctl, c.Out, c.Err, "dxp480t") {
 			c.out("WARNING: The power LED did not accept the steady-white init.\n")
 		}
-	} else if run(c.Env.LEDI2C, nil, nil, "probe") {
+	} else if _, ok, _ := c.ledProbe(); ok {
 		run(ctl, c.Out, c.Err, "apply")
 
 		cfg, _ := os.ReadFile(c.Env.LEDCfg)
@@ -695,3 +695,20 @@ func (c *Ctl) powerStart() int {
 }
 
 func (c *Ctl) powerStop() { c.terminate(c.Env.PowerPidFile, 30) }
+
+// ledProbe asks the LED tool to probe, up to three times 300 ms apart: one failed probe (the controller did not answer
+// while the daemon or an effect was writing) is not "no controller". It returns the stdout of the last try and, on
+// failure, the tool's own reason.
+func (c *Ctl) ledProbe() (out string, ok bool, reason string) {
+	for i := range 3 {
+		if i > 0 {
+			c.Sleep(300 * time.Millisecond)
+		}
+		var err error
+		if out, err = runTimeout(toolTimeout, c.Env.LEDI2C, "probe"); err == nil {
+			return out, true, ""
+		}
+		reason = strings.TrimSpace(strings.TrimPrefix(err.Error(), "ERROR: "))
+	}
+	return out, false, reason
+}
