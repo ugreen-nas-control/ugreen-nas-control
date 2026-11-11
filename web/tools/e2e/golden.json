@@ -1133,9 +1133,9 @@
         "text": "9e0d16546298"
       },
       "nav settings": {
-        "requests": ["nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "d648a7870210"
+        "text": "33ca11e0190c"
       },
       "nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -1198,11 +1198,12 @@
           "led GET {\"action\":\"status\"}",
           "nas GET {\"action\":\"fan_profile_sources\"}",
           "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
           "nas GET {\"action\":\"power_ac_get\"}",
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "d648a7870210"
+        "text": "33ca11e0190c"
       },
       "models fold + confirm issue": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -2905,9 +2906,9 @@
         "text": "8336409f90b2"
       },
       "nav settings": {
-        "requests": ["nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "a966a5d65b69"
+        "text": "45679e261f4e"
       },
       "nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -3027,21 +3028,22 @@
           "nas GET {\"action\":\"fan_inputs\"}",
           "nas GET {\"action\":\"fan_profile_sources\"}",
           "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
           "nas GET {\"action\":\"power_ac_get\"}",
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "a966a5d65b69"
+        "text": "45679e261f4e"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "00f980010607"
+        "text": "a03581e1111b"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "a966a5d65b69"
+        "text": "45679e261f4e"
       },
       "models fold + confirm issue": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -4745,9 +4747,9 @@
         "text": "10bd95a32e7b"
       },
       "nav settings": {
-        "requests": ["nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "c886cad07ff4"
+        "text": "8394bfa36c83"
       },
       "nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -4867,21 +4869,22 @@
           "nas GET {\"action\":\"fan_inputs\"}",
           "nas GET {\"action\":\"fan_profile_sources\"}",
           "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
           "nas GET {\"action\":\"power_ac_get\"}",
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "c886cad07ff4"
+        "text": "8394bfa36c83"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "8ab2657a1a61"
+        "text": "b83acceeb64a"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "c886cad07ff4"
+        "text": "8394bfa36c83"
       },
       "models fold + confirm issue": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -6608,9 +6611,9 @@
         "text": "7c0a28baa052"
       },
       "nav settings": {
-        "requests": ["nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "0968596643c0"
+        "text": "ddef6ea54c7e"
       },
       "nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -6733,31 +6736,32 @@
           "nas GET {\"action\":\"fan_inputs\"}",
           "nas GET {\"action\":\"fan_profile_sources\"}",
           "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
           "nas GET {\"action\":\"power_ac_get\"}",
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "0968596643c0"
+        "text": "ddef6ea54c7e"
       },
       "backlight 40 %": {
         "requests": ["nas POST {\"action\":\"fan_backlight\",\"pct\":\"40\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "8f40d065bf4d"
+        "text": "ed8632a9a693"
       },
       "backlight 100 %": {
         "requests": ["nas POST {\"action\":\"fan_backlight\",\"pct\":\"100\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "2b06cdbcee1c"
+        "text": "8ff364276236"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "1b040a8965f4"
+        "text": "ce4aba1c9469"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "2b06cdbcee1c"
+        "text": "8ff364276236"
       },
       "models fold + confirm issue": {
         "requests": ["nas GET {\"action\":\"status\"}"],
