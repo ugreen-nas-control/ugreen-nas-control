@@ -247,7 +247,7 @@ func scenarios() []scenario {
 		{name: "usage-errors", inert: true, run: func(r *rig) {
 			r.runs("get", "get a b", "on", "off", "stop", "brightness x", "color x y", "color power 1 2", "blink power 1", "breath power", "identify", "identify-stop", "daemon bogus", "fx bogus", "on power extra")
 		}},
-		{name: "list", run: func(r *rig) {
+		{name: "list", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.runs("list")
 			r.write("stubs/chip.fail", "")
 			r.runs("list")
@@ -290,7 +290,7 @@ func scenarios() []scenario {
 			r.write("stubs/chip.fail", "")
 			r.runs("status")
 		}},
-		{name: "status-chip-down-cached", run: func(r *rig) {
+		{name: "status-chip-down-cached", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.write("run/bus", "3\n")
 			r.write("stubs/chip.fail", "")
 			r.runs("status")
