@@ -21,6 +21,9 @@ const FAN_TOOL = PLUGIN_DIR . '/backend/ugreen-nas-fan';
 const CTL = PLUGIN_DIR . '/backend/ugreen-nas-ctl';
 const NAS_BIN = PLUGIN_DIR . '/backend/ugreen-nas';
 
+// The tools run with this environment only: php-fpm has no PATH, and dmidecode, ethtool, pgrep need one.
+const TOOL_ENV = ['PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'];
+
 // Saved settings, read by the fan daemon every 2 seconds.
 const CONFIG_FILE = '/boot/config/plugins/ugreen-nas-control/fan.cfg';
 const CONFIG_LOCK = '/var/run/ugreen-nas-control.fan.cfg.lock';
@@ -36,7 +39,7 @@ function respond(array $data, int $code = 200): never
 
 function run(string $tool, array $args): array
 {
-    $process = @proc_open(array_merge([$tool], $args), [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, '/', []);
+    $process = @proc_open(array_merge([$tool], $args), [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, '/', TOOL_ENV);
 
     if (!is_resource($process)) {
         return ['code' => 127, 'output' => '', 'errors' => 'Cannot start ' . $tool, 'message' => 'Cannot start ' . $tool];
