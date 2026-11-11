@@ -1,6 +1,6 @@
 # MQTT
 
-The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default and has no settings page yet: edit `fan.cfg`, then run `ugreen-nas-ctl restart` (or `mqtt-start`).
+The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default. Switch it on in the MQTT card on the Settings page; a save restarts the publisher. The settings are the keys below in `fan.cfg`, which can also be edited by hand, then `ugreen-nas-ctl mqtt-stop` and `mqtt-start`.
 
 The publisher is `ugreen-nas-fan publish` (`backend/internal/mqtt`, a small hand-written MQTT 3.1.1 client, no dependency). It only reads, the way the status page does, and never writes a fan register. It runs apart from the fan daemon, so it also runs where fan control is off. `ugreen-nas-ctl start` and `stop` start and stop it with the daemon; `mqtt-start`, `mqtt-stop` and `mqtt-status` handle it alone. Pid file `/var/run/ugreen-nas-control-mqtt.pid`, log `/var/log/ugreen-nas-control-mqtt.log` (replaced on every start).
 
@@ -8,18 +8,18 @@ The publisher is `ugreen-nas-fan publish` (`backend/internal/mqtt`, a small hand
 
 In `/boot/config/plugins/ugreen-nas-control/fan.cfg`. The keys work in a v1 and a v2 file; the plugin never rewrites the file on its own.
 
-| Key                       | Meaning                                                                                              |
-| ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `mqtt_enabled`            | `1` to run the publisher                                                                             |
-| `mqtt_host`               | broker (required)                                                                                    |
-| `mqtt_port`               | default 1883, 8883 with TLS                                                                          |
-| `mqtt_tls`                | `1` for TLS (1.2 or newer)                                                                           |
-| `mqtt_user`, `mqtt_pass`  | login; the password stays in `fan.cfg` on the flash drive, like the other settings                   |
-| `mqtt_name`               | name in the topics, letters, digits, `_` and `-` (default: the host name)                            |
-| `mqtt_interval`           | seconds between two states, 2 to 60 (default 5)                                                      |
-| `mqtt_control`            | `1` lets a display restart and shut down the NAS (off by default)                                    |
-| `mqtt_control_updates`    | `1` lets a display update plugins (off by default)                                                   |
-| `mqtt_control_containers` | `1` lets a display update Docker containers that Unraid lists as having a new image (off by default) |
+| Key                       | Meaning                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mqtt_enabled`            | `1` to run the publisher                                                                                                                               |
+| `mqtt_host`               | broker (required)                                                                                                                                      |
+| `mqtt_port`               | default 1883, 8883 with TLS                                                                                                                            |
+| `mqtt_tls`                | `1` for TLS (1.2 or newer)                                                                                                                             |
+| `mqtt_user`, `mqtt_pass`  | login; the password stays in `fan.cfg` on the flash drive, like the other settings; the page never shows it again and takes none with `"`, `\` or `${` |
+| `mqtt_name`               | name in the topics, letters, digits, `_` and `-` (default: the host name)                                                                              |
+| `mqtt_interval`           | seconds between two states, 2 to 60 (default 5)                                                                                                        |
+| `mqtt_control`            | `1` lets a display restart and shut down the NAS (off by default)                                                                                      |
+| `mqtt_control_updates`    | `1` lets a display update plugins (off by default)                                                                                                     |
+| `mqtt_control_containers` | `1` lets a display update Docker containers that Unraid lists as having a new image (off by default)                                                   |
 
 ## Topics
 

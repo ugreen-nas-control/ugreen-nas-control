@@ -19,6 +19,7 @@ function out(array $data, int $code = 200): never
 }
 
 require_once __DIR__ . '/include/fan_v2.php';
+require_once __DIR__ . '/include/mqtt.php';
 
 const FAN_V1_INT = ['min_pct', 'cpu_crit', 'disk_crit', 'nvme_offset'];
 const FAN_V1_BOOL = ['case_follows_cpu', 'stall_notify'];
@@ -255,6 +256,9 @@ function fan_get(string $action, array $fan, array $status, array $state): void
         case 'power_ac_get':
             out(['ok' => true] + power_ac_answer($state));
             // no break
+        case 'mqtt_get':
+            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + ['running' => ($state['mqtt']['mqtt_enabled'] ?? '') === '1']);
+            // no break
         case 'panel_buttons':
             $panel = $GLOBALS['fx']['panel'];
             if (!$panel['buttons']) {
@@ -484,6 +488,16 @@ function fan_post(string $action, array $fan, array $status, array $state, calla
             $state['power_ac_mode'] = $mode;
             $state['power_ac_last'] = ['mode' => $mode, 'time' => fx_time()];
             out(['ok' => true, 'set' => $mode] + power_ac_answer($state) + ['verified' => $ac['readable']]);
+            // no break
+        case 'mqtt_set':
+            $bad = null;
+            $collected = mqtt_collect($_POST, $bad);
+            if ($collected === null) {
+                fan_fail('Invalid value for ' . $bad);
+            }
+            $config = array_merge(array_diff_key($state['mqtt'] ?? [], array_flip($collected[1])), $collected[0]);
+            $save(['mqtt' => $config]);
+            out(['ok' => true] + mqtt_view($config) + ['running' => ($config['mqtt_enabled'] ?? '') === '1']);
             // no break
         case 'panel_beep':
             $raw = $_POST['ms'] ?? '200';

@@ -3,6 +3,7 @@ import { historyZh } from './parts/history.zh';
 import { scheduleZh } from './parts/schedule.zh';
 import { panelZh } from './parts/panel.zh';
 import { powerZh } from './parts/power.zh';
+import { mqttZh } from './parts/mqtt.zh';
 import { toolsZh } from './parts/tools.zh';
 import type { Key } from './en';
 
@@ -504,5 +505,6 @@ export const zh: Record<Key, string> = {
     'case.inside_hint_dh':
         '内部结构依据 UGREEN 的产品渲染图：两个 M.2 插槽在硬盘笼侧面，两个内存插槽在下方的主板上。两组编号均为假设；如与实机不符，请提交 issue。 第二个内存插槽依据 UGREEN 的规格说明，照片中只能看到一条 SO-DIMM。',
     ...panelZh,
-    ...powerZh
+    ...powerZh,
+    ...mqttZh
 };

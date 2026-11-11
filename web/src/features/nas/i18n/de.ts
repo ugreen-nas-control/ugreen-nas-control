@@ -3,6 +3,7 @@ import { historyDe } from './parts/history.de';
 import { scheduleDe } from './parts/schedule.de';
 import { panelDe } from './parts/panel.de';
 import { powerDe } from './parts/power.de';
+import { mqttDe } from './parts/mqtt.de';
 import { toolsDe } from './parts/tools.de';
 import type { Key } from './en';
 
@@ -524,5 +525,6 @@ export const de: Record<Key, string> = {
     'case.inside_hint_dh':
         'Das Innere nach UGREENs Produktrenderings: die beiden M.2-Steckplätze an der Seite des Laufwerkskäfigs, die beiden RAM-Sockel auf dem Mainboard darunter. Die Nummerierung beider Paare ist angenommen; bei Abweichung bitte ein Issue öffnen. Der zweite RAM-Sockel stammt aus UGREENs Spezifikationstext, die Fotos zeigen ein SO-DIMM.',
     ...panelDe,
-    ...powerDe
+    ...powerDe,
+    ...mqttDe
 };

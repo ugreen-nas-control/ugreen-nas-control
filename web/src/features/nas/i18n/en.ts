@@ -3,6 +3,7 @@ import { historyEn } from './parts/history.en';
 import { scheduleEn } from './parts/schedule.en';
 import { panelEn } from './parts/panel.en';
 import { powerEn } from './parts/power.en';
+import { mqttEn } from './parts/mqtt.en';
 import { toolsEn } from './parts/tools.en';
 
 export const en = {
@@ -517,7 +518,8 @@ export const en = {
     'case.inside_hint_dh':
         "The inside after UGREEN's product renders: the two M.2 slots on the side of the drive cage, the two RAM sockets on the mainboard below. The numbering of both pairs is assumed; open an issue if your box differs. The second RAM socket is taken from UGREEN's spec text, the photos show one SO-DIMM.",
     ...panelEn,
-    ...powerEn
+    ...powerEn,
+    ...mqttEn
 } as const;
 
 export type Key = keyof typeof en;

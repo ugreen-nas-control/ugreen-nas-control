@@ -3,6 +3,7 @@ import { historyNl } from './parts/history.nl';
 import { scheduleNl } from './parts/schedule.nl';
 import { panelNl } from './parts/panel.nl';
 import { powerNl } from './parts/power.nl';
+import { mqttNl } from './parts/mqtt.nl';
 import { toolsNl } from './parts/tools.nl';
 import type { Key } from './en';
 
@@ -525,5 +526,6 @@ export const nl: Record<Key, string> = {
     'case.inside_hint_dh':
         "Het binnenste naar de productrenders van UGREEN: de twee M.2-slots aan de zijkant van de schijvenkooi, de twee RAM-sockets op het moederbord eronder. De nummering van beide paren is aangenomen; open een issue als jouw kast afwijkt. De tweede RAM-socket komt uit de specificaties van UGREEN; de foto's tonen één SO-DIMM.",
     ...panelNl,
-    ...powerNl
+    ...powerNl,
+    ...mqttNl
 };

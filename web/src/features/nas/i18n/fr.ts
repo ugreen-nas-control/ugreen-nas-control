@@ -3,6 +3,7 @@ import { historyFr } from './parts/history.fr';
 import { scheduleFr } from './parts/schedule.fr';
 import { panelFr } from './parts/panel.fr';
 import { powerFr } from './parts/power.fr';
+import { mqttFr } from './parts/mqtt.fr';
 import { toolsFr } from './parts/tools.fr';
 import type { Key } from './en';
 
@@ -524,5 +525,6 @@ export const fr: Record<Key, string> = {
     'case.inside_hint_dh':
         "L'intérieur d'après les rendus produit d'UGREEN : les deux emplacements M.2 sur le côté de la cage à disques, les deux supports RAM sur la carte mère en dessous. La numérotation des deux paires est supposée ; ouvrez un ticket si votre boîtier diffère. Le second support RAM vient du texte de spécifications d'UGREEN ; les photos montrent un SO-DIMM.",
     ...panelFr,
-    ...powerFr
+    ...powerFr,
+    ...mqttFr
 };

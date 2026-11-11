@@ -88,7 +88,7 @@ export const TECH = {
     dashboard: {
         items: [
             'Sensors for CPU, board, iGPU, NVMe and disks, each marked with the fan it steers.',
-            'An optional MQTT publisher feeds displays and Home Assistant. Read only, off until you set a broker in fan.cfg.',
+            'An optional MQTT publisher feeds displays and Home Assistant. Read only, off until you set a broker on the Settings page.',
             'The interface comes in 7 languages.',
             'About switches between stable and next (test builds) through the Unraid install dialog; settings stay.'
         ],

@@ -3,6 +3,7 @@ import { historyIt } from './parts/history.it';
 import { scheduleIt } from './parts/schedule.it';
 import { panelIt } from './parts/panel.it';
 import { powerIt } from './parts/power.it';
+import { mqttIt } from './parts/mqtt.it';
 import { toolsIt } from './parts/tools.it';
 import type { Key } from './en';
 
@@ -523,5 +524,6 @@ export const it: Record<Key, string> = {
     'case.inside_hint_dh':
         "L'interno secondo i render del prodotto UGREEN: i due slot M.2 sul lato della gabbia dei dischi, i due zoccoli RAM sulla scheda madre sotto. La numerazione di entrambe le coppie è ipotizzata; apri una issue se il tuo box è diverso. Il secondo zoccolo RAM viene dalle specifiche di UGREEN; le foto mostrano un SO-DIMM.",
     ...panelIt,
-    ...powerIt
+    ...powerIt,
+    ...mqttIt
 };

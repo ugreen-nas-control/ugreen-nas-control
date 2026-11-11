@@ -1,0 +1,41 @@
+import type { mqttEn } from './mqtt.en';
+
+export const mqttFr: Record<keyof typeof mqttEn, string> = {
+    'mqtt.title': 'MQTT',
+    'mqtt.hint':
+        'Publie l’état du NAS sur un broker MQTT, pour des écrans et Home Assistant. Le plugin ne fait que lire et n’écrit jamais dans un registre de ventilateur.',
+    'mqtt.enabled': 'Publier sur MQTT',
+    'mqtt.enabled_hint': 'Envoie l’état toutes les quelques secondes. L’enregistrement redémarre l’éditeur.',
+    'mqtt.running': 'Éditeur en marche',
+    'mqtt.stopped': 'Éditeur arrêté',
+    'mqtt.not_running': 'L’éditeur ne tourne pas. La raison figure dans le journal /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.start_failed': 'Enregistré, mais l’éditeur n’a pas démarré : {error}',
+    'mqtt.host': 'Broker',
+    'mqtt.host_hint': 'Nom d’hôte ou adresse IPv4, sans le port.',
+    'mqtt.port': 'Port',
+    'mqtt.port_hint': 'Vide : 1883, ou 8883 avec TLS.',
+    'mqtt.tls': 'TLS',
+    'mqtt.tls_hint': 'Chiffre la connexion (TLS 1.2 ou plus récent).',
+    'mqtt.user': 'Nom d’utilisateur',
+    'mqtt.pass': 'Mot de passe',
+    'mqtt.pass_hint':
+        'Reste dans fan.cfg sur la clé flash, comme les autres réglages, et n’est plus jamais affiché. Il ne peut contenir ni " ni \\ ni ${. Vide : le mot de passe enregistré est conservé.',
+    'mqtt.pass_set': 'enregistré',
+    'mqtt.pass_clear': 'Supprimer le mot de passe enregistré',
+    'mqtt.name': 'Nom dans les topics',
+    'mqtt.name_hint': 'Les topics commencent par ugreen-nas/<nom>/. Lettres, chiffres, _ et -. Vide : le nom d’hôte du NAS.',
+    'mqtt.name_placeholder': 'nom d’hôte',
+    'mqtt.interval': 'Intervalle',
+    'mqtt.interval_hint': 'Secondes entre deux états, de 2 à 60. Vide : 5.',
+    'mqtt.control_title': 'Commande depuis un écran',
+    'mqtt.control_intro': 'Un écran peut envoyer des commandes au topic cmd. Chacune reste désactivée tant que tu ne l’actives pas.',
+    'mqtt.control': 'Redémarrer et éteindre',
+    'mqtt.control_hint': 'Les commandes reboot et shutdown.',
+    'mqtt.control_updates': 'Mettre à jour les plugins',
+    'mqtt.control_updates_hint': 'Installe les mises à jour de plugins qu’Unraid affiche déjà.',
+    'mqtt.control_containers': 'Mettre à jour les conteneurs Docker',
+    'mqtt.control_containers_hint': 'Met à jour les conteneurs pour lesquels Unraid signale une nouvelle image.',
+    'mqtt.control_warn': 'Quiconque peut publier sur le broker peut le faire. Protège-le par un identifiant et des règles d’accès.',
+    'mqtt.invalid': 'Non enregistré. Vérifie : {field}.',
+    'save.what.mqtt': 'réglages MQTT'
+};

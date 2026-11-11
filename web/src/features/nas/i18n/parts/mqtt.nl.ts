@@ -1,0 +1,41 @@
+import type { mqttEn } from './mqtt.en';
+
+export const mqttNl: Record<keyof typeof mqttEn, string> = {
+    'mqtt.title': 'MQTT',
+    'mqtt.hint':
+        'Publiceert de status van de NAS naar een MQTT-broker, voor displays en Home Assistant. De plugin leest alleen en schrijft nooit in een ventilatorregister.',
+    'mqtt.enabled': 'Publiceren naar MQTT',
+    'mqtt.enabled_hint': 'Stuurt de status om de paar seconden. Opslaan start de publisher opnieuw.',
+    'mqtt.running': 'Publisher draait',
+    'mqtt.stopped': 'Publisher gestopt',
+    'mqtt.not_running': 'De publisher draait niet. De reden staat in het log /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.start_failed': 'Opgeslagen, maar de publisher is niet gestart: {error}',
+    'mqtt.host': 'Broker',
+    'mqtt.host_hint': 'Hostnaam of IPv4-adres, zonder poort.',
+    'mqtt.port': 'Poort',
+    'mqtt.port_hint': 'Leeg: 1883, of 8883 met TLS.',
+    'mqtt.tls': 'TLS',
+    'mqtt.tls_hint': 'Versleutelt de verbinding (TLS 1.2 of nieuwer).',
+    'mqtt.user': 'Gebruikersnaam',
+    'mqtt.pass': 'Wachtwoord',
+    'mqtt.pass_hint':
+        'Blijft net als de andere instellingen in fan.cfg op de flashdrive staan en wordt nooit meer getoond. Het mag geen " of \\ of ${ bevatten. Leeg laat het opgeslagen wachtwoord staan.',
+    'mqtt.pass_set': 'opgeslagen',
+    'mqtt.pass_clear': 'Opgeslagen wachtwoord verwijderen',
+    'mqtt.name': 'Naam in de topics',
+    'mqtt.name_hint': 'De topics beginnen met ugreen-nas/<naam>/. Letters, cijfers, _ en -. Leeg: de hostnaam van de NAS.',
+    'mqtt.name_placeholder': 'hostnaam',
+    'mqtt.interval': 'Interval',
+    'mqtt.interval_hint': 'Seconden tussen twee statussen, 2 tot 60. Leeg: 5.',
+    'mqtt.control_title': 'Bediening vanaf een display',
+    'mqtt.control_intro': 'Een display kan commando’s naar het topic cmd sturen. Elk commando blijft uit tot je het inschakelt.',
+    'mqtt.control': 'Herstarten en afsluiten',
+    'mqtt.control_hint': 'De commando’s reboot en shutdown.',
+    'mqtt.control_updates': 'Plugins bijwerken',
+    'mqtt.control_updates_hint': 'Installeert de pluginupdates die Unraid al toont.',
+    'mqtt.control_containers': 'Docker-containers bijwerken',
+    'mqtt.control_containers_hint': 'Werkt de containers bij waarvoor Unraid een nieuwe image meldt.',
+    'mqtt.control_warn': 'Iedereen die naar de broker mag publiceren, kan dit. Beveilig hem met een login en toegangsregels.',
+    'mqtt.invalid': 'Niet opgeslagen. Controleer: {field}.',
+    'save.what.mqtt': 'MQTT-instellingen'
+};

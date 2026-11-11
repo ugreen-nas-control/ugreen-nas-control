@@ -239,6 +239,17 @@
           "args": ["stop"]
         },
         {
+          "args": ["mqtt-status"],
+          "code": 3,
+          "out": "stopped\n"
+        },
+        {
+          "args": ["mqtt-stop"]
+        },
+        {
+          "args": ["mqtt-start"]
+        },
+        {
           "args": ["led-enable"]
         },
         {
@@ -714,6 +725,773 @@
           "out": { "ok": false, "error": "FanCtrl Plus controls the fans too; switch one of the two off first" }
         }
       ]
+    },
+    { "id": "nas.mqtt_get.defaults", "api": "nas", "query": { "action": "mqtt_get" } },
+    {
+      "id": "nas.mqtt_get.configured-running",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.v2-file",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": {
+        "fan.cfg": "cfg_version=\"2\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_get.invalid-values",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "fan.cfg": "mqtt_enabled=\"yes\"\nmqtt_port=\"70000\"\nmqtt_interval=\"1\"\nmqtt_name=\"my nas!\"\nmqtt_tls=\"true\"\nmqtt_pass=\"\"\n" }
+    },
+    {
+      "id": "nas.mqtt_set.ok-full",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.ok-all-on",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "1",
+        "control": "1",
+        "control_updates": "1",
+        "control_containers": "1",
+        "host": "broker.lan",
+        "port": "8883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.defaults-remove-keys",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "",
+        "user": "",
+        "name": "",
+        "interval": ""
+      },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.disabled-without-host",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "0",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.keeps-password",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": ""
+      },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.new-password",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "new pass: ü#;"
+      },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.clear-password",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "",
+        "pass_clear": "1"
+      },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.clear-wins-over-password",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "x",
+        "pass_clear": "1"
+      },
+      "files": {
+        "fan.cfg": "mqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_name=\"tower\"\nmqtt_interval=\"10\"\nmqtt_control=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_control_containers=\"1\"\nmode=\"quiet\"\n"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.keeps-other-settings-v1",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      },
+      "files": { "fan.cfg": "mode=\"custom\"\ncpu_curve=\"40:30,60:50\"\nmin_pct=\"30\"\n" }
+    },
+    {
+      "id": "nas.mqtt_set.keeps-v2-file",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      },
+      "files": { "fan.cfg": "cfg_version=\"2\"\nquiet_enabled=\"1\"\nmode=\"quiet\"\n" }
+    },
+    {
+      "id": "nas.mqtt_set.start-fails-reported",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      },
+      "ctl": [{ "args": ["mqtt-start"], "code": 1, "err": "ERROR: MQTT publisher did not start: no route to host\n" }]
+    },
+    {
+      "id": "nas.mqtt_set.stop-fails-ignored",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      },
+      "ctl": [{ "args": ["mqtt-stop"], "code": 1, "err": "x\n" }]
+    },
+    {
+      "id": "nas.mqtt_set.unwritable-500",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      },
+      "blockConfig": true
+    },
+    {
+      "id": "nas.mqtt_set.enabled-without-host",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.missing-flag",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.flag-not-01",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "on",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.flag-array",
+      "api": "nas",
+      "body": "action=mqtt_set&enabled=1&tls=0&control=0&control_containers=0&host=broker.lan&port=1883&user=nas&name=tower&interval=10&control_updates%5B%5D=1"
+    },
+    {
+      "id": "nas.mqtt_set.host-space",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-port-inside",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan:1883",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-too-long",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "@repeat:a:254",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-injection",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "x\";reboot",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.port-zero",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "0",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.port-too-big",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "65536",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.port-text",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "18x3",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.port-sign",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "+1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.port-leading-zero",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "01883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.interval-low",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "1"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.interval-high",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "61"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.interval-text",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "fast"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.name-space",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "my nas",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.name-slash",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "a/b",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.name-wildcard",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "nas#",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.name-too-long",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "@repeat:a:65",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.user-quote",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "na\"s",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.user-backslash",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "na\\s",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.user-newline",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas\nmqtt_control=\"1\"",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.user-too-long",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "@repeat:a:257",
+        "name": "tower",
+        "interval": "10"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.user-invalid-utf8",
+      "api": "nas",
+      "body": "action=mqtt_set&enabled=1&tls=0&control=0&control_updates=0&control_containers=0&host=broker.lan&port=1883&name=tower&interval=10&user=%FF"
+    },
+    {
+      "id": "nas.mqtt_set.pass-quote",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "p\"w"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.pass-backslash",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "p\\w"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.pass-interpolation",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "p${HOME}"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.pass-newline",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "pw\nmode=\"full\""
+      }
+    },
+    {
+      "id": "nas.mqtt_set.pass-too-long",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "1883",
+        "user": "nas",
+        "name": "tower",
+        "interval": "10",
+        "pass": "@repeat:a:257"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.pass-array",
+      "api": "nas",
+      "body": "action=mqtt_set&enabled=1&tls=0&control=0&control_updates=0&control_containers=0&host=broker.lan&port=1883&user=nas&name=tower&interval=10&pass%5B%5D=x"
     },
     { "id": "nas.panel_buttons.ok", "api": "nas", "query": { "action": "panel_buttons" } },
     {
