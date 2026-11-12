@@ -11,7 +11,7 @@ export const mqttNl: Record<keyof typeof mqttEn, string> = {
     'mqtt.not_running': 'De publisher draait niet. De reden staat in het log /var/log/ugreen-nas-control-mqtt.log.',
     'mqtt.unreachable': 'De publisher bereikt de broker niet: {error}',
     'mqtt.connected': 'Verbonden',
-    'mqtt.connecting': 'Verbinden',
+    'mqtt.connecting': 'Verbinding maken',
     'mqtt.not_connected': 'Niet verbonden',
     'mqtt.test': 'Verbinding testen',
     'mqtt.testing': 'Testen…',

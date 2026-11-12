@@ -18,7 +18,7 @@ export const mqttIt: Record<keyof typeof mqttEn, string> = {
     'mqtt.test_hint':
         'Si connette una volta con i valori qui sopra, salvati o no, e si disconnette. Una password vuota usa quella salvata finché broker e utente restano invariati.',
     'mqtt.test_ok': 'Il broker ha accettato la connessione.',
-    'mqtt.test_failed': 'Nessuna connessione: {reason}',
+    'mqtt.test_failed': 'Connessione non riuscita: {reason}',
     'mqtt.control_confirm': 'Consentire «{what}» dal broker? Chiunque possa pubblicare sul topic cmd potrà farlo.',
     'mqtt.start_failed': 'Salvato, ma il publisher non è partito: {error}',
     'mqtt.host': 'Broker',
