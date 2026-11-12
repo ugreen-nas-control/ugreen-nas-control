@@ -7,7 +7,8 @@ export const TESTERS: { login: string; did: string }[] = [
     { login: 'ivolution', did: 'Spanish translation, DXP4800 Plus tests, DXP4800 Plus report' },
     { login: 'DanielRuppen', did: 'DXP2800 SUB2: ACPI and PCI data, lpss-probe runs, LED path confirmation' },
     { login: 'jsaltzman', did: 'DXP6800 Pro bug reports, the cause of the failing update check' },
-    { login: 'halloleo', did: 'DXP8800 Ultra: diag report that exposed the LED probe message (#293)' }
+    { login: 'halloleo', did: 'DXP8800 Ultra: diag report that exposed the LED probe message (#293)' },
+    { login: 'rogvalinger-ops', did: 'DXP4800 report (#299)' }
 ];
 
 /** Testers on the Unraid forum without a known GitHub account: named, not linked. */

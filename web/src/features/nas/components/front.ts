@@ -328,7 +328,23 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
         }
     ],
     [
-        /^DXP4800( Plus| Pro)?$/,
+        /^DXP4800$/,
+        {
+            front: [
+                ['sd', 'SD'],
+                ['usbc', '10G'],
+                ['usba', '10G']
+            ],
+            rear4800: true,
+            lanLabels: ['LAN 2.5G', 'LAN 2.5G'],
+            rear: [],
+            inside4800: true,
+            m2Nos: [1, 3],
+            hint: 'case.inside_hint_4800'
+        }
+    ],
+    [
+        /^DXP4800( Plus| Pro)$/,
         {
             front: [
                 ['sd', 'SD'],
