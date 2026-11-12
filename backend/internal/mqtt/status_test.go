@@ -161,3 +161,36 @@ func TestRunTestAnswers(t *testing.T) {
 		}
 	}
 }
+
+// The retry line carries the prefix once, whether the error brings its own ("mqtt: connection refused: ...") or not.
+func TestRetryLogHasOnePrefix(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := os.Stderr
+	os.Stderr = w
+	t.Cleanup(func() { os.Stderr = old })
+
+	addr, _ := fakeBroker(t, 5)
+	c := &client{addr: addr, clientID: "id"}
+	stop := make(chan struct{})
+	done := make(chan struct{})
+	go func() { c.run(stop); close(done) }()
+	line := make(chan string, 1)
+	go func() { s, _ := bufio.NewReader(r).ReadString('\n'); line <- s }()
+	select {
+	case s := <-line:
+		close(stop)
+		<-done
+		if want := "mqtt: connection refused: not authorized (code 5); retrying in 1s\n"; s != want {
+			t.Errorf("log line %q, want %q", s, want)
+		}
+	case <-time.After(3 * time.Second):
+		close(stop)
+		<-done
+		t.Fatal("no log line")
+	}
+	os.Stderr = old
+	_ = w.Close()
+}

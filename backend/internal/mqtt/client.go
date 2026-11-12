@@ -357,7 +357,7 @@ func (c *client) run(stop <-chan struct{}) {
 		if time.Since(start) > time.Minute {
 			wait = time.Second
 		}
-		logf("mqtt: %v; retrying in %s", err, wait)
+		logf("mqtt: %s; retrying in %s", reasonOf(err), wait)
 		if c.onStatus != nil {
 			c.onStatus("failed", reasonOf(err))
 		}
