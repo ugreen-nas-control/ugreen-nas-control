@@ -958,6 +958,118 @@
       "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "2", "user": "nas", "pass": "", "pass_clear": "0" }
     },
     {
+      "id": "nas.mqtt_set.host-ipv6",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "fe80::1"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-ipv6-loopback",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "::1"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-ipv6-with-ipv4-tail",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "::ffff:192.168.1.5"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-ipv6-brackets",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "[::1]"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-ipv6-zone",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "fe80::1%eth0"
+      }
+    },
+    {
+      "id": "nas.mqtt_set.host-ipv6-too-many-groups",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "port": "1883",
+        "user": "",
+        "name": "",
+        "interval": "",
+        "host": "1:2:3:4:5:6:7:8:9"
+      }
+    },
+    {
+      "id": "nas.mqtt_test.ipv6",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "2001:db8::10", "port": "", "tls": "0", "user": "", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.ipv6-brackets",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "[2001:db8::10]", "port": "", "tls": "0", "user": "", "pass": "", "pass_clear": "0" }
+    },
+    {
       "id": "nas.mqtt_get.configured-running",
       "api": "nas",
       "query": { "action": "mqtt_get" },

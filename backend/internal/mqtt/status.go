@@ -58,7 +58,7 @@ func reasonOf(err error) string { return strings.TrimPrefix(err.Error(), "mqtt: 
 // so a publisher that is running keeps its session (a second connection with the same one would replace it).
 func Test(cfg Config) error {
 	cl := &client{
-		addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
+		addr: dialAddr(cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
 		clientID: fmt.Sprintf("ugreen-nas-test-%d", os.Getpid()),
 	}
 	conn, _, err := cl.dial()

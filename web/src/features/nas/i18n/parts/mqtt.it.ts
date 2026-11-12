@@ -22,7 +22,7 @@ export const mqttIt: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': 'Consentire «{what}» dal broker? Chiunque possa pubblicare sul topic cmd potrà farlo.',
     'mqtt.start_failed': 'Salvato, ma il publisher non è partito: {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Nome host o indirizzo IPv4, senza la porta.',
+    'mqtt.host_hint': 'Nome host, indirizzo IPv4 o IPv6, senza porta né parentesi quadre.',
     'mqtt.port': 'Porta',
     'mqtt.port_hint': 'Vuoto: 1883, oppure 8883 con TLS.',
     'mqtt.tls': 'TLS',

@@ -22,7 +22,7 @@ export const mqttFr: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': 'Autoriser « {what} » depuis le broker ? Quiconque peut publier sur le topic cmd pourra alors le faire.',
     'mqtt.start_failed': 'Enregistré, mais la publication n’a pas démarré : {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Nom d’hôte ou adresse IPv4, sans le port.',
+    'mqtt.host_hint': 'Nom d’hôte, adresse IPv4 ou IPv6, sans le port ni les crochets.',
     'mqtt.port': 'Port',
     'mqtt.port_hint': 'Vide : 1883, ou 8883 avec TLS.',
     'mqtt.tls': 'TLS',

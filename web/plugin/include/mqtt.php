@@ -26,11 +26,17 @@ function mqtt_login_ok(string $value): bool
     return strlen($value) <= 256 && preg_match('//u', $value) === 1 && preg_match('/[\x00-\x1f\x7f"\\\\]|\$\{/', $value) !== 1;
 }
 
+// A host name or an IPv6 address without brackets (the daemon adds them; fan.cfg and the page keep the bare address).
+function mqtt_host_ok(string $value): bool
+{
+    return preg_match('/^[A-Za-z0-9._-]{1,253}$/D', $value) === 1 || (strlen($value) <= 45 && filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false);
+}
+
 // The text fields of a save: field => [fan.cfg key, check]. An empty value is always allowed (back to the default).
 function mqtt_rules(): array
 {
     return [
-        'host' => ['mqtt_host', fn(string $v): bool => preg_match('/^[A-Za-z0-9._-]{1,253}$/D', $v) === 1],
+        'host' => ['mqtt_host', 'mqtt_host_ok'],
         'port' => ['mqtt_port', fn(string $v): bool => preg_match('/^[1-9][0-9]{0,4}$/D', $v) === 1 && (int) $v <= 65535],
         'user' => ['mqtt_user', fn(string $v): bool => mqtt_login_ok($v)],
         'name' => ['mqtt_name', fn(string $v): bool => preg_match('/^[A-Za-z0-9_-]{1,64}$/D', $v) === 1],

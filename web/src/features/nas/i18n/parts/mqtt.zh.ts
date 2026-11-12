@@ -20,7 +20,7 @@ export const mqttZh: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': '允许通过 broker 执行“{what}”？任何能向 cmd topic 发布消息的人都可以这样做。',
     'mqtt.start_failed': '已保存，但发布程序没有启动：{error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': '主机名或 IPv4 地址，不含端口。',
+    'mqtt.host_hint': '主机名、IPv4 或 IPv6 地址，不含端口和方括号。',
     'mqtt.port': '端口',
     'mqtt.port_hint': '留空：1883，启用 TLS 时为 8883。',
     'mqtt.tls': 'TLS',

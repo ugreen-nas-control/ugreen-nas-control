@@ -21,7 +21,7 @@ export const mqttEs: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': '¿Permitir «{what}» desde el broker? Cualquiera que pueda publicar en el topic cmd podrá hacerlo.',
     'mqtt.start_failed': 'Guardado, pero el publicador no ha arrancado: {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Nombre de host o dirección IPv4, sin el puerto.',
+    'mqtt.host_hint': 'Nombre de host, dirección IPv4 o IPv6, sin el puerto ni corchetes.',
     'mqtt.port': 'Puerto',
     'mqtt.port_hint': 'Vacío: 1883, o 8883 con TLS.',
     'mqtt.tls': 'TLS',

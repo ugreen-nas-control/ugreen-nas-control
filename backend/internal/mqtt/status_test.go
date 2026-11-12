@@ -194,3 +194,45 @@ func TestRetryLogHasOnePrefix(t *testing.T) {
 	os.Stderr = old
 	_ = w.Close()
 }
+
+func TestDialAddr(t *testing.T) {
+	for host, want := range map[string]string{
+		"broker.lan":   "broker.lan:1883",
+		"192.168.1.5":  "192.168.1.5:1883",
+		"::1":          "[::1]:1883",
+		"fe80::1":      "[fe80::1]:1883",
+		"[::1]":        "[::1]:1883",
+		"2001:db8::10": "[2001:db8::10]:1883",
+	} {
+		if got := dialAddr(host, 1883); got != want {
+			t.Errorf("dialAddr(%q) = %q, want %q", host, got, want)
+		}
+	}
+}
+
+// An IPv6 broker is reached by its bare address: the dial gets the brackets from dialAddr.
+func TestTestReachesAnIPv6Broker(t *testing.T) {
+	ln, err := net.Listen("tcp", "[::1]:0")
+	if err != nil {
+		t.Skipf("no IPv6 loopback: %v", err)
+	}
+	defer func() { _ = ln.Close() }()
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer func() { _ = conn.Close() }()
+		_, _, _, _ = readPacket(bufio.NewReader(conn))
+		_, _ = conn.Write([]byte{mqttConnack << 4, 2, 0, 0})
+		time.Sleep(200 * time.Millisecond)
+	}()
+	_, port := hostPort(t, ln.Addr().String())
+	var out bytes.Buffer
+	if err := RunTest(strings.NewReader(fmt.Sprintf(`{"host":"::1","port":%d}`, port)), &out); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.String(), `"connected":true`) {
+		t.Errorf("answer %s", out.String())
+	}
+}

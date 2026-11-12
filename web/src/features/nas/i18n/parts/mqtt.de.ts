@@ -22,7 +22,7 @@ export const mqttDe: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': '„{what}“ über den Broker erlauben? Jeder, der an das Topic cmd senden darf, kann das dann auslösen.',
     'mqtt.start_failed': 'Gespeichert, aber der Sender ist nicht gestartet: {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Hostname oder IPv4-Adresse, ohne Port.',
+    'mqtt.host_hint': 'Hostname, IPv4- oder IPv6-Adresse, ohne Port und Klammern.',
     'mqtt.port': 'Port',
     'mqtt.port_hint': 'Leer: 1883, mit TLS 8883.',
     'mqtt.tls': 'TLS',

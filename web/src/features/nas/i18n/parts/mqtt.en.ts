@@ -20,7 +20,7 @@ export const mqttEn = {
     'mqtt.control_confirm': 'Allow “{what}” from the broker? Anyone who can publish to the cmd topic can then do this.',
     'mqtt.start_failed': 'Saved, but the publisher did not start: {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Host name or IPv4 address, without the port.',
+    'mqtt.host_hint': 'Host name, IPv4 or IPv6 address, without the port or brackets.',
     'mqtt.port': 'Port',
     'mqtt.port_hint': 'Empty: 1883, or 8883 with TLS.',
     'mqtt.tls': 'TLS',

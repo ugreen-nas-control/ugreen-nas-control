@@ -28,7 +28,7 @@ func Run() error {
 		updates: func() []Update { return readUpdates(pluginsBoot, pluginsFresh, dockerStatus, unraidCheck) }}
 
 	cl := &client{
-		addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
+		addr: dialAddr(cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
 		clientID:  "ugreen-nas-" + cfg.Name,
 		willTopic: prefix + "availability", willPayload: []byte("offline"),
 	}

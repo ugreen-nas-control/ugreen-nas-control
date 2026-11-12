@@ -22,7 +22,7 @@ export const mqttNl: Record<keyof typeof mqttEn, string> = {
     'mqtt.control_confirm': '“{what}” via de broker toestaan? Iedereen die naar het topic cmd mag publiceren, kan dit dan uitvoeren.',
     'mqtt.start_failed': 'Opgeslagen, maar de publisher is niet gestart: {error}',
     'mqtt.host': 'Broker',
-    'mqtt.host_hint': 'Hostnaam of IPv4-adres, zonder poort.',
+    'mqtt.host_hint': 'Hostnaam, IPv4- of IPv6-adres, zonder poort of haakjes.',
     'mqtt.port': 'Poort',
     'mqtt.port_hint': 'Leeg: 1883, of 8883 met TLS.',
     'mqtt.tls': 'TLS',

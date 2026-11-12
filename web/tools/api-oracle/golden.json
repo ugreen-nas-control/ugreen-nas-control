@@ -3736,6 +3736,195 @@
     "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_tls\"}",
     "calls": []
   },
+  "nas.mqtt_set.host-ipv6": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": true,
+      "host": "fe80::1",
+      "port": 1883,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": false,
+      "connection": "off",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"fe80::1\",\"port\":1883,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
+    "files": {
+      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"fe80::1\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\n"
+    },
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-stop"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-start"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_set.host-ipv6-loopback": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": true,
+      "host": "::1",
+      "port": 1883,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": false,
+      "connection": "off",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"::1\",\"port\":1883,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
+    "files": {
+      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"::1\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\n"
+    },
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-stop"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-start"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_set.host-ipv6-with-ipv4-tail": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": true,
+      "host": "::ffff:192.168.1.5",
+      "port": 1883,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": false,
+      "connection": "off",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"::ffff:192.168.1.5\",\"port\":1883,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
+    "files": {
+      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"::ffff:192.168.1.5\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\n"
+    },
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-stop"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-start"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_set.host-ipv6-brackets": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_set.host-ipv6-zone": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_set.host-ipv6-too-many-groups": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.ipv6": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"2001:db8::10\",\"port\":0,\"tls\":false,\"user\":\"\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.ipv6-brackets": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
   "nas.mqtt_get.configured-running": {
     "status": 200,
     "headers": {

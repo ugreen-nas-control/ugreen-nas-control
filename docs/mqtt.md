@@ -11,7 +11,7 @@ In `/boot/config/plugins/ugreen-nas-control/fan.cfg`. The keys work in a v1 and 
 | Key                       | Meaning                                                                                                                                                |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `mqtt_enabled`            | `1` to run the publisher                                                                                                                               |
-| `mqtt_host`               | broker (required)                                                                                                                                      |
+| `mqtt_host`               | broker (required): a host name, an IPv4 or an IPv6 address (no brackets)                                                                               |
 | `mqtt_port`               | default 1883, 8883 with TLS                                                                                                                            |
 | `mqtt_tls`                | `1` for TLS (1.2 or newer)                                                                                                                             |
 | `mqtt_user`, `mqtt_pass`  | login; the password stays in `fan.cfg` on the flash drive, like the other settings; the page never shows it again and takes none with `"`, `\` or `${` |
