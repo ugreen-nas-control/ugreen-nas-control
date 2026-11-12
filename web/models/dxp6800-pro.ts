@@ -25,6 +25,8 @@ export default {
             note: 'Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware.'
         }
     },
+    // Tested on the next build 5.7.0-next.000233; 5.7.0 is the release that ships it. `just models-check` fails until
+    // CHANGELOG.md has a `## 5.7.0` heading, so merge after that release (or set 5.6.0 to merge earlier).
     verified: {
         leds: {
             status: 'verified',
