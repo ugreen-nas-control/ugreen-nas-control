@@ -506,6 +506,9 @@ if ($action === 'power_ac_set') {
 if ($action === 'mqtt_set') {
     mqtt_set($input);
 }
+if ($action === 'mqtt_test') {
+    mqtt_test($input);
+}
 
 if ($action === 'fan_v2') {
     $bad = null;

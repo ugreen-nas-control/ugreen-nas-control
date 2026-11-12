@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-// MQTT publisher settings (api.php actions mqtt_get, mqtt_set): the mqtt_* keys of fan.cfg that backend/internal/mqtt/config.go
-// reads (docs/mqtt.md). They work in a v1 and a v2 file, so a save never touches cfg_version. The password never leaves
-// the NAS: mqtt_get only says whether one is set. A save applies at once: the publisher stops and, if switched on,
-// starts again. Uses respond(), run(), read_settings(), save_settings(), CTL and CONFIG_FILE from api.php.
+// MQTT publisher settings (api.php actions mqtt_get, mqtt_set, mqtt_test): the mqtt_* keys of fan.cfg that
+// backend/internal/mqtt/config.go reads (docs/mqtt.md). They work in a v1 and a v2 file, so a save never touches
+// cfg_version. The password never leaves the NAS: mqtt_get only says whether one is set. A save applies at once: the
+// publisher stops and, if switched on, starts again. Uses respond(), run(), read_settings(), save_settings(), CTL,
+// FAN_TOOL and CONFIG_FILE from api.php.
 
-// The publisher's log, replaced on every start (backend/internal/nasctl, UGREEN_PUB_LOG). A failed connection is retried at
-// least every 60 s and logs each try; a log older than this means the connection came back.
-const MQTT_LOG = '/var/log/ugreen-nas-control-mqtt.log';
-const MQTT_LOG_FRESH = 120;
+// The publisher's own state (backend/internal/mqtt/status.go): {"state":"connecting|connected|failed","reason":"...","time":N}.
+// It exists while the publisher runs.
+const MQTT_STATUS = '/var/run/ugreen-nas-control-mqtt.status';
 
 const MQTT_FLAGS = [
     'enabled' => 'mqtt_enabled',
@@ -24,6 +24,18 @@ const MQTT_FLAGS = [
 function mqtt_login_ok(string $value): bool
 {
     return strlen($value) <= 256 && preg_match('//u', $value) === 1 && preg_match('/[\x00-\x1f\x7f"\\\\]|\$\{/', $value) !== 1;
+}
+
+// The text fields of a save: field => [fan.cfg key, check]. An empty value is always allowed (back to the default).
+function mqtt_rules(): array
+{
+    return [
+        'host' => ['mqtt_host', fn(string $v): bool => preg_match('/^[A-Za-z0-9._-]{1,253}$/D', $v) === 1],
+        'port' => ['mqtt_port', fn(string $v): bool => preg_match('/^[1-9][0-9]{0,4}$/D', $v) === 1 && (int) $v <= 65535],
+        'user' => ['mqtt_user', fn(string $v): bool => mqtt_login_ok($v)],
+        'name' => ['mqtt_name', fn(string $v): bool => preg_match('/^[A-Za-z0-9_-]{1,64}$/D', $v) === 1],
+        'interval' => ['mqtt_interval', fn(string $v): bool => preg_match('/^[0-9]{1,2}$/D', $v) === 1 && (int) $v >= 2 && (int) $v <= 60],
+    ];
 }
 
 // The values of a save as fan.cfg keys: [changes, remove] (an empty field goes back to its default), or null with $bad
@@ -45,15 +57,7 @@ function mqtt_collect(array $input, ?string &$bad): ?array
         $changes[$key] = $value;
     }
 
-    $fields = [
-        'host' => ['mqtt_host', fn(string $v): bool => preg_match('/^[A-Za-z0-9._-]{1,253}$/D', $v) === 1],
-        'port' => ['mqtt_port', fn(string $v): bool => preg_match('/^[1-9][0-9]{0,4}$/D', $v) === 1 && (int) $v <= 65535],
-        'user' => ['mqtt_user', fn(string $v): bool => mqtt_login_ok($v)],
-        'name' => ['mqtt_name', fn(string $v): bool => preg_match('/^[A-Za-z0-9_-]{1,64}$/D', $v) === 1],
-        'interval' => ['mqtt_interval', fn(string $v): bool => preg_match('/^[0-9]{1,2}$/D', $v) === 1 && (int) $v >= 2 && (int) $v <= 60],
-    ];
-
-    foreach ($fields as $field => [$key, $valid]) {
+    foreach (mqtt_rules() as $field => [$key, $valid]) {
         $value = $input[$field] ?? '';
 
         if (!is_string($value) || ($value !== '' && !$valid($value))) {
@@ -119,25 +123,33 @@ function mqtt_running(): bool
     return run(CTL, ['mqtt-status'])['code'] === 0;
 }
 
-// Why the publisher cannot reach the broker, from the last line of its log ("mqtt: <error>; retrying in 8s"); empty when the
-// log is older than MQTT_LOG_FRESH seconds, ends otherwise or has no such line. $age: seconds since the log was written.
-function mqtt_connect_error(string $log, int $age): string
+// What the publisher is doing: off (not running), connecting, connected, failed (with the reason it keeps retrying for) or
+// unknown (it runs but keeps no state, an older one). $status: the content of MQTT_STATUS, '' when there is none.
+function mqtt_connection(bool $running, string $status): array
 {
-    if ($age > MQTT_LOG_FRESH) {
-        return '';
+    if (!$running) {
+        return ['connection' => 'off', 'reason' => ''];
     }
 
-    $lines = explode("\n", rtrim($log, "\n"));
+    $data = json_decode($status, true);
+    $state = is_array($data) ? ($data['state'] ?? null) : null;
 
-    return preg_match('/^mqtt: (.{1,300}); retrying in [0-9]+s$/Du', end($lines), $match) === 1 ? $match[1] : '';
+    if (!in_array($state, ['connecting', 'connected', 'failed'], true)) {
+        return ['connection' => 'unknown', 'reason' => ''];
+    }
+
+    $reason = $state === 'failed' && is_string($data['reason'] ?? null) ? $data['reason'] : '';
+
+    return ['connection' => $state, 'reason' => substr($reason, 0, 300)];
 }
 
+// running, connection and reason as mqtt_get answers them.
 function mqtt_status(): array
 {
-    $log = is_file(MQTT_LOG) ? (string) @file_get_contents(MQTT_LOG, false, null, max(0, (int) @filesize(MQTT_LOG) - 4096)) : '';
-    $age = $log === '' ? PHP_INT_MAX : max(0, time() - (int) @filemtime(MQTT_LOG));
+    $running = mqtt_running();
+    $content = $running && is_file(MQTT_STATUS) ? (string) @file_get_contents(MQTT_STATUS, false, null, 0, 4096) : '';
 
-    return ['running' => mqtt_running(), 'last_error' => mqtt_connect_error($log, $age)];
+    return ['running' => $running] + mqtt_connection($running, $content);
 }
 
 // GET mqtt_get
@@ -168,6 +180,88 @@ function mqtt_set(array $input): never
 
     if ($start['code'] !== 0) {
         $reply['start_failed'] = $start['message'];
+    }
+
+    respond($reply);
+}
+
+// The fan tool's `mqtt-test`: the settings as JSON on stdin, one answer on stdout.
+function mqtt_test_run(array $request): array
+{
+    $process = @proc_open(
+        [FAN_TOOL, 'mqtt-test', '--stdin'],
+        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+        $pipes,
+        '/',
+        [],
+    );
+
+    if (!is_resource($process)) {
+        respond(['ok' => false, 'error' => 'The fan tool cannot be started'], 500);
+    }
+
+    @fwrite($pipes[0], (string) json_encode($request));
+    fclose($pipes[0]);
+    $output = (string) stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+    $errors = (string) stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    $code = proc_close($process);
+    $data = json_decode($output, true);
+
+    if ($code !== 0 || !is_array($data)) {
+        respond(['ok' => false, 'error' => trim((string) preg_replace('/^ERROR:\s*/m', '', $errors)) ?: 'The fan tool gave no answer'], 409);
+    }
+
+    return $data;
+}
+
+// POST mqtt_test host, port, tls, user, pass, pass_clear: connects once with these values (they need not be saved) and
+// says whether the broker took it. An empty pass uses the saved one while host and user are the saved ones, so the page
+// never needs the password; the saved password does not go to another broker.
+function mqtt_test(array $input): never
+{
+    $request = ['host' => '', 'port' => 0, 'tls' => false, 'user' => '', 'pass' => ''];
+
+    foreach (mqtt_rules() as $field => [$key, $valid]) {
+        if (!in_array($field, ['host', 'port', 'user'], true)) {
+            continue;
+        }
+
+        $value = $input[$field] ?? '';
+
+        if (!is_string($value) || ($value !== '' && !$valid($value))) {
+            respond(['ok' => false, 'error' => 'Invalid value for ' . $key], 400);
+        }
+
+        $request[$field] = $field === 'port' ? (int) $value : $value;
+    }
+
+    $tls = $input['tls'] ?? null;
+    $pass = $input['pass'] ?? '';
+
+    if (($tls !== '0' && $tls !== '1') || !is_string($pass) || ($pass !== '' && !mqtt_login_ok($pass))) {
+        respond(['ok' => false, 'error' => 'Invalid value for ' . ($tls !== '0' && $tls !== '1' ? 'mqtt_tls' : 'mqtt_pass')], 400);
+    }
+
+    if ($request['host'] === '') {
+        respond(['ok' => false, 'error' => 'Invalid value for mqtt_host'], 400);
+    }
+
+    $saved = read_settings();
+
+    if ($pass === '' && ($input['pass_clear'] ?? '0') !== '1' && ($saved['mqtt_host'] ?? '') === $request['host'] && ($saved['mqtt_user'] ?? '') === $request['user']) {
+        $pass = $saved['mqtt_pass'] ?? '';
+    }
+
+    $request['tls'] = $tls === '1';
+    $request['pass'] = $pass;
+    $answer = mqtt_test_run($request);
+
+    $reply = ['ok' => true, 'connected' => ($answer['connected'] ?? false) === true];
+
+    if (!$reply['connected']) {
+        $reply['reason'] = substr((string) ($answer['reason'] ?? ''), 0, 300);
     }
 
     respond($reply);

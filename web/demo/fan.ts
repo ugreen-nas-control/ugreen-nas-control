@@ -1,7 +1,7 @@
 // The fan actions of api.php (inputs, schedule, profiles, v2 settings, probe, backlight) for the in-browser demo; the
 // answers follow web/tools/harness/api-fixture.php. Their state lives under `nas.fan` of the model's saved state.
 import { fanConfig } from '../models/fixture';
-import { mqttBadKey } from '../src/core/mqtt';
+import { mqttBadKey, mqttTestBadKey } from '../src/core/mqtt';
 import { shape } from './variants';
 import { fanHistory } from './fixture-history';
 import type { Model } from '../models/schema';
@@ -472,6 +472,15 @@ export function createFan(model: Model, host: FanHost) {
                     host.persist();
                     return ok(mqttView(fan().mqtt));
                 }
+                case 'mqtt_test': {
+                    const input = Object.fromEntries(form.entries()) as Record<string, string>;
+                    const bad = mqttTestBadKey(input);
+                    if (bad) return fail(`Invalid value for ${bad}`);
+                    // Hosts ending in .invalid cannot be resolved, as in RFC 6761; every other one takes the connection.
+                    return input.host!.endsWith('.invalid')
+                        ? ok({ connected: false, reason: `dial tcp: lookup ${input.host}: no such host` })
+                        : ok({ connected: true });
+                }
                 case 'panel_beep': {
                     const raw = form.get('ms') ?? '200';
                     if (!/^([2-9][0-9]|[1-9][0-9]{2}|1[0-9]{3}|2000)$/.test(raw)) return fail('Invalid duration');
@@ -527,6 +536,7 @@ function mqttView(config: Record<string, string>): Obj {
         control_updates: config.mqtt_control_updates === '1',
         control_containers: config.mqtt_control_containers === '1',
         running: config.mqtt_enabled === '1',
-        last_error: ''
+        connection: config.mqtt_enabled === '1' ? 'connected' : 'off',
+        reason: ''
     };
 }

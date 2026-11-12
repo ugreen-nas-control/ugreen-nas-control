@@ -28,7 +28,7 @@ import type {
 } from './contract-fan-probe';
 import type { FanScheduleResponse } from './contract-fan-schedule';
 import type { FanHistoryResponse } from './contract-fan-history';
-import type { MqttResponse, MqttSet } from './contract-mqtt';
+import type { MqttResponse, MqttSet, MqttTest, MqttTestResponse } from './contract-mqtt';
 
 export type ApiFailure = { ok: false; error: string };
 export type ApiOk = { ok: true };
@@ -398,6 +398,7 @@ export interface NasPost {
     panel_beep: { ms?: number };
     power_ac_set: { mode: PowerAcMode };
     mqtt_set: MqttSet;
+    mqtt_test: MqttTest;
 }
 
 /** Answers of POSTs that carry more than {ok: true}. */
@@ -411,6 +412,7 @@ export interface NasPostReply {
     panel_beep: PanelBeepResponse;
     power_ac_set: PowerAcResponse;
     mqtt_set: MqttResponse;
+    mqtt_test: MqttTestResponse;
 }
 
 /* ---------- LED: web/plugin/led/api.php ---------- */

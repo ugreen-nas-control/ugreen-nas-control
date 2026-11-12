@@ -128,6 +128,12 @@ function power_ac_answer(array $state): array
     ];
 }
 
+// No publisher runs in the harness: switched on counts as connected.
+function mqtt_fixture_status(bool $on): array
+{
+    return ['running' => $on, 'connection' => $on ? 'connected' : 'off', 'reason' => ''];
+}
+
 function fan_no_backlight(array $fan): void
 {
     if (!$fan['meta']['backlight']) {
@@ -257,7 +263,7 @@ function fan_get(string $action, array $fan, array $status, array $state): void
             out(['ok' => true] + power_ac_answer($state));
             // no break
         case 'mqtt_get':
-            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + ['running' => ($state['mqtt']['mqtt_enabled'] ?? '') === '1', 'last_error' => '']);
+            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + mqtt_fixture_status(($state['mqtt']['mqtt_enabled'] ?? '') === '1'));
             // no break
         case 'panel_buttons':
             $panel = $GLOBALS['fx']['panel'];
@@ -497,7 +503,25 @@ function fan_post(string $action, array $fan, array $status, array $state, calla
             }
             $config = array_merge(array_diff_key($state['mqtt'] ?? [], array_flip($collected[1])), $collected[0]);
             $save(['mqtt' => $config]);
-            out(['ok' => true] + mqtt_view($config) + ['running' => ($config['mqtt_enabled'] ?? '') === '1', 'last_error' => '']);
+            out(['ok' => true] + mqtt_view($config) + mqtt_fixture_status(($config['mqtt_enabled'] ?? '') === '1'));
+            // no break
+        case 'mqtt_test':
+            $host = (string) ($_POST['host'] ?? '');
+            foreach (['host', 'port', 'user'] as $field) {
+                $value = $_POST[$field] ?? '';
+                [$key, $valid] = mqtt_rules()[$field];
+                if (!is_string($value) || ($value !== '' && !$valid($value))) {
+                    fan_fail('Invalid value for ' . $key);
+                }
+            }
+            if ($host === '') {
+                fan_fail('Invalid value for mqtt_host');
+            }
+            // Hosts ending in .invalid cannot be resolved, as in RFC 6761; every other one takes the connection.
+            if (str_ends_with($host, '.invalid')) {
+                out(['ok' => true, 'connected' => false, 'reason' => 'dial tcp: lookup ' . $host . ': no such host']);
+            }
+            out(['ok' => true, 'connected' => true]);
             // no break
         case 'panel_beep':
             $raw = $_POST['ms'] ?? '200';

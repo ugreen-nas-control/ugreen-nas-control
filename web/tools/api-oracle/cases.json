@@ -41,6 +41,10 @@
           }
         },
         {
+          "args": ["mqtt-test"],
+          "out": { "ok": true, "connected": true }
+        },
+        {
           "args": ["hardware"],
           "out": {
             "model": "DXP6800 Pro",
@@ -728,52 +732,215 @@
     },
     { "id": "nas.mqtt_get.defaults", "api": "nas", "query": { "action": "mqtt_get" } },
     {
-      "id": "nas.mqtt_get.unreachable",
+      "id": "nas.mqtt_get.connected",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"connected\",\"time\":1}" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.connecting",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"connecting\",\"time\":1}" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.failed",
       "api": "nas",
       "query": { "action": "mqtt_get" },
       "files": {
-        "/var/log/ugreen-nas-control-mqtt.log": "mqtt: dial tcp 192.168.40.99:1883: connect: no route to host; retrying in 1s\nmqtt: dial tcp 192.168.40.99:1883: connect: no route to host; retrying in 2s\n"
+        "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"failed\",\"reason\":\"dial tcp 192.168.40.99:1883: connect: no route to host\",\"time\":1}"
       },
       "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
     },
     {
-      "id": "nas.mqtt_get.refused-login",
+      "id": "nas.mqtt_get.failed-login",
       "api": "nas",
       "query": { "action": "mqtt_get" },
-      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: broker refused the connection: bad user name or password; retrying in 4s\n" },
-      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
-    },
-    {
-      "id": "nas.mqtt_get.log-without-retry",
-      "api": "nas",
-      "query": { "action": "mqtt_get" },
-      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: subscription refused by the broker (SUBACK 0x80); remote commands will not arrive\n" },
-      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
-    },
-    {
-      "id": "nas.mqtt_get.log-empty",
-      "api": "nas",
-      "query": { "action": "mqtt_get" },
-      "files": { "/var/log/ugreen-nas-control-mqtt.log": "" },
-      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
-    },
-    {
-      "id": "nas.mqtt_set.log-is-read-after-a-save",
-      "api": "nas",
-      "body": {
-        "action": "mqtt_set",
-        "enabled": "1",
-        "tls": "0",
-        "control": "0",
-        "control_updates": "0",
-        "control_containers": "0",
-        "host": "broker.lan",
-        "port": "",
-        "user": "",
-        "name": "",
-        "interval": ""
+      "files": {
+        "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"failed\",\"reason\":\"connection refused: bad user name or password (code 4)\",\"time\":1}"
       },
-      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: dial tcp 10.0.0.9:1883: i/o timeout; retrying in 8s\n" }
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.failed-reason-long",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": {
+        "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"failed\",\"reason\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"time\":1}"
+      },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.failed-without-reason",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"failed\",\"time\":1}" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.state-unknown-word",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"weird\",\"reason\":\"x\",\"time\":1}" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.state-garbage",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "not json" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.state-empty-file",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.no-status-file-while-running",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.status-file-while-stopped",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"connected\",\"time\":1}" }
+    },
+    {
+      "id": "nas.mqtt_test.connected",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.keeps-saved-password",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.typed-password-wins",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "typed", "pass_clear": "0" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.cleared-password-not-used",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "1" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.saved-password-stays-with-its-broker",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "other.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.saved-password-stays-with-its-user",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "someone", "pass": "", "pass_clear": "0" },
+      "files": { "fan.cfg": "mqtt_host=\"broker.lan\"\nmqtt_user=\"nas\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\n" }
+    },
+    {
+      "id": "nas.mqtt_test.tls-on-default-port",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "", "tls": "1", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.no-saved-settings",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "10.0.0.5", "port": "1883", "tls": "0", "user": "", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.refused",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "fan": [{ "args": ["mqtt-test"], "out": { "ok": true, "connected": false, "reason": "connection refused: bad user name or password (code 4)" } }]
+    },
+    {
+      "id": "nas.mqtt_test.reason-too-long",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "fan": [
+        {
+          "args": ["mqtt-test"],
+          "out": {
+            "ok": true,
+            "connected": false,
+            "reason": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nas.mqtt_test.tool-refuses-409",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "fan": [{ "args": ["mqtt-test"], "code": 1, "err": "ERROR: no MQTT host to test\n" }]
+    },
+    {
+      "id": "nas.mqtt_test.tool-gives-no-answer-409",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "fan": [{ "args": ["mqtt-test"], "out": "not json" }]
+    },
+    {
+      "id": "nas.mqtt_test.tool-silent-failure-409",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" },
+      "fan": [{ "args": ["mqtt-test"], "code": 1 }]
+    },
+    {
+      "id": "nas.mqtt_test.host-missing",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.host-space",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "a b", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.host-with-port",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan:1883", "port": "1883", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.port-too-big",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "65536", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.port-text",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "x", "tls": "0", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.user-quote",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "a\"b", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.pass-interpolation",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "0", "user": "nas", "pass": "p${HOME}", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.tls-missing",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "", "user": "nas", "pass": "", "pass_clear": "0" }
+    },
+    {
+      "id": "nas.mqtt_test.tls-2",
+      "api": "nas",
+      "body": { "action": "mqtt_test", "host": "broker.lan", "port": "1883", "tls": "2", "user": "nas", "pass": "", "pass_clear": "0" }
     },
     {
       "id": "nas.mqtt_get.configured-running",

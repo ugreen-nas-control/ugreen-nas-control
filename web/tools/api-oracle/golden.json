@@ -3021,9 +3021,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3031,7 +3032,7 @@
       }
     ]
   },
-  "nas.mqtt_get.unreachable": {
+  "nas.mqtt_get.connected": {
     "status": 200,
     "headers": {
       "content-type": "application/json; charset=utf-8"
@@ -3050,9 +3051,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": true,
-      "last_error": "dial tcp 192.168.40.99:1883: connect: no route to host"
+      "connection": "connected",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"last_error\":\"dial tcp 192.168.40.99:1883: connect: no route to host\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"connected\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3060,7 +3062,7 @@
       }
     ]
   },
-  "nas.mqtt_get.refused-login": {
+  "nas.mqtt_get.connecting": {
     "status": 200,
     "headers": {
       "content-type": "application/json; charset=utf-8"
@@ -3079,9 +3081,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": true,
-      "last_error": "broker refused the connection: bad user name or password"
+      "connection": "connecting",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"last_error\":\"broker refused the connection: bad user name or password\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"connecting\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3089,7 +3092,7 @@
       }
     ]
   },
-  "nas.mqtt_get.log-without-retry": {
+  "nas.mqtt_get.failed": {
     "status": 200,
     "headers": {
       "content-type": "application/json; charset=utf-8"
@@ -3108,9 +3111,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": true,
-      "last_error": ""
+      "connection": "failed",
+      "reason": "dial tcp 192.168.40.99:1883: connect: no route to host"
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"failed\",\"reason\":\"dial tcp 192.168.40.99:1883: connect: no route to host\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3118,7 +3122,7 @@
       }
     ]
   },
-  "nas.mqtt_get.log-empty": {
+  "nas.mqtt_get.failed-login": {
     "status": 200,
     "headers": {
       "content-type": "application/json; charset=utf-8"
@@ -3137,9 +3141,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": true,
-      "last_error": ""
+      "connection": "failed",
+      "reason": "connection refused: bad user name or password (code 4)"
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"failed\",\"reason\":\"connection refused: bad user name or password (code 4)\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3147,15 +3152,195 @@
       }
     ]
   },
-  "nas.mqtt_set.log-is-read-after-a-save": {
+  "nas.mqtt_get.failed-reason-long": {
     "status": 200,
     "headers": {
       "content-type": "application/json; charset=utf-8"
     },
     "body": {
       "ok": true,
-      "enabled": true,
-      "host": "broker.lan",
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "failed",
+      "reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"failed\",\"reason\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.failed-without-reason": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "failed",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"failed\",\"reason\":\"\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.state-unknown-word": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "unknown",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"unknown\",\"reason\":\"\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.state-garbage": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "unknown",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"unknown\",\"reason\":\"\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.state-empty-file": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "unknown",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"unknown\",\"reason\":\"\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.no-status-file-while-running": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
+      "port": null,
+      "tls": false,
+      "user": "",
+      "pass_set": false,
+      "name": "",
+      "interval": null,
+      "control": false,
+      "control_updates": false,
+      "control_containers": false,
+      "running": true,
+      "connection": "unknown",
+      "reason": ""
+    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":true,\"connection\":\"unknown\",\"reason\":\"\"}",
+    "calls": [
+      {
+        "tool": "ctl",
+        "args": ["mqtt-status"]
+      }
+    ]
+  },
+  "nas.mqtt_get.status-file-while-stopped": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "enabled": false,
+      "host": "",
       "port": null,
       "tls": false,
       "user": "",
@@ -3166,26 +3351,360 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": "dial tcp 10.0.0.9:1883: i/o timeout"
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"dial tcp 10.0.0.9:1883: i/o timeout\"}",
-    "files": {
-      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_tls=\"0\"\n"
-    },
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "calls": [
-      {
-        "tool": "ctl",
-        "args": ["mqtt-stop"]
-      },
-      {
-        "tool": "ctl",
-        "args": ["mqtt-start"]
-      },
       {
         "tool": "ctl",
         "args": ["mqtt-status"]
       }
     ]
+  },
+  "nas.mqtt_test.connected": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"secret\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.keeps-saved-password": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"secret\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.typed-password-wins": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"typed\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.cleared-password-not-used": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.saved-password-stays-with-its-broker": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"other.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.saved-password-stays-with-its-user": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"someone\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.tls-on-default-port": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":0,\"tls\":true,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.no-saved-settings": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": true
+    },
+    "raw": "{\"ok\":true,\"connected\":true}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"10.0.0.5\",\"port\":1883,\"tls\":false,\"user\":\"\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.refused": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": false,
+      "reason": "connection refused: bad user name or password (code 4)"
+    },
+    "raw": "{\"ok\":true,\"connected\":false,\"reason\":\"connection refused: bad user name or password (code 4)\"}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.reason-too-long": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "connected": false,
+      "reason": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+    },
+    "raw": "{\"ok\":true,\"connected\":false,\"reason\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.tool-refuses-409": {
+    "status": 409,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "no MQTT host to test"
+    },
+    "raw": "{\"ok\":false,\"error\":\"no MQTT host to test\"}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.tool-gives-no-answer-409": {
+    "status": 409,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "The fan tool gave no answer"
+    },
+    "raw": "{\"ok\":false,\"error\":\"The fan tool gave no answer\"}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.tool-silent-failure-409": {
+    "status": 409,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "The fan tool gave no answer"
+    },
+    "raw": "{\"ok\":false,\"error\":\"The fan tool gave no answer\"}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["mqtt-test", "--stdin"],
+        "stdin": "{\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass\":\"\"}"
+      }
+    ]
+  },
+  "nas.mqtt_test.host-missing": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.host-space": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.host-with-port": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_host"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_host\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.port-too-big": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_port"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_port\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.port-text": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_port"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_port\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.user-quote": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_user"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_user\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.pass-interpolation": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_pass"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_pass\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.tls-missing": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_tls"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_tls\"}",
+    "calls": []
+  },
+  "nas.mqtt_test.tls-2": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value for mqtt_tls"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value for mqtt_tls\"}",
+    "calls": []
   },
   "nas.mqtt_get.configured-running": {
     "status": 200,
@@ -3206,9 +3725,10 @@
       "control_updates": true,
       "control_containers": true,
       "running": true,
-      "last_error": ""
+      "connection": "unknown",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":true,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":true,\"connection\":\"unknown\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3235,9 +3755,10 @@
       "control_updates": true,
       "control_containers": true,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3264,9 +3785,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"mynas\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":false,\"name\":\"mynas\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "calls": [
       {
         "tool": "ctl",
@@ -3293,9 +3815,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3333,9 +3856,10 @@
       "control_updates": true,
       "control_containers": true,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":8883,\"tls\":true,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":true,\"control_updates\":true,\"control_containers\":true,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"1\"\nmqtt_control_containers=\"1\"\nmqtt_control_updates=\"1\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"8883\"\nmqtt_tls=\"1\"\nmqtt_user=\"nas\"\n"
     },
@@ -3373,9 +3897,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":true,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":null,\"tls\":false,\"user\":\"\",\"pass_set\":true,\"name\":\"\",\"interval\":null,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_pass=\"secret\"\nmqtt_tls=\"0\"\n"
     },
@@ -3413,9 +3938,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":false,\"host\":\"\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"0\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3453,9 +3979,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_pass=\"secret\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3493,9 +4020,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":true,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_pass=\"new pass: ü#;\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3533,9 +4061,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3573,9 +4102,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3613,9 +4143,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "cpu_curve=\"40:30,60:50\"\nmin_pct=\"30\"\nmode=\"custom\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3653,9 +4184,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "cfg_version=\"2\"\nmode=\"quiet\"\nmqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\nquiet_enabled=\"1\"\n"
     },
@@ -3693,10 +4225,11 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": "",
+      "connection": "off",
+      "reason": "",
       "start_failed": "ERROR: MQTT publisher did not start: no route to host"
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\",\"start_failed\":\"ERROR: MQTT publisher did not start: no route to host\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\",\"start_failed\":\"ERROR: MQTT publisher did not start: no route to host\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },
@@ -3734,9 +4267,10 @@
       "control_updates": false,
       "control_containers": false,
       "running": false,
-      "last_error": ""
+      "connection": "off",
+      "reason": ""
     },
-    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"last_error\":\"\"}",
+    "raw": "{\"ok\":true,\"enabled\":true,\"host\":\"broker.lan\",\"port\":1883,\"tls\":false,\"user\":\"nas\",\"pass_set\":false,\"name\":\"tower\",\"interval\":10,\"control\":false,\"control_updates\":false,\"control_containers\":false,\"running\":false,\"connection\":\"off\",\"reason\":\"\"}",
     "files": {
       "/boot/config/plugins/ugreen-nas-control/fan.cfg": "mqtt_control=\"0\"\nmqtt_control_containers=\"0\"\nmqtt_control_updates=\"0\"\nmqtt_enabled=\"1\"\nmqtt_host=\"broker.lan\"\nmqtt_interval=\"10\"\nmqtt_name=\"tower\"\nmqtt_port=\"1883\"\nmqtt_tls=\"0\"\nmqtt_user=\"nas\"\n"
     },

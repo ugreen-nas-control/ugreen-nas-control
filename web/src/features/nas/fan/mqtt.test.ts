@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import type { MqttResponse } from '../../../core/contract-mqtt';
-import { mqttBadKey } from '../../../core/mqtt';
-import { draftOf, paramsOf } from './mqtt';
+import { mqttBadKey, mqttTestBadKey } from '../../../core/mqtt';
+import { draftOf, paramsOf, testParamsOf } from './mqtt';
 
 const saved: MqttResponse = {
     ok: true,
@@ -17,7 +17,8 @@ const saved: MqttResponse = {
     control_updates: false,
     control_containers: true,
     running: true,
-    last_error: ''
+    connection: 'connected',
+    reason: ''
 };
 
 test('the draft starts from the saved settings and sends them back unchanged, without a password', () => {
@@ -66,4 +67,25 @@ test('the check names the first key the PHP would refuse', () => {
     expect(mqttBadKey({ ...base, name: 'a b' })).toBe('mqtt_name');
     expect(mqttBadKey({ ...base, pass: 'a"b' })).toBe('mqtt_pass');
     expect(mqttBadKey({ ...base, user: 'a\\b' })).toBe('mqtt_user');
+});
+
+test('the connection test sends the form as it is and keeps the saved password out of it', () => {
+    const draft = { ...draftOf(saved), host: ' other.lan ', pass: 'typed' };
+    expect(testParamsOf(draft)).toEqual({ host: 'other.lan', port: '8883', tls: '1', user: 'nas', pass: 'typed', pass_clear: '0' });
+    expect(testParamsOf(draftOf(saved)).pass).toBe('');
+    expect(testParamsOf({ ...draft, passClear: true })).toMatchObject({ pass: '', pass_clear: '1' });
+});
+
+test('the connection test checks only what it sends', () => {
+    const ok = testParamsOf(draftOf(saved));
+    expect(mqttTestBadKey(ok)).toBeNull();
+    expect(mqttTestBadKey({ ...ok, host: '' })).toBe('mqtt_host');
+    expect(mqttTestBadKey({ ...ok, host: 'a b' })).toBe('mqtt_host');
+    expect(mqttTestBadKey({ ...ok, port: '0' })).toBe('mqtt_port');
+    expect(mqttTestBadKey({ ...ok, port: '' })).toBeNull();
+    expect(mqttTestBadKey({ ...ok, user: 'a"b' })).toBe('mqtt_user');
+    expect(mqttTestBadKey({ ...ok, pass: 'p${x}' })).toBe('mqtt_pass');
+    expect(mqttTestBadKey({ ...ok, tls: '2' as '1' })).toBe('mqtt_tls');
+    // name and interval are not part of a test
+    expect(mqttTestBadKey({ ...ok, name: 'a b', interval: '1' } as never)).toBeNull();
 });

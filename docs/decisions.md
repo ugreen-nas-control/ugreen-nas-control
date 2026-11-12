@@ -29,6 +29,13 @@ CA reviews every entry by hand and shows `PluginURL` as the update source; the n
 
 The frontend uses Bun for formatting (`bun fmt`), type checking (`bun check`), tests and bundling, and `Bun.WebView` for screenshots. One tool, nothing to install beyond Bun, no Node.
 
+## MQTT 5.0
+
+Verdict: not added; the client speaks MQTT 3.1.1 only.
+
+- Every common broker (Mosquitto, EMQX, HiveMQ, the Home Assistant add-on) accepts 3.1.1, so 5.0 gives no user-visible gain.
+- 5.0 changes the packet format (properties, reason codes, enhanced authentication); supporting it would be close to a second client next to the one in `backend/internal/mqtt`, with its own conformance review.
+
 ## Python
 
 Scripts and tools are TypeScript on Bun; there are no Python helpers. Icon PNGs are built from the SVGs in `web/assets/` by `just web-build` (see `web/assets/README.md`).

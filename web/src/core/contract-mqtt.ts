@@ -4,6 +4,8 @@
  */
 import type { ApiOk } from './contract';
 
+export type MqttConnection = 'off' | 'connecting' | 'connected' | 'failed' | 'unknown';
+
 /** GET mqtt_get; POST mqtt_set answers with the saved settings. */
 export type MqttResponse = ApiOk & {
     enabled: boolean;
@@ -22,8 +24,10 @@ export type MqttResponse = ApiOk & {
     control_containers: boolean;
     /** The publisher process is up now. */
     running: boolean;
-    /** Why it cannot reach the broker, from its log while it keeps retrying (a log older than two minutes counts as recovered); empty when it can. */
-    last_error: string;
+    /** What the publisher is doing: `unknown` when it runs but keeps no state (an older one). */
+    connection: MqttConnection;
+    /** `failed` only: why it cannot reach the broker, as its log words it; it keeps retrying. */
+    reason: string;
     /** After a set only: `ugreen-nas-ctl mqtt-start` failed; the settings are saved. */
     start_failed?: string;
 };
@@ -46,3 +50,19 @@ export interface MqttSet {
     name: string;
     interval: string;
 }
+
+/**
+ * POST mqtt_test: connects once with these values (they need not be saved) and hangs up. `pass` empty uses the saved
+ * password while host and user are the saved ones; `pass_clear` '1' never does. Takes up to 20 s.
+ */
+export interface MqttTest {
+    host: string;
+    port: string;
+    tls: '0' | '1';
+    user: string;
+    pass: string;
+    pass_clear: '0' | '1';
+}
+
+/** The broker took the connection, or `reason` says why not (the broker's refusal, a network error). */
+export type MqttTestResponse = ApiOk & { connected: boolean; reason?: string };

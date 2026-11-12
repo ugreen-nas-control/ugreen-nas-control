@@ -1,6 +1,6 @@
 // The save check of the MQTT settings, the same the PHP applies (web/plugin/include/mqtt.php, mqtt_collect; mqtt-php.test.ts
 // runs both on one table). The page checks before it sends, the demo answers with it.
-import type { MqttSet } from './contract-mqtt';
+import type { MqttSet, MqttTest } from './contract-mqtt';
 
 // Login strings are written between quotes into fan.cfg: no control characters, quote, backslash or ${.
 const loginOk = (value: string): boolean => new TextEncoder().encode(value).length <= 256 && !/[\x00-\x1f\x7f"\\]|\$\{/.test(value);
@@ -47,3 +47,16 @@ const FIELD_OF_KEY: Record<string, 'host' | 'port' | 'user' | 'pass' | 'name' | 
 
 /** The input field behind a refused key; null for a switch (the page cannot send a bad one). */
 export const fieldOfKey = (key: string): 'host' | 'port' | 'user' | 'pass' | 'name' | 'interval' | null => FIELD_OF_KEY[key] ?? null;
+
+/** The fan.cfg key the PHP refuses in a connection test (host, port, user, tls, pass), null when it takes all of it. */
+export function mqttTestBadKey(input: Partial<Record<keyof MqttTest, string>>): string | null {
+    for (const [field, key, valid] of TEXTS) {
+        if (field === 'name' || field === 'interval') continue;
+        const value = input[field] ?? '';
+        if (value !== '' && !valid(value)) return key;
+    }
+    if (input.tls !== '0' && input.tls !== '1') return 'mqtt_tls';
+    if ((input.host ?? '') === '') return 'mqtt_host';
+    const pass = input.pass ?? '';
+    return pass !== '' && !loginOk(pass) ? 'mqtt_pass' : null;
+}

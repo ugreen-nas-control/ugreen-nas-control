@@ -1,6 +1,6 @@
 # MQTT
 
-The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default. Switch it on in the MQTT card on the Settings page; a save restarts the publisher. While the broker cannot be reached, the card shows the reason from the log. The settings are the keys below in `fan.cfg`, which can also be edited by hand, then `ugreen-nas-ctl mqtt-stop` and `mqtt-start`.
+The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default. Switch it on in the MQTT card on the Settings page; a save restarts the publisher. The card shows what the publisher is doing (see [Status](#status)) and tests a connection before you save. The settings are the keys below in `fan.cfg`, which can also be edited by hand, then `ugreen-nas-ctl mqtt-stop` and `mqtt-start`.
 
 The publisher is `ugreen-nas-fan publish` (`backend/internal/mqtt`, a small hand-written MQTT 3.1.1 client, no dependency). It only reads, the way the status page does, and never writes a fan register. It runs apart from the fan daemon, so it also runs where fan control is off. `ugreen-nas-ctl start` and `stop` start and stop it with the daemon; `mqtt-start`, `mqtt-stop` and `mqtt-status` handle it alone. Pid file `/var/run/ugreen-nas-control-mqtt.pid`, log `/var/log/ugreen-nas-control-mqtt.log` (replaced on every start).
 
@@ -20,6 +20,23 @@ In `/boot/config/plugins/ugreen-nas-control/fan.cfg`. The keys work in a v1 and 
 | `mqtt_control`            | `1` lets a display restart and shut down the NAS (off by default)                                                                                      |
 | `mqtt_control_updates`    | `1` lets a display update plugins (off by default)                                                                                                     |
 | `mqtt_control_containers` | `1` lets a display update Docker containers that Unraid lists as having a new image (off by default)                                                   |
+
+## Status
+
+The publisher keeps its connection state in `/var/run/ugreen-nas-control-mqtt.status` (JSON: `state` `connecting`, `connected` or `failed`, with `reason` while it keeps retrying). The file exists while the publisher runs. The Settings card and `ugreen-nas-ctl diag` read it:
+
+| Shown         | Meaning                                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| Stopped       | the publisher does not run (switched off, or it ended; the log says why)                                    |
+| Connecting    | started, no answer from the broker yet                                                                      |
+| Connected     | the broker accepted the connection                                                                          |
+| Not connected | the broker cannot be reached or refuses the connection; the card names the reason and the publisher retries |
+
+The card refreshes this every 10 s while it is open. A publisher without the file (older) shows only "running".
+
+**Test connection** (`ugreen-nas-fan mqtt-test`, settings as JSON on stdin) connects once with the values in the form, saved or not, and hangs up. It has its own client identifier, so a running publisher keeps its session. An empty password uses the saved one while broker and user are the saved ones; the saved password is never sent to another broker. It takes up to 20 s.
+
+The three `mqtt_control*` switches ask for a confirmation when you switch them on: whoever can publish to the `cmd` topic of the broker can then act on the NAS.
 
 ## Topics
 
