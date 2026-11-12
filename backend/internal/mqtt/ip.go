@@ -29,14 +29,18 @@ func firstIPv4(addrs []net.Addr) string {
 	return ""
 }
 
-// ifaceIPv4 is the IPv4 address of a port. Unraid usually puts it on a bridge or bond (br0, bond0) that the port
-// belongs to, so the port's master is tried when the port itself has none.
+// ifaceIPv4 is the IPv4 address of a port. Unraid usually puts it further up, on a bridge or a bond (eth0 belongs to
+// bond0, bond0 to br0), so the port's master, and that one's master, is tried until an address turns up.
 func ifaceIPv4(name string) string {
-	if ip := firstIPv4(addrsOf(name)); ip != "" {
-		return ip
-	}
-	if l, err := os.Readlink(filepath.Join(sysDir, "class/net", name, "master")); err == nil {
-		return firstIPv4(addrsOf(filepath.Base(l)))
+	for i := 0; i < 4 && name != ""; i++ {
+		if ip := firstIPv4(addrsOf(name)); ip != "" {
+			return ip
+		}
+		l, err := os.Readlink(filepath.Join(sysDir, "class/net", name, "master"))
+		if err != nil {
+			return ""
+		}
+		name = filepath.Base(l)
 	}
 	return ""
 }
