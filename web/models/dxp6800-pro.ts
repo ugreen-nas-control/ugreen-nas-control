@@ -29,19 +29,19 @@ export default {
         leds: {
             status: 'verified',
             by: BY,
-            version: '0.7.0',
-            date: '2026-10-24',
+            version: '5.7.0',
+            date: '2026-11-12',
             note: 'LED control shipped in this plugin on 0.7.0, developed on this box; miskcoo verified the protocol on the model too.'
         },
-        fans: { status: 'verified', by: BY, version: '0.1.0', date: '2026-10-06', note: 'First version of the plugin: made for this model.' },
+        fans: { status: 'verified', by: BY, version: '5.7.0', date: '2026-11-12', note: 'First version of the plugin: made for this model.' },
         case: {
             status: 'verified',
             by: BY,
-            version: '0.10.4',
-            date: '2026-10-24',
+            version: '5.7.0',
+            date: '2026-11-12',
             note: 'Inside view (M.2 slots on CPU and chipset, system slot, PCIe slot) and the rear drawn after the device.'
         },
-        sensors: { status: 'verified', by: BY, version: '0.1.0', date: '2026-10-06' },
+        sensors: { status: 'verified', by: BY, version: '5.7.0', date: '2026-11-12' },
         panel: { status: 'expected' }
     },
     sources: ['https://wundertech.net/best-ugreen-nas/'],
