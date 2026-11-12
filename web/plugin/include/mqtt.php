@@ -118,6 +118,13 @@ function mqtt_view(array $config): array
     ];
 }
 
+// Text of the publisher or of a tool for the page: printable ASCII only (a cut inside a multibyte character would make json_encode
+// fail and the whole answer empty), at most 300 characters.
+function mqtt_text(string $text): string
+{
+    return substr((string) preg_replace('/[^\x20-\x7e]/', '', $text), 0, 300);
+}
+
 function mqtt_running(): bool
 {
     return run(CTL, ['mqtt-status'])['code'] === 0;
@@ -140,7 +147,7 @@ function mqtt_connection(bool $running, string $status): array
 
     $reason = $state === 'failed' && is_string($data['reason'] ?? null) ? $data['reason'] : '';
 
-    return ['connection' => $state, 'reason' => substr($reason, 0, 300)];
+    return ['connection' => $state, 'reason' => mqtt_text($reason)];
 }
 
 // running, connection and reason as mqtt_get answers them.
@@ -179,7 +186,7 @@ function mqtt_set(array $input): never
     $reply = ['ok' => true] + mqtt_view(read_settings()) + mqtt_status();
 
     if ($start['code'] !== 0) {
-        $reply['start_failed'] = $start['message'];
+        $reply['start_failed'] = mqtt_text($start['message']);
     }
 
     respond($reply);
@@ -261,7 +268,7 @@ function mqtt_test(array $input): never
     $reply = ['ok' => true, 'connected' => ($answer['connected'] ?? false) === true];
 
     if (!$reply['connected']) {
-        $reply['reason'] = substr((string) ($answer['reason'] ?? ''), 0, 300);
+        $reply['reason'] = mqtt_text((string) ($answer['reason'] ?? ''));
     }
 
     respond($reply);

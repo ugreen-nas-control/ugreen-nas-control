@@ -19,8 +19,8 @@ type Status struct {
 	Time   int64  `json:"time"`
 }
 
-// StatusPath is where Run keeps its Status; ugreen-nas-ctl removes it when it stops the publisher.
-var StatusPath = "/var/run/ugreen-nas-control-mqtt.status"
+// StatusPath is where Run keeps its Status; ugreen-nas-ctl and diag take it as their default and remove it when the publisher stops.
+var StatusPath = envOr("UGREEN_PUB_STATUS", "/var/run/ugreen-nas-control-mqtt.status")
 
 func writeStatus(path string, s Status) {
 	s.Time = time.Now().Unix()

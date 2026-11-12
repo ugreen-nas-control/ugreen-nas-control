@@ -98,3 +98,22 @@ echo json_encode(array_map(fn($c) => mqtt_connection($c[0], $c[1]), $cases));`;
     const got: unknown[] = JSON.parse(await new Response(run.stdout).text());
     expect(got).toEqual(cases.map(c => c[2]));
 });
+
+// Text the page gets from the publisher or a tool must stay valid in JSON, whatever it holds.
+test.skipIf(!php)('texts for the page are printable ASCII, at most 300 characters', async () => {
+    const cases: [string, string][] = [
+        ['dial tcp 10.0.0.1:1883: i/o timeout', 'dial tcp 10.0.0.1:1883: i/o timeout'],
+        ['', ''],
+        ['a\u0000b\nc\u007fd', 'abcd'],
+        ['Verbindung abgelehnt: größer', 'Verbindung abgelehnt: grer'],
+        ['ü'.repeat(200), ''],
+        ['x'.repeat(400), 'x'.repeat(300)],
+        ['ü' + 'x'.repeat(400), 'x'.repeat(300)]
+    ];
+    const script = `require ${JSON.stringify(join(root, 'web/plugin/include/mqtt.php'))};
+$cases = json_decode(file_get_contents('php://stdin'), true);
+echo json_encode(array_map(fn($c) => mqtt_text($c[0]), $cases));`;
+    const run = Bun.spawn([php!, '-r', script], { stdin: new Blob([JSON.stringify(cases)]), stdout: 'pipe' });
+    const got: string[] = JSON.parse(await new Response(run.stdout).text());
+    expect(got).toEqual(cases.map(c => c[1]));
+});

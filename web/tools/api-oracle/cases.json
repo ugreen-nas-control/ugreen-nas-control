@@ -786,6 +786,15 @@
       "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
     },
     {
+      "id": "nas.mqtt_get.failed-reason-non-ascii",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": {
+        "/var/run/ugreen-nas-control-mqtt.status": "{\"state\":\"failed\",\"reason\":\"üüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüüü\",\"time\":1}"
+      },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
       "id": "nas.mqtt_get.state-unknown-word",
       "api": "nas",
       "query": { "action": "mqtt_get" },
