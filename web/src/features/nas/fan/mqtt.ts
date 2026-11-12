@@ -227,7 +227,8 @@ function paint(ctx: FanCtx, force = false): void {
 
 // The state of the publisher changes without the user touching the settings.
 const sameSettings = (a: MqttResponse, b: MqttResponse): boolean =>
-    JSON.stringify({ ...a, running: 0, connection: 0, reason: 0 }) === JSON.stringify({ ...b, running: 0, connection: 0, reason: 0 });
+    JSON.stringify({ ...a, running: 0, connection: 0, reason: 0, start_failed: 0 }) ===
+    JSON.stringify({ ...b, running: 0, connection: 0, reason: 0, start_failed: 0 });
 
 async function load(ctx: FanCtx): Promise<void> {
     if (state.loading) return;
@@ -325,7 +326,10 @@ registerFanModule({
         const onEdit = (event: Event): void => {
             if (event.target instanceof HTMLInputElement) edit(ctx, event.target);
         };
-        ctx.el.addEventListener('input', onEdit);
+        // A checkbox fires input and then change; only change handles it, after the confirmation.
+        ctx.el.addEventListener('input', event => {
+            if (event.target instanceof HTMLInputElement && event.target.type !== 'checkbox') edit(ctx, event.target);
+        });
         ctx.el.addEventListener('change', event => {
             const target = event.target;
             if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
