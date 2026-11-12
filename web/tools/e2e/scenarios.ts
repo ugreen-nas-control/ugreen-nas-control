@@ -40,10 +40,8 @@ export const SCENARIOS: Scenario[] = [
             await s.go('case');
             if (await s.exists('[data-view="case"] [data-nav="curves"]:not([hidden])'))
                 await s.step('case -> fan settings link', () => s.click('[data-view="case"] [data-nav="curves"]'));
-            await s.step('about: fold models', async () => {
-                await s.go('about');
-                await s.click('#unc-models-fold summary');
-            });
+            await s.step('about: your device card', () => s.go('about'));
+            await s.step('about: confirm my device', () => s.click('[data-device-cta]'));
         }
     },
     {
@@ -98,6 +96,64 @@ export const SCENARIOS: Scenario[] = [
                 });
                 await s.step(`overview in ${theme}`, () => s.go('overview'));
             }
+        }
+    },
+    {
+        // Unraid's own theme and the plugin's colour scheme are separate settings. Whatever the combination, the history
+        // table and the feedback preview must stay readable (WCAG AA 4.5:1), so the host's table/pre colours must not reach them.
+        id: 'host-theme-contrast',
+        applies: withFan,
+        async run(s) {
+            await s.open();
+            const hostTheme = (host: 'light' | 'dark') =>
+                s.eval(`(() => {
+                    document.getElementById('e2e-host')?.remove();
+                    const [fg, bg] = ${JSON.stringify(host)} === 'light' ? ['#1c1c1b', '#f2f2f2'] : ['#f2f2f2', '#1c1b1b'];
+                    const style = document.createElement('style');
+                    style.id = 'e2e-host';
+                    style.textContent = 'body{color:' + fg + ';background:' + bg + '} table tbody td, table thead th, table caption, pre{color:' + fg + '}';
+                    document.head.append(style);
+                })()`);
+            const low: string[] = [];
+            for (const [plugin, host] of [
+                ['dark', 'light'],
+                ['light', 'dark']
+            ] as const) {
+                await s.step(
+                    `plugin ${plugin}, Unraid ${host}`,
+                    async () => {
+                        await s.go('settings');
+                        await s.set('#unc-theme', plugin);
+                        await hostTheme(host);
+                        await s.go('history');
+                        await s.until(`Boolean(document.querySelector('.unc-hist-table summary'))`, 'history table');
+                        await s.click('.unc-hist-table summary');
+                    },
+                    { quiet: 600 }
+                );
+                const ratios = await s.eval<number[]>(`(() => {
+                    const px = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+                    px.canvas.width = px.canvas.height = 1;
+                    const rgba = c => { px.clearRect(0, 0, 1, 1); px.fillStyle = '#000'; px.fillStyle = c; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+                    const over = (f, b) => [0, 1, 2].map(i => f[i] * f[3] + b[i] * (1 - f[3]));
+                    const lum = c => { const [r, g, b] = c.map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+                    const backdrop = el => { const layers = []; for (let e = el; e; e = e.parentElement) layers.push(rgba(getComputedStyle(e).backgroundColor)); let c = [255, 255, 255]; for (const l of layers.reverse()) c = over(l, c); return c; };
+                    return [...document.querySelectorAll('.unc-hist-table summary, .unc-hist-table caption, .unc-hist-table th, .unc-hist-table td')].map(el => {
+                        const bg = backdrop(el), fg = over(rgba(getComputedStyle(el).color), bg);
+                        const [a, b] = [lum(fg), lum(bg)].sort((x, y) => y - x);
+                        return Math.round(((a + .05) / (b + .05)) * 100) / 100;
+                    });
+                })()`);
+                const worst = Math.min(...ratios);
+                console.log(`host-theme-contrast: plugin ${plugin}, Unraid ${host}: worst ${worst}:1 over ${ratios.length} cells`);
+                if (!ratios.length || worst < 4.5) low.push(`${worst}:1 with plugin ${plugin} on Unraid ${host}`);
+                const dir = process.env.E2E_SHOTS_DIR;
+                if (dir) {
+                    await s.eval(`document.querySelector('.unc-hist-table').scrollIntoView({ block: 'center' })`);
+                    await Bun.write(`${dir}/plugin-${plugin}-unraid-${host}.png`, await s.view.screenshot());
+                }
+            }
+            if (low.length) throw new Error(`history table below 4.5:1: ${low.join('; ')}`);
         }
     },
     {
@@ -285,12 +341,31 @@ export const SCENARIOS: Scenario[] = [
                 await s.step('fan control on', () => s.click('#unc-fan-enabled'));
             }
             await s.go('about');
-            await s.step('models fold + confirm issue', async () => {
-                await s.click('#unc-models-fold summary');
-                if (await s.exists('#unc-confirm-list input[type="checkbox"]')) await s.click('#unc-confirm-list input[type="checkbox"]');
-                await s.set('#unc-confirm-text', 'works');
-                await s.click('#unc-confirm-send');
+        }
+    },
+    {
+        id: 'feedback',
+        applies: always,
+        async run(s) {
+            await s.open();
+            await s.step('feedback view', () => s.go('feedback'));
+            await s.step('answer: first row works', () => s.click('.unc-fb-row:first-child input[value="works"]'));
+            await s.step('answer: second row does not work', () => s.click('.unc-fb-row:nth-child(2) input[value="fails"]'));
+            await s.step('comment', () => s.set('#unc-fb-comment', 'thanks @alex, see #12'));
+            await s.step('issue without data', () => s.click('#unc-fb-issue'));
+            await s.step('collect: refused', async () => {
+                await s.click('#unc-fb-collect');
+                await s.until(`document.querySelector('#unc-fb-status').textContent.includes('Collecting failed')`, 'error');
             });
+            // Running and done are one step: the poll timer (2 s) lands in either of two steps depending on load.
+            await s.step('collect: try again, running, done', async () => {
+                await s.click('#unc-fb-collect');
+                await s.until(`document.querySelector('#unc-fb-status').textContent.includes('Collecting')`, 'running');
+                await s.until(`!document.querySelector('#unc-fb-result').hidden`, 'done', 9000);
+            });
+            await s.step('preview', () => s.click('.unc-fb-preview summary'));
+            await s.step('create issue', () => s.click('#unc-fb-issue'));
+            await s.step('report a problem', () => s.click('#unc-fb-bug'));
         }
     },
     {

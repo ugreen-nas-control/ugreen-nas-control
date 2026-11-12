@@ -2,10 +2,13 @@ package nasctl
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 	"unicode/utf8"
@@ -145,7 +148,7 @@ func goldenDiag(t *testing.T) string {
 	led := LEDDiag{Enabled: true, Supported: true, DaemonRunning: true, Bays: rep.Bays, Slots: slotNames(h),
 		Modprobe: "loaded i2c-dev for the scan (modprobe i2c-dev, the only change diag makes)",
 		Get:      "power on 255 255 255 255 0 0\ndisk1 on 255 0 255 0 0 0\n", Scan: "/dev/i2c-4: 0x3a\n",
-		Net: NetDiag{Dev: "bond0", Verdict: "not ok: gateway ping failed", DefaultVia: "bond0", Ifaces: []NetIface{
+		Net: NetDiag{Dev: "bond0", Verdict: "not ok: gateway neighbour FAILED", DefaultVia: "bond0", Ifaces: []NetIface{
 			{Name: "bond0", Oper: "up", Carrier: "1", Slaves: "eth0 eth1"}, {Name: "eth0", Oper: "up", Carrier: "1"}, {Name: "eth1", Oper: "down", Carrier: "0"}}}}
 	ev, reg := evidenceFixture(t)
 	modelSec, _ := modelSection(reg, ev)
@@ -484,7 +487,7 @@ func TestEvidenceSectionIsValidJSON(t *testing.T) {
 	ev, _ := evidenceFixture(t)
 	var got Evidence
 	body := evidenceSection(ev).Body
-	if err := json.Unmarshal([]byte(body), &got); err != nil || got.Schema != "diag/1" || len(got.Areas) != 5 {
+	if err := json.Unmarshal([]byte(body), &got); err != nil || got.Schema != "diag/1" || len(got.Areas) != 6 {
 		t.Errorf("%v\n%s", err, body)
 	}
 	if lines := strings.Count(body, "\n"); lines > 20 {
@@ -561,8 +564,9 @@ func TestPanickingSectionKeepsTheRest(t *testing.T) {
 	var s sections
 	s.add("a", func() Section { panic("boom") })
 	s.add("b", func() Section { return Section{Title: "b", Body: "ok"} })
-	if len(s.list) != 2 || s.list[1].Body != "ok" || !strings.Contains(s.list[0].Err, "boom") || len(s.failed) != 1 {
-		t.Errorf("%+v", s)
+	list, failed := s.finish()
+	if len(list) != 2 || list[1].Body != "ok" || !strings.Contains(list[0].Err, "boom") || len(failed) != 1 {
+		t.Errorf("%+v %v", list, failed)
 	}
 	if guard(func() { panic("x") }) == "" {
 		t.Error("guard swallowed the panic silently")
@@ -837,5 +841,103 @@ func TestMQTTConnectionFromStatusAndLog(t *testing.T) {
 		if got := mqttConnection(c.in); got != c.want {
 			t.Errorf("%s: %q, want %q", c.name, got, c.want)
 		}
+	}
+}
+
+// A box called "Unraid" keeps the label of its header line.
+func TestAnonKeepsLabelKeysThatEqualTheHostName(t *testing.T) {
+	a := Anon{Hostnames: []string{"Unraid"}}
+	for in, want := range map[string]string{
+		"plugin: 5.4.0\nunraid: 7.3.4\nkernel: 6.18.58-Unraid": "plugin: 5.4.0\nunraid: 7.3.4\nkernel: 6.18.58-Unraid",
+		"Nov  4 10:00:00 Unraid kernel: eth0 up":               "Nov  4 10:00:00 <host> kernel: eth0 up",
+		"connected to Unraid: ok":                              "connected to <host>: ok",
+		"unraid: 7.3.4 on Unraid":                              "unraid: 7.3.4 on <host>",
+	} {
+		if got := a.Text(in); got != want {
+			t.Errorf("%q -> %q, want %q", in, got, want)
+		}
+	}
+	hdr := a.Meta(diagHeader(time.Unix(0, 0), "6.18.58-Unraid", Report{UnraidVersion: "7.3.4"}))
+	if !strings.Contains(hdr, "\nunraid: 7.3.4\n") {
+		t.Errorf("header:\n%s", hdr)
+	}
+}
+
+// Blocks that start in the background finish in any order, yet the list keeps the order of the calls, a block that
+// waits for another sees its result, and no more than maxParallel run at once.
+func TestAsyncSectionsKeepTheOrderOfTheCalls(t *testing.T) {
+	for range 20 {
+		var s sections
+		var running, peak, first atomic.Int32
+		work := func(title string, d time.Duration) func() Section {
+			return func() Section {
+				n := running.Add(1)
+				for {
+					p := peak.Load()
+					if n <= p || peak.CompareAndSwap(p, n) {
+						break
+					}
+				}
+				time.Sleep(d)
+				running.Add(-1)
+				return Section{Title: title, Body: title}
+			}
+		}
+		a := s.async("a", func() Section {
+			time.Sleep(20 * time.Millisecond)
+			first.Store(1)
+			return Section{Title: "a", Body: "a"}
+		})
+		s.async("b", work("b", 0))
+		s.add("sync", work("sync", 0))
+		s.async("dep", func() Section {
+			return Section{Title: "dep", Body: fmt.Sprint("first=", first.Load())}
+		}, a)
+		s.async("boom", func() Section { panic("boom") })
+		for i := range 20 {
+			s.async(fmt.Sprint("n", i), work(fmt.Sprint("n", i), time.Millisecond))
+		}
+		list, failed := s.finish()
+		var got []string
+		for _, x := range list {
+			got = append(got, x.Title)
+		}
+		want := []string{"a", "b", "sync", "dep", "boom"}
+		for i := range 20 {
+			want = append(want, fmt.Sprint("n", i))
+		}
+		if !slices.Equal(got, want) {
+			t.Fatalf("order %v", got)
+		}
+		if list[3].Body != "first=1" {
+			t.Errorf("dependent ran before its input: %q", list[3].Body)
+		}
+		if len(failed) != 1 || failed[0] != "boom" || !strings.Contains(list[4].Err, "boom") {
+			t.Errorf("failed %v, %+v", failed, list[4])
+		}
+		if peak.Load() > maxParallel {
+			t.Errorf("%d collectors at once, limit %d", peak.Load(), maxParallel)
+		}
+	}
+}
+
+// Slow tools overlap: four 200 ms blocks take about 200 ms, not 800 ms.
+func TestAsyncSectionsOverlap(t *testing.T) {
+	var s sections
+	start := time.Now()
+	for i := range 4 {
+		s.async(fmt.Sprint(i), func() Section { time.Sleep(200 * time.Millisecond); return Section{Body: "x"} })
+	}
+	s.finish()
+	if d := time.Since(start); d > 600*time.Millisecond {
+		t.Errorf("blocks ran one after the other: %s", d)
+	}
+}
+
+func TestDiagMarksACPIZoneUnreliable(t *testing.T) {
+	status := `{"fan_control": true, "sensors": {"cpu": 38, "board": null, "acpi_zone": 28, "not_connected": []}}`
+	body := fanSection(FanDiag{Status: []byte(status)}).Body
+	if !strings.Contains(body, "temps: cpu 38 C  board -  acpi zone 28 C (fixed BIOS value on UGREEN boards, unreliable, not used)") {
+		t.Fatalf("section = %s", body)
 	}
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/include/lang.php';
+require_once __DIR__ . '/include/diag.php';
 require_once __DIR__ . '/include/fan_v2.php';
 require_once __DIR__ . '/include/fan_schedule.php';
 require_once __DIR__ . '/include/fan_history.php';
@@ -21,6 +22,9 @@ const FAN_TOOL = PLUGIN_DIR . '/backend/ugreen-nas-fan';
 const CTL = PLUGIN_DIR . '/backend/ugreen-nas-ctl';
 const NAS_BIN = PLUGIN_DIR . '/backend/ugreen-nas';
 
+// The tools run with this environment only: php-fpm has no PATH, and dmidecode, ethtool, pgrep need one.
+const TOOL_ENV = ['PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'];
+
 // Saved settings, read by the fan daemon every 2 seconds.
 const CONFIG_FILE = '/boot/config/plugins/ugreen-nas-control/fan.cfg';
 const CONFIG_LOCK = '/var/run/ugreen-nas-control.fan.cfg.lock';
@@ -36,7 +40,7 @@ function respond(array $data, int $code = 200): never
 
 function run(string $tool, array $args): array
 {
-    $process = @proc_open(array_merge([$tool], $args), [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, '/', []);
+    $process = @proc_open(array_merge([$tool], $args), [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, '/', TOOL_ENV);
 
     if (!is_resource($process)) {
         return ['code' => 127, 'output' => '', 'errors' => 'Cannot start ' . $tool, 'message' => 'Cannot start ' . $tool];
@@ -242,11 +246,17 @@ if ($method === 'GET') {
     if ($action === 'panel_buttons') {
         panel_buttons();
     }
+    if ($action === 'panel_power') {
+        panel_power_get();
+    }
     if ($action === 'power_ac_get') {
         power_ac_get();
     }
     if ($action === 'mqtt_get') {
         mqtt_get();
+    }
+    if ($action === 'diag_status') {
+        diag_status();
     }
 
     if ($action !== 'status') {
@@ -500,6 +510,9 @@ if ($action === 'cs201x_forget') {
 if ($action === 'panel_beep') {
     panel_beep($input);
 }
+if ($action === 'panel_power') {
+    panel_power_set($input);
+}
 if ($action === 'power_ac_set') {
     power_ac_set($input);
 }
@@ -631,6 +644,10 @@ if ($action === 'fan_control') {
     }
 
     respond(['ok' => true]);
+}
+
+if ($action === 'diag_start') {
+    diag_start();
 }
 
 // Measures the rpm of every fan at fixed speeds (about 4 minutes). The measurement runs in the background; the

@@ -2,6 +2,60 @@
 
 User-visible changes per release, newest first. Written by `bun plugin/tools/changes.ts release` from the files in .changes/; the plugin's change list is generated from this file.
 
+## 5.6.0
+
+- Front panel: optional clean shutdown when the power button is held for 1 to 3 seconds (off by default, only on models where users confirmed the buttons), idea from [Chiconydu69](https://github.com/Chiconydu69).
+- Sensors: the ACPI thermal zone, a fixed BIOS value of about 28 °C on UGREEN boards, is no longer shown as the mainboard temperature; the Sensors page lists it as "ACPI zone, not a measurement" and diag marks it unreliable. Diag also points to the Feedback page for "Confirm my device" and no longer lists the SPI flash controller as an I2C controller without driver. Reported by [ivolution](https://github.com/ivolution).
+- Diagnosis on the DXP480T Plus: no false LED controller mismatch (diag now checks the power LED chip), no LED or fan chip hints for hardware the model does not have, "power LED only" instead of an LED count, and an unknown M.2 slot order is no longer reported as a mismatch. Thanks to [datarepos76](https://github.com/datarepos76) for the report.
+- Spanish: clearer wording on the fan history, fan input, front panel, power, schedule and tools pages. Thanks to [ivolution](https://github.com/ivolution).
+- Fans: the "Show as table" view under History is readable again when the plugin colour scheme and the Unraid theme differ (thanks to [ivolution](https://github.com/ivolution)).
+- Network LED: the gateway check looks up the router in the system's address table instead of pinging it, so a router that ignores pings no longer turns the LED red. Thanks to [Chiconydu69](https://github.com/Chiconydu69).
+- About and Front panel: a capability users confirmed only in part now shows as "Partly confirmed" instead of "Confirmed by users".
+- DXP4800 Plus: LEDs, fan control and case view confirmed, and the front-panel beeper works; the buttons are still open. Thanks to [ivolution](https://github.com/ivolution).
+- DXP480T Plus: sensors confirmed, case view and front panel partly confirmed on 5.5.0; the LEDs are still open. Thanks to [datarepos76](https://github.com/datarepos76).
+
+## 5.5.0
+
+- DXP2800 SUB2 boards: LED control through the Intel I2C controller is on by default, no `lpss_leds="1"` needed; the LEDs also came back by themselves after a cold reboot. `lpss_leds="0"` in `leds.cfg` turns it off. Thanks to [DanielRuppen](https://github.com/DanielRuppen).
+- Front panel is a checked capability per model: the Front panel page, the About "Your device" card, the Feedback page and `panel buttons` say whether users confirmed buttons and beeper on your model. The DXP8800 Plus is the first. Thanks to [Chiconydu69](https://github.com/Chiconydu69).
+- LEDs on DXP2800 SUB2: the LPSS path also works when Unraid's intel-lpss driver holds the controller without an I2C driver; the plugin keeps the controller awake while it talks to it. Reported by DanielRuppen.
+- Diagnostics: boxes with an IT8613E fan chip list the raw values of registers 0x1e and 0x7f, so header 4's mode can be checked (read only). Reported by Chiconydu69.
+- Fans: the fan on IT8613E header 4 (second case fan of the DXP6800 and DXP8800 family) is switched to manual through UGREEN's register 0x1e, so it follows the curve instead of staying in automatic mode. Reported by Chiconydu69.
+- Feedback: the bug form asks for the device data, and "Download diag.md" stays next to the issue buttons once the data is collected.
+- Feedback: the model form needs the device data and no longer comes with a text in that field, the page says before the click where to paste it, the check summary is no longer cut mid-word and counts the LEDs the model has.
+- DXP2800 SUB2: a chip id of 0x0000 after the controller wakes is retried once after a fresh bring-up, the setup is checked before every transfer, and `ugreen-led-i2c --debug` prints a trace of the path.
+- Network LED: a single lost gateway ping no longer turns it red. The probe pings twice, and the LED turns red only after three failed probes in a row (about 90 s); a lost link or carrier is still red at once. Reported by [Chiconydu69](https://github.com/Chiconydu69).
+- DXP2800: fan control, case view and sensors confirmed by a user on a SUB2 board. Thanks to [DanielRuppen](https://github.com/DanielRuppen).
+- DXP2800 SUB2 boards: LED control through the Intel I2C controller confirmed on hardware, bay order verified. Thanks to [DanielRuppen](https://github.com/DanielRuppen).
+- DXP8800 Plus: the beeper test is confirmed by a user. Thanks to [Chiconydu69](https://github.com/Chiconydu69).
+- DXP8800 Plus: front-panel buttons and fan header 4 (register 0x1e) confirmed on hardware. Reported by [Chiconydu69](https://github.com/Chiconydu69).
+
+## 5.4.0
+
+- About now shows a "Your device" card instead of the full models table: your model, each capability with its status (confirmed, confirmed by users, untested, not supported) and a "Confirm my device" button that opens the Feedback page. The list of all models is one link away on the project website.
+- About: switch between the stable and the next channel (test builds) with one button, through Unraid's install dialog.
+- Diagnostics add the network LED state, the raw front panel pad words, installed files against the flash plugin version, the cron files, 24 hours of plugin start and stop lines and the PCI chain of each NVMe drive, and no longer print the user name of a fork's plugin URL.
+- Diagnostics list the I2C controllers, the HT32 LED controller device and the DesignWare modules, and say when the LED controller probably sits behind a controller without a driver.
+- The diagnosis can run from the web page: `diag --json` returns a scrubbed, structured result, and a box named "Unraid" no longer turns the `unraid:` line of the report into `<host>:`.
+- New Feedback page: say per capability what works on your model, collect the scrubbed device data in one step, and open a pre-filled GitHub issue (or bug report) with one click. About keeps the supported models table, always shown. The issue forms are generated from the model registry. "Back to stable" now shows the command that returns to next.
+- DXP2800 SUB2 boards: LED control through the Intel LPSS I2C controller, off until you set `lpss_leds="1"` in `leds.cfg`; `ugreen-led-i2c lpss-probe` checks the board first without writing (`--write` adds the chip id read) (not yet confirmed on hardware).
+- Falling fan curves round to the nearest percent.
+- diag and report also remove shortened IPv6 addresses and MAC addresses written with dashes.
+- Diagnostics no longer wait 30 s on graphics I2C buses: the scan skips them, lists each as skipped, keeps the SMBus result when it still times out, and `diag --full-scan` scans them too.
+- Diagnostics: `diag` runs its tool calls side by side and finishes in about 60 % of the time.
+- On the DXP4800 GT and iDX6011 Pro, stopping fan control while another fan tool is active now also stops the hardware watchdog the plugin was feeding, so the box no longer resets about 5 minutes later.
+- On the DXP2800 GT, quiet hours and per-fan minimums respect the 25 % hardware floor, so the recorded speed matches what runs.
+- If handing one fan back to the BIOS fails, the other fans are still handed back.
+- Switching the LEDs on now reports an error when the setting can't be saved on the flash drive.
+- MQTT: the plugin closes the connection and reconnects when the broker sends a packet the protocol forbids, and answers a QoS 2 message with PUBREC and PUBCOMP.
+- MQTT: a refused connection says why in the log (protocol version, client identifier, server unavailable, user name or password, not authorized).
+- MQTT: a user name, client ID or will topic that is not valid UTF-8, or a string over 65535 bytes, is refused with a clear message instead of sending a corrupt CONNECT.
+- The MQTT publisher no longer stops when a parity check runs very slowly.
+- MQTT: the log says when the broker refuses the command subscription (SUBACK failure), for example because of its access rules.
+- Fan detection run over ssh puts the fans back when the connection drops.
+- Exported fan profiles keep the 'fan may stop' setting.
+- A bay LED switched off (or dark at night) no longer glows faintly when its disk spins down.
+
 ## 5.3.1
 
 - DXP8800 Plus: each NVMe shows in its real slot (M.2-1, M.2-2, the internal system slot); the factory SSD no longer appears in the PCIe slot. Reported by Chiconydu69.

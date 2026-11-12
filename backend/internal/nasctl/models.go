@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/panel"
 )
 
 // models.json is the model registry (web/models/*.ts) as docs/tools/gen-docs.ts renders it; `just docs` rewrites
@@ -108,6 +110,7 @@ type EvCheck struct {
 	Expected any    `json:"expected"`
 	Detected any    `json:"detected"`
 	OK       *bool  `json:"ok"`
+	Note     string `json:"note,omitempty"`
 }
 
 type EvRivals struct {
@@ -119,6 +122,23 @@ type EvRivals struct {
 }
 
 func tri(ok bool) *bool { return &ok }
+
+// PowerLEDOnly: the model has no LED MCU at 0x3a, only the power LED chip at 0x26.
+func (m *RegModel) PowerLEDOnly() bool { return m != nil && m.LED == "power" }
+
+// NoFan: the registry marks the model without fan control.
+func (m *RegModel) NoFan() bool {
+	return m != nil && m.Fan == nil && m.Verified["fans"].Status == "unsupported"
+}
+
+// productReg is the registry model of a DMI product name, nil when there is none.
+func productReg(product string) *RegModel {
+	models, err := loadRegistry(modelsJSON)
+	if err != nil {
+		return nil
+	}
+	return matchModel(models, product)
+}
 
 var chipKeyRe = regexp.MustCompile(`(?i)it\d{4}|cs\d{3}`)
 
@@ -176,6 +196,14 @@ func BuildEvidence(in EvInputs) Evidence {
 		case reg.LED == "none":
 			ledCheck.Expected = "none"
 			ledCheck.OK = tri(r.LED.Probe != "ok")
+		case reg.PowerLEDOnly():
+			ledCheck.Expected, ledCheck.Detected = "power LED chip answers at 0x26", "not scanned"
+			if answers, known := in.LED.answersAt("0x26"); known {
+				ledCheck.Detected, ledCheck.OK = "no answer at 0x26", tri(answers)
+				if answers {
+					ledCheck.Detected = "answers at 0x26"
+				}
+			}
 		case r.LED.Probe == "not run":
 			ledCheck.Detected = "not run: " + orDash(r.LED.Blocker)
 		default:
@@ -251,6 +279,10 @@ func BuildEvidence(in EvInputs) Evidence {
 			exp := slices.Clone(reg.M2.Slots)
 			sort.Strings(exp)
 			nvme.Expected, nvme.OK = exp, tri(m2SlotsMatch(exp, m2, reg.M2.PCIeSlot))
+			if !*nvme.OK && !slices.ContainsFunc(m2, func(s string) bool { return s != "m2" }) {
+				// Only plain "m2": the model has no root-port map, so more SSDs than slots (a boot SSD, say) say nothing about the slot order.
+				nvme.OK, nvme.Note = nil, fmt.Sprintf("slot order unknown: no root-port map for this model, %d M.2 SSDs for %d slots", len(m2), len(exp))
+			}
 		}
 		if reg.LAN != nil {
 			lan.Expected, lan.OK = len(reg.LAN.MaxMbit), tri(len(reg.LAN.MaxMbit) == len(r.Network))
@@ -265,6 +297,15 @@ func BuildEvidence(in EvInputs) Evidence {
 		cpuT.OK = tri(in.FanSt.Sensors.CPU != nil)
 	}
 	area("sensors", status("sensors"), cpuT)
+
+	// panel: the registry offers it exactly where the backend has a button map or a beeper
+	tables := EvCheck{ID: "panel_tables"}
+	if reg != nil {
+		tables.Expected = reg.Verified["panel"].Status != "unsupported"
+		tables.Detected = panel.ButtonsFor(r.Machine.Product) != nil || panel.BeeperFor(r.Machine.Product) != nil
+		tables.OK = tri(tables.Expected == tables.Detected)
+	}
+	area("panel", status("panel"), tables)
 
 	// watchdog
 	wd := EvCheck{ID: "watchdog_state"}
@@ -294,9 +335,9 @@ func BuildEvidence(in EvInputs) Evidence {
 	return ev
 }
 
-var areaOrder = []string{"leds", "fans", "case", "sensors", "watchdog"}
+var areaOrder = []string{"leds", "fans", "case", "sensors", "panel", "watchdog"}
 
-var areaLabel = map[string]string{"leds": "LEDs", "fans": "fans", "case": "case", "sensors": "sensors", "watchdog": "watchdog"}
+var areaLabel = map[string]string{"leds": "LEDs", "fans": "fans", "case": "case", "sensors": "sensors", "panel": "front panel", "watchdog": "watchdog"}
 
 func checkLine(c RegCheck) string {
 	parts := []string{c.Status}
@@ -369,11 +410,15 @@ func modelSection(reg *RegModel, ev Evidence) (Section, []string) {
 					checks = append(checks, fmt.Sprintf("MISMATCH: %s: registry expects %s, detected %s%s", c.ID, shown(c.Expected), shown(c.Detected), hint))
 				}
 			}
-			l = append(l, fmt.Sprintf("  %s: expected %s, detected %s [%s]", c.ID, shown(c.Expected), shown(c.Detected), mark))
+			note := ""
+			if c.Note != "" {
+				note = " (" + c.Note + ")"
+			}
+			l = append(l, fmt.Sprintf("  %s: expected %s, detected %s [%s]%s", c.ID, shown(c.Expected), shown(c.Detected), mark, note))
 		}
 		if rc != nil && (rc.Status == "expected" || rc.Status == "partial") && name != "watchdog" {
 			if rc.Status == "expected" {
-				checks = append(checks, fmt.Sprintf("%s: untested on this model (expected), please confirm via About, Confirm my device", areaLabel[name]))
+				checks = append(checks, fmt.Sprintf("%s: untested on this model (expected), please confirm it on the Feedback page", areaLabel[name]))
 			} else {
 				checks = append(checks, fmt.Sprintf("%s: only partly confirmed on this model: %s", areaLabel[name], short(rc.Note, 160)))
 			}
@@ -441,4 +486,55 @@ func m2SlotsMatch(expected, detected []string, pcieSlot bool) bool {
 		free = slices.Delete(free, i, i+1)
 	}
 	return pcieSlot || loose <= len(free)
+}
+
+var issueRefRe = regexp.MustCompile(`/(?:issues|pull)/(\d+)$`)
+
+// PanelStatus is how well the front panel (buttons and beeper) is known on the model, from the registry's panel check
+// (web/models/*.ts), for `ugreen-nas panel` and the diag: "confirmed by users, #165" or "vendor source, not yet confirmed".
+func PanelStatus(product string) string {
+	unconfirmed := panel.Unconfirmed
+	models, err := loadRegistry(modelsJSON)
+	if err != nil {
+		return unconfirmed
+	}
+	reg := matchModel(models, product)
+	if reg == nil {
+		return unconfirmed
+	}
+	c, ok := reg.Verified["panel"]
+	if !ok {
+		return unconfirmed
+	}
+	var text string
+	switch c.Status {
+	case "verified":
+		text = "verified by a maintainer"
+	case "community":
+		text = "confirmed by users"
+	case "partial":
+		text = "partly confirmed by users"
+	default:
+		return unconfirmed
+	}
+	if m := issueRefRe.FindStringSubmatch(c.Ref); m != nil {
+		text += ", #" + m[1]
+	}
+	return text
+}
+
+// PanelConfirmed says whether users (or a maintainer) confirmed the front panel on the model: the registry's panel check
+// is community or verified. A partial check (the beeper only), an expected one or an unknown model is not enough for the
+// shutdown on a held power button.
+func PanelConfirmed(product string) bool {
+	models, err := loadRegistry(modelsJSON)
+	if err != nil {
+		return false
+	}
+	reg := matchModel(models, product)
+	if reg == nil {
+		return false
+	}
+	c, ok := reg.Verified["panel"]
+	return ok && (c.Status == "community" || c.Status == "verified")
 }

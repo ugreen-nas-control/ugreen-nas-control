@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"syscall"
@@ -26,6 +27,8 @@ const usageText = `Usage:
                                              where it only watches) and, if switched on, the MQTT publisher
   ugreen-nas-ctl mqtt-start|mqtt-stop|mqtt-status
                                              the MQTT publisher alone (mqtt_enabled="1" in fan.cfg)
+  ugreen-nas-ctl power-start|power-stop|power-status
+                                             the power button watcher alone (panel_power_shutdown="1" in fan.cfg, docs/panel.md)
   ugreen-nas-ctl led-status                  LED part as JSON: enabled, supported, conflict
   ugreen-nas-ctl led-enable|led-disable      switch the LED part on or off
   ugreen-nas-ctl led-import                  take over the settings of UGREEN LED Control
@@ -33,6 +36,8 @@ const usageText = `Usage:
   ugreen-nas-ctl report                      anonymised JSON for a model report
   ugreen-nas-ctl diag                        anonymised read-only diagnostics as Markdown for a bug report
                                              (no hardware writes; the only system change is modprobe i2c-dev, if missing)
+                                             diag --json: the same as one JSON object (schema feedback/1) for the Feedback page
+                                             diag --full-scan: the I2C scan includes the display (graphics) buses, up to 30 s more
   ugreen-nas-ctl event stopping              array stop hook: signals shutdown on the power LED
 `
 
@@ -46,6 +51,9 @@ type Ctl struct {
 	Detect func() []conflict.Conflict
 	// OpenMem opens /dev/mem for diag; nil means panel.OpenMem. Always called read-only.
 	OpenMem func(write bool) (panel.Mem, error)
+
+	// FullScan makes diag scan the display buses too (diag --full-scan).
+	FullScan bool
 
 	found   []conflict.Conflict
 	scanned bool
@@ -109,6 +117,19 @@ func (c *Ctl) Main(args []string) int {
 		}
 		c.out("stopped\n")
 		return 3
+	case "power-start":
+		return c.powerStart()
+	case "power-stop":
+		c.powerStop()
+		c.out("Power button watcher stopped.\n")
+		return 0
+	case "power-status":
+		if c.running(c.Env.PowerPidFile) {
+			c.out("running (pid %s)\n", c.pidText(c.Env.PowerPidFile))
+			return 0
+		}
+		c.out("stopped\n")
+		return 3
 	case "led-status":
 		c.ledStatus()
 		return 0
@@ -127,7 +148,8 @@ func (c *Ctl) Main(args []string) int {
 	case "report":
 		return c.report()
 	case "diag":
-		return c.diag()
+		c.FullScan = slices.Contains(args[1:], "--full-scan")
+		return c.diag(slices.Contains(args[1:], "--json"))
 	case "event":
 		if len(args) > 1 && args[1] == "stopping" {
 			c.eventStopping()
@@ -233,10 +255,11 @@ func probeError(probe string) string {
 	return probe
 }
 
-// start: the publisher's failure must not stop the fans from starting, nor the other way round.
+// start: the failure of the publisher or the power button watcher must not stop the fans from starting, nor the other way round.
 func (c *Ctl) start() int {
 	rc := c.fanStart()
 	c.pubStart()
+	c.powerStart()
 	return rc
 }
 
@@ -281,6 +304,7 @@ func (c *Ctl) fanStart() int {
 }
 
 func (c *Ctl) stop() {
+	c.powerStop()
 	c.pubStop()
 	c.fanStop()
 }
@@ -534,7 +558,7 @@ func (c *Ctl) ledBoot() int {
 		if !run(ctl, c.Out, c.Err, "dxp480t") {
 			c.out("WARNING: The power LED did not accept the steady-white init.\n")
 		}
-	} else if run(c.Env.LEDI2C, nil, nil, "probe") {
+	} else if _, ok, _ := c.ledProbe(); ok {
 		run(ctl, c.Out, c.Err, "apply")
 
 		cfg, _ := os.ReadFile(c.Env.LEDCfg)
@@ -627,4 +651,67 @@ func (c *Ctl) eventStopping() {
 		return
 	}
 	_, _ = detach(c.Env.LEDCtl, "", "shutdown")
+}
+
+// powerEnabled: panel_power_shutdown="1" in fan.cfg (the last such line wins).
+func (c *Ctl) powerEnabled() bool {
+	data, err := os.ReadFile(c.Env.FanCfg)
+	if err != nil {
+		return false
+	}
+	last := ""
+	for _, line := range strings.Split(string(data), "\n") {
+		if v, ok := strings.CutPrefix(line, panel.CfgPowerShutdown+`="`); ok {
+			last = strings.TrimSuffix(v, `"`)
+		}
+	}
+	return last == "1"
+}
+
+// powerStart runs `ugreen-nas panel power-action` apart from the fan daemon, so it also runs where the fans are not
+// controlled. Without the setting it does nothing; on a model whose buttons nobody confirmed it ends at once with the reason.
+func (c *Ctl) powerStart() int {
+	if !c.powerEnabled() || c.running(c.Env.PowerPidFile) {
+		return 0
+	}
+	pid, err := detach(c.Env.Panel, c.Env.PowerLog, "panel", "power-action")
+	if err != nil {
+		c.errf("ERROR: Power button watcher did not start: %v\n", err)
+		return 1
+	}
+	_ = fsx.WriteFile(c.Env.PowerPidFile, []byte(strconv.Itoa(pid)+"\n"), 0o644)
+
+	c.Sleep(500 * time.Millisecond)
+	if !c.running(c.Env.PowerPidFile) {
+		_ = os.Remove(c.Env.PowerPidFile)
+		last := ""
+		if data, err := os.ReadFile(c.Env.PowerLog); err == nil {
+			lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
+			last = strings.TrimPrefix(lines[len(lines)-1], "ERROR: ")
+		}
+		c.errf("ERROR: Power button watcher did not start: %s\n", last)
+		return 1
+	}
+
+	c.out("Power button watcher started.\n")
+	return 0
+}
+
+func (c *Ctl) powerStop() { c.terminate(c.Env.PowerPidFile, 30) }
+
+// ledProbe asks the LED tool to probe, up to three times 300 ms apart: one failed probe (the controller did not answer
+// while the daemon or an effect was writing) is not "no controller". It returns the stdout of the last try and, on
+// failure, the tool's own reason.
+func (c *Ctl) ledProbe() (out string, ok bool, reason string) {
+	for i := range 3 {
+		if i > 0 {
+			c.Sleep(300 * time.Millisecond)
+		}
+		var err error
+		if out, err = runTimeout(toolTimeout, c.Env.LEDI2C, "probe"); err == nil {
+			return out, true, ""
+		}
+		reason = strings.TrimSpace(strings.TrimPrefix(err.Error(), "ERROR: "))
+	}
+	return out, false, reason
 }

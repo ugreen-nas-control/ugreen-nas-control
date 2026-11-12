@@ -112,10 +112,19 @@ func splitTerminated(s string) ([]string, bool) {
 
 func (c *Ctl) listJSON() string {
 	var parts []string
-	if _, rc := c.toolOut(false, "--plain", "get", "power"); rc == 0 {
-		for _, led := range c.leds {
-			parts = append(parts, `"`+led+`"`)
+	// The controller answers intermittently; an empty list greys out the LED page.
+	for i := range 3 {
+		_, rc := c.toolOut(false, "--plain", "get", "power")
+		if rc == 0 {
+			for _, led := range c.leds {
+				parts = append(parts, `"`+led+`"`)
+			}
+			break
 		}
+		if rc == chip.ExitRejected || i == 2 {
+			break
+		}
+		c.Sleep(300 * time.Millisecond)
 	}
 	return "[" + strings.Join(parts, ", ") + "]\n"
 }
@@ -329,8 +338,11 @@ func (c *Ctl) status() int {
 	netdevMode := c.netdevStatus()
 	netOK, netWhy := "null", ""
 	if c.daemonRunning() {
-		if v := catState(c.Env.NetState); v == "ok" {
+		if v := catState(c.Env.NetState); v == "ok" || strings.HasPrefix(v, "ok (") {
 			netOK = "true"
+			if v != "ok" {
+				netWhy = v
+			}
 		} else if why, ok := strings.CutPrefix(v, "fail: "); ok {
 			netOK, netWhy = "false", why
 		}

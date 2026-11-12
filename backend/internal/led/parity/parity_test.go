@@ -39,6 +39,11 @@ var (
 
 func TestMain(m *testing.M) {
 	full = os.Getenv("LEDCTL_PARITY") == "1"
+	var shardErr error
+	if shardIdx, shardN, shardErr = parseShard(os.Getenv("LEDCTL_PARITY_SHARD")); shardErr != nil {
+		fmt.Fprintln(os.Stderr, "parity:", shardErr)
+		os.Exit(1)
+	}
 
 	wd, _ := os.Getwd()
 	root := filepath.Join(wd, "..", "..", "..")
@@ -107,8 +112,8 @@ func TestParity(t *testing.T) {
 	if !enabled {
 		t.Skip("parity needs bash >= 4 (nix develop): " + skipReason)
 	}
-	for _, s := range scenarios() {
-		if !full && !s.fast {
+	for i, s := range scenarios() {
+		if !inShard(i) || !full && !s.fast {
 			continue
 		}
 		t.Run(s.name, func(t *testing.T) {
@@ -147,6 +152,12 @@ func TestParity(t *testing.T) {
 			}
 			if want == got {
 				equal.Add(1)
+				return
+			}
+			// The gateway probe reads the kernel neighbour table where the shell pinged; those calls are the only difference.
+			if dropLines(want, "ping ") == dropLines(got, "ip -j neigh ") {
+				intendedDiff.Add(1)
+				t.Logf("intended difference: the gateway probe reads the neighbour table, the shell pinged")
 				return
 			}
 			different.Add(1)
@@ -236,7 +247,7 @@ func scenarios() []scenario {
 		{name: "usage-errors", inert: true, run: func(r *rig) {
 			r.runs("get", "get a b", "on", "off", "stop", "brightness x", "color x y", "color power 1 2", "blink power 1", "breath power", "identify", "identify-stop", "daemon bogus", "fx bogus", "on power extra")
 		}},
-		{name: "list", run: func(r *rig) {
+		{name: "list", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.runs("list")
 			r.write("stubs/chip.fail", "")
 			r.runs("list")
@@ -275,11 +286,11 @@ func scenarios() []scenario {
 		}, run: func(r *rig) { r.runs("status") }},
 
 		{name: "status-default", run: func(r *rig) { r.runs("status") }},
-		{name: "status-chip-down", run: func(r *rig) {
+		{name: "status-chip-down", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.write("stubs/chip.fail", "")
 			r.runs("status")
 		}},
-		{name: "status-chip-down-cached", run: func(r *rig) {
+		{name: "status-chip-down-cached", intended: "the LED list read asks the controller up to three times, 300 ms apart, before it reports an empty list; the shell asked once", run: func(r *rig) {
 			r.write("run/bus", "3\n")
 			r.write("stubs/chip.fail", "")
 			r.runs("status")
@@ -403,4 +414,16 @@ func idxPorts(r *rig) {
 		r.mkdir(fmt.Sprintf("sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/ata%d", n))
 		r.symlink(fmt.Sprintf("sys/class/ata_port/ata%d", n), fmt.Sprintf("../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/ata%d", n))
 	}
+}
+
+// dropLines removes every line that, once trimmed of list punctuation, starts with prefix.
+func dropLines(text, prefix string) string {
+	var keep []string
+	for _, l := range strings.Split(text, "\n") {
+		if strings.HasPrefix(strings.TrimLeft(l, " \t\",'"), prefix) {
+			continue
+		}
+		keep = append(keep, l)
+	}
+	return strings.Join(keep, "\n")
 }

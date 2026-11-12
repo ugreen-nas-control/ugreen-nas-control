@@ -411,6 +411,7 @@ func writeSystem(r *rig) {
 	r.write("sys/net/eth0/statistics/rx_bytes", "1\n")
 	r.write("sys/net/eth0/statistics/tx_bytes", "1\n")
 	r.run.outputs["ip route show default"] = "default via 10.0.0.1 dev eth0\n"
+	r.neigh("REACHABLE")
 }
 
 func TestDaemonLoop(t *testing.T) {
@@ -547,25 +548,95 @@ func TestNetworkVerdictAndStatus(t *testing.T) {
 	r.write("run/pid", fmt.Sprintf("%d\n", pid))
 	for _, tc := range []struct {
 		name, oper string
-		ping       int
+		neigh      string
 		ok         bool
 		reason     string
 	}{
-		{"healthy", "up", 0, true, ""},
-		{"link down", "down", 0, false, "operstate down"},
-		{"state unknown", "unknown", 0, false, "operstate unknown"},
-		{"no operstate", "", 0, false, "operstate unreadable"},
-		{"gateway silent", "up", 1, false, "gateway ping failed"},
+		{"healthy", "up", "REACHABLE", true, "ok (gateway neighbour REACHABLE)"},
+		{"link down", "down", "REACHABLE", false, "operstate down"},
+		{"state unknown", "unknown", "REACHABLE", false, "operstate unknown"},
+		{"no operstate", "", "REACHABLE", false, "operstate unreadable"},
 	} {
 		if tc.oper == "" {
 			_ = os.Remove(r.env.SysNet + "/eth0/operstate")
 		} else {
 			r.write("sys/net/eth0/operstate", tc.oper+"\n")
 		}
-		r.run.codes["ping -c 1 -W 2 10.0.0.1"] = tc.ping
+		r.neigh(tc.neigh)
 		r.c.probeNetwork(probe, "eth0")
 		if got := verdict(); got["network_ok"] != tc.ok || got["network_reason"] != tc.reason {
 			t.Errorf("%s: network_ok=%v reason=%q", tc.name, got["network_ok"], got["network_reason"])
 		}
 	}
+
+	// A silent gateway counts: ok with the count in the reason, red on the third probe in a row, one answer resets.
+	r.write("sys/net/eth0/operstate", "up\n")
+	check := func(step, neigh string, ok bool, reason string) {
+		t.Helper()
+		r.neigh(neigh)
+		r.c.probeNetwork(probe, "eth0")
+		if got := verdict(); got["network_ok"] != ok || got["network_reason"] != reason {
+			t.Errorf("%s: network_ok=%v reason=%q", step, got["network_ok"], got["network_reason"])
+		}
+	}
+	check("healthy", "STALE", true, "ok (gateway neighbour STALE)")
+	check("1st miss", "FAILED", true, "ok (gateway neighbour FAILED, 1 of 3)")
+	check("2nd miss", "FAILED", true, "ok (gateway neighbour FAILED, 2 of 3)")
+	check("answer resets", "REACHABLE", true, "ok (gateway neighbour REACHABLE)")
+	check("1st miss again", "FAILED", true, "ok (gateway neighbour FAILED, 1 of 3)")
+	check("2nd miss again", "FAILED", true, "ok (gateway neighbour FAILED, 2 of 3)")
+	check("3rd miss", "FAILED", false, "gateway neighbour FAILED")
+	check("still silent", "FAILED", false, "gateway neighbour FAILED")
+	check("answers again", "REACHABLE", true, "ok (gateway neighbour REACHABLE)")
+
+	// Link loss is red at once and clears the count.
+	check("miss", "FAILED", true, "ok (gateway neighbour FAILED, 1 of 3)")
+	r.write("sys/net/eth0/operstate", "down\n")
+	check("link down", "FAILED", false, "operstate down")
+	r.write("sys/net/eth0/operstate", "up\n")
+	check("link back, count restarts", "FAILED", true, "ok (gateway neighbour FAILED, 1 of 3)")
+
+	// Carrier 0 on a bond and on all its ports is red at once; one port with a carrier keeps it green.
+	r.write("sys/net/eth0/carrier", "0\n")
+	check("no carrier", "REACHABLE", false, "carrier 0")
+	_ = os.Symlink("../eth1", filepath.Join(r.dir, "sys/net/eth0/lower_eth1"))
+	r.write("sys/net/eth1/carrier", "1\n")
+	check("port with carrier", "REACHABLE", true, "ok (gateway neighbour REACHABLE)")
+	r.write("sys/net/eth1/carrier", "0\n")
+	check("all ports down", "REACHABLE", false, "carrier 0")
+}
+
+// The LED itself: one missing neighbour leaves the network LED green, the third probe in a row turns it red, a live neighbour
+// turns it green again.
+func TestDaemonNetdevGatewayHysteresis(t *testing.T) {
+	r := newRig(t, "DXP2800")
+	writeSystem(r)
+	r.config("disk_error_color=\"9 0 0\"\n")
+	r.neigh("FAILED")
+	r.c.Tick = 2 * time.Millisecond
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan int, 1)
+	go func() { done <- r.c.daemonRun(ctx) }()
+	defer func() { cancel(); <-done }()
+
+	waitFor(t, r, "green after the first miss", func() bool { return r.chip.get("netdev")[3] == "200" })
+	if s := r.chip.get("netdev"); s[2] != "0" || s[4] != "83" {
+		t.Errorf("one miss: netdev = %v, want green", s)
+	}
+	waitFor(t, r, "red after the third miss", func() bool { return r.chip.get("netdev")[2] == "9" })
+
+	r.neigh("REACHABLE")
+	waitFor(t, r, "green after an answer", func() bool { return r.chip.get("netdev")[3] == "200" })
+}
+
+// neigh sets what `ip -j neigh show 10.0.0.1 dev eth0` prints: one entry in that state, none for "".
+func (r *rig) neigh(state string) {
+	r.run.mu.Lock()
+	defer r.run.mu.Unlock()
+	out := "[]"
+	if state != "" {
+		out = `[{"dst":"10.0.0.1","dev":"eth0","lladdr":"aa:bb:cc:dd:ee:ff","state":["` + state + `"]}]`
+	}
+	r.run.outputs["ip -j neigh show 10.0.0.1 dev eth0"] = out
 }

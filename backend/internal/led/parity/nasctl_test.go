@@ -381,7 +381,7 @@ func nasScenarios() []nasScenario {
 			flag(n)
 			n.write("boot/leds.cfg", " mode=\"status\"\nmode='status'\nxmode=\"status\"\nfx_name=\"Rainbow\"\nfx_name=\"1\"\n")
 		}, run: func(n *nrig) { n.runs("led-boot") }},
-		{name: "led-boot-no-answer", setup: func(n *nrig) {
+		{name: "led-boot-no-answer", intended: "the boot start probes the LED controller up to three times, 300 ms apart, before it gives up; the shell probed once", setup: func(n *nrig) {
 			flag(n)
 			n.write("stubs/i2c.fail", "")
 		}, run: func(n *nrig) { n.runs("led-boot") }},
@@ -430,7 +430,10 @@ func TestNasCtl(t *testing.T) {
 	if !enabled {
 		t.Skip("parity needs bash >= 4 (nix develop): " + skipReason)
 	}
-	for _, s := range nasScenarios() {
+	for i, s := range nasScenarios() {
+		if !inShard(i) {
+			continue
+		}
 		t.Run(s.name, func(t *testing.T) {
 			t.Parallel()
 			limiter <- struct{}{}

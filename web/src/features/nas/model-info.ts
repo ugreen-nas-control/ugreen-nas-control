@@ -50,32 +50,63 @@ export function modelBox(model: string, facts: ModelFacts | null, t: T): string 
 /** The phrase of the empty case view. */
 export const caseText = (t: T): string => t(VIEWS.none);
 
-export type LedState = 'verified' | 'confirmed' | 'untested' | 'power' | 'none';
+export type DeviceCap = 'leds' | 'fans' | 'case' | 'sensors' | 'panel';
+/** confirmed = verified by a maintainer; users = confirmed by users; partial = checked, but something is open (the note says what). */
+export type DeviceState = 'confirmed' | 'users' | 'partial' | 'untested' | 'none';
+export type Cta = 'confirm' | 'recheck' | 'tell';
 
-export interface TableRow {
-    series: string;
+export interface DeviceRow {
+    cap: DeviceCap;
+    state: DeviceState;
+    /** The registry note, empty without one. */
+    note: string;
+}
+
+export interface Device {
     name: string;
-    /** The model's DMI pattern. */
-    re: RegExp;
-    leds: LedState;
-    view: ViewKind;
-    fans: FanKind;
-}
-
-interface TableEntry extends RegistryEntry {
     series: string;
+    rows: DeviceRow[];
+    /** Capabilities nobody confirmed yet. */
+    untested: DeviceCap[];
+    /** confirm: something is untested; recheck: everything offered is confirmed. */
+    cta: Cta;
+}
+
+interface DeviceEntry {
     name: string;
-    verified: { leds: { status: string } };
+    series: string;
+    dmiPattern: string;
+    verified: Record<string, { status: string; by?: string; note?: string }>;
 }
 
-/** The word of the LED cell: no LEDs or power LED only from the registry's led kind, else its leds evidence (community and partial = confirmed, expected = untested). */
-function ledState(m: TableEntry): LedState {
-    if (m.led !== 'bays') return m.led;
-    const s = m.verified.leds.status;
-    return s === 'verified' ? 'verified' : s === 'community' || s === 'partial' ? 'confirmed' : 'untested';
+const STATE: Record<string, DeviceState> = { verified: 'confirmed', community: 'users', partial: 'partial', expected: 'untested', unsupported: 'none' };
+const CAPS: DeviceCap[] = ['leds', 'fans', 'case', 'sensors', 'panel'];
+
+/** The "Your device" card of About: one row per capability the registry tracks for the model. Null for an unknown model. */
+export function deviceInfo(product: string, models: readonly DeviceEntry[] = registry.models as unknown as DeviceEntry[]): Device | null {
+    const hit = models.find(m => new RegExp(m.dmiPattern).test(product));
+    if (!hit) return null;
+    const rows: DeviceRow[] = CAPS.map(cap => {
+        const c = hit.verified[cap];
+        return { cap, state: STATE[c?.status ?? 'expected'] ?? 'untested', note: c?.note ?? '' };
+    });
+    const untested = rows.filter(r => r.state === 'untested').map(r => r.cap);
+    return { name: hit.name, series: hit.series, rows, untested, cta: untested.length ? 'confirm' : 'recheck' };
 }
 
-/** The rows of About → Supported models, in registry order (series, then name). */
-export function modelRows(models: readonly TableEntry[] = registry.models as TableEntry[]): TableRow[] {
-    return models.map(m => ({ series: m.series, name: m.name, re: new RegExp(m.dmiPattern), leds: ledState(m), view: m.caseView, fans: fanKind(m) }));
+/** The registry's front-panel check (buttons and beeper) of the model: the state and who confirmed it. Null for an unknown model. */
+export function panelEvidence(
+    product: string,
+    models: readonly DeviceEntry[] = registry.models as unknown as DeviceEntry[]
+): { state: DeviceState; by: string; note: string } | null {
+    const hit = models.find(m => new RegExp(m.dmiPattern).test(product));
+    const c = hit?.verified.panel;
+    return c ? { state: STATE[c.status] ?? 'untested', by: c.by ?? '', note: c.note ?? '' } : null;
+}
+
+/** Users or a maintainer confirmed the front-panel buttons on the model (registry panel check community or verified; partial is the beeper only). The shutdown on a held power button is offered only then (backend nasctl.PanelConfirmed). */
+export function panelConfirmed(product: string, models: readonly DeviceEntry[] = registry.models as unknown as DeviceEntry[]): boolean {
+    const hit = models.find(m => new RegExp(m.dmiPattern).test(product));
+    const status = hit?.verified.panel?.status;
+    return status === 'community' || status === 'verified';
 }

@@ -24,7 +24,8 @@ A new model in `web/models/` shows up in the harness, the screenshots and the si
 
 - macOS uses WebKit; Linux uses Chromium over CDP ([Bun.WebView](https://bun.sh/docs/runtime/webview)). The flake devShell provides it with Inter and DejaVu fonts and sets `BUN_CHROME_PATH` and `FONTCONFIG_FILE`. Outside the shell: `BUN_CHROME_PATH`, `chromium` on PATH, or nixpkgs on demand.
 - `just e2e` runs the UI against `web/tools/e2e/golden.json`. The golden is proven for WebKit only: Chrome on macOS (`E2E_BACKEND=chrome`) passes single scenarios, a full run shows diffs. The CI job `e2e` is manual (`workflow_dispatch` input `e2e`), not part of `ci-ok`, and hangs on Linux so far.
-- The only committed screenshots are the five in `docs/ca/`: `just ca-shots` renders the DXP6800 Pro overview, fans, case and LEDs (dark) for the Community Applications listing and the overview (light) for the README hero. They are declared in `.gitattributes`; `plugins/ugreen-nas-control.xml` links them on `main`.
+- README hero and site images: `just site` also runs `just site-shots`, which renders the DXP6800 Pro overview, fans, case and LEDs (dark) and the overview (light) with the fixture of that model into `.build/site/shots/`; Pages serves them at `/shots/` (README links the `/` stream from `main`, `/next/shots/` is the development one). On pull requests `website.yml` builds without deploying and uploads them as the `site-shots` artifact. The flake `site` shell carries Chromium and the fonts like `e2e`.
+- No screenshots are committed: `just site-shots` renders the five CA/README images into Pages `/shots/`, which `plugins/ugreen-nas-control.xml` and the README load.
 
 ## Site preview
 

@@ -402,3 +402,39 @@ func TestMaxLinkSpeedMissIsNotPermanent(t *testing.T) {
 		t.Errorf("miss never expires: %d", n)
 	}
 }
+
+// DXP4800 GT: both modules report the locator "DIMM 0", the channel is in the bank locator.
+const dmidecodeGT = `Handle 0x0013, DMI type 17, 40 bytes
+Memory Device
+	Size: 8 GiB
+	Form Factor: SODIMM
+	Locator: DIMM 0
+	Bank Locator: P0 CHANNEL A
+	Type: DDR4
+	Speed: 2667 MT/s
+	Manufacturer: Kingston
+	Configured Memory Speed: 2667 MT/s
+
+Handle 0x0016, DMI type 17, 40 bytes
+Memory Device
+	Size: 8 GiB
+	Form Factor: SODIMM
+	Locator: DIMM 0
+	Bank Locator: P0 CHANNEL B
+	Type: DDR4
+	Speed: 2667 MT/s
+	Manufacturer: Kingston
+	Configured Memory Speed: 2667 MT/s
+`
+
+func TestParseDmidecodeSameLocator(t *testing.T) {
+	dimms := parseDmidecode(dmidecodeGT)
+	if len(dimms) != 2 {
+		t.Fatalf("%d modules", len(dimms))
+	}
+	for i, d := range dimms {
+		if d.Locator != "DIMM 0" || d.SizeMB != 8192 || d.Type != "DDR4" || d.SpeedMT != 2667 || d.ConfiguredMT != 2667 {
+			t.Errorf("module %d: %+v", i, d)
+		}
+	}
+}

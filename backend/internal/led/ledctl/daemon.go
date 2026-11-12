@@ -105,6 +105,7 @@ type netProbe struct {
 	mu    sync.Mutex
 	ok    bool
 	speed int64
+	fails int // failed gateway probes in a row; only the probe goroutine touches it
 }
 
 func (p *netProbe) set(ok bool, speed int64) {
@@ -115,10 +116,13 @@ func (p *netProbe) set(ok bool, speed int64) {
 
 // probeNetwork runs the check, hands the verdict to the loop and writes it where `status` reads it.
 func (c *Ctl) probeNetwork(p *netProbe, dev string) {
-	ok, why := c.networkCheck(dev)
+	ok, why := c.networkCheck(dev, &p.fails)
 	p.set(ok, atoiOr(c.linkSpeed(dev, 0), 0))
 	if ok {
-		writeState(c.Env.NetState, "ok")
+		if why == "" {
+			why = "ok"
+		}
+		writeState(c.Env.NetState, why)
 	} else {
 		writeState(c.Env.NetState, "fail: "+why)
 	}
@@ -168,7 +172,7 @@ func (c *Ctl) daemonRun(ctx context.Context) int {
 	c.log("status daemon started (bays: " + strconv.Itoa(bays) + ", network: " + name + ")")
 	c.powerBoot()
 
-	// Every 30 s: link and gateway. A ping can take seconds, so it runs beside the LED loop.
+	// Every 30 s: link and gateway. The probe runs beside the LED loop.
 	ctx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	if netDev != "" {
@@ -185,7 +189,7 @@ func (c *Ctl) daemonRun(ctx context.Context) int {
 			}
 		})
 	}
-	// Leave without waiting for a ping that is still out; it ends by itself (ping -W 2).
+	// Leave without waiting for a probe that is still out.
 	defer func() {
 		done := make(chan struct{})
 		go func() { wg.Wait(); close(done) }()

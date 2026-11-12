@@ -1,6 +1,7 @@
 package ledctl
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -22,17 +23,26 @@ func (c *Ctl) ipRouteDefault() []string {
 	return strings.Split(strings.TrimSuffix(s, "\n"), "\n")
 }
 
-// networkDevice is the interface behind the default route; a bridge is resolved to its uplink
-// (e.g. br0 -> bond0).
-func (c *Ctl) networkDevice() string {
-	dev := ""
-	// Unraid adds a second default route over shim-br0 (a macvlan for Docker): not the uplink.
+// uplinkRoute is the default route the NAS traffic uses: the first one `ip route show default` lists (lowest
+// metric), without Unraid's second route over shim-br0 (a macvlan for Docker). Device and gateway both come from
+// that one route, so the probe looks where the LED device's traffic goes.
+func (c *Ctl) uplinkRoute() (dev, gateway string) {
 	for _, line := range c.ipRouteDefault() {
 		if m := routeDevRe.FindStringSubmatch(line); m != nil && !strings.HasPrefix(m[1], "shim-") {
 			dev = m[1]
+			if v := routeViaRe.FindStringSubmatch(line); v != nil {
+				gateway = v[1]
+			}
 			break
 		}
 	}
+	return dev, gateway
+}
+
+// networkDevice is the interface behind the default route; a bridge is resolved to its uplink
+// (e.g. br0 -> bond0).
+func (c *Ctl) networkDevice() string {
+	dev, _ := c.uplinkRoute()
 
 	if dev != "" && isDir(c.Env.SysNet+"/"+dev+"/brif") {
 		for _, port := range listDir(c.Env.SysNet + "/" + dev + "/brif") {
@@ -46,9 +56,12 @@ func (c *Ctl) networkDevice() string {
 	return dev
 }
 
-// networkCheck is the verdict the network LED follows: the link is up and the gateway answers a ping. The reason
-// says which of the two failed.
-func (c *Ctl) networkCheck(dev string) (bool, string) {
+// gatewayFailLimit is how many probes in a row must miss the gateway before the verdict turns red.
+const gatewayFailLimit = 3
+
+// linkCheck is the immediate part of the verdict: operstate up, and a carrier on the device or on one of its
+// members (a bond keeps its carrier while one port is down).
+func (c *Ctl) linkCheck(dev string) (bool, string) {
 	state, _ := readLine(c.Env.SysNet + "/" + dev + "/operstate")
 	if state != "up" {
 		if state == "" {
@@ -56,20 +69,103 @@ func (c *Ctl) networkCheck(dev string) (bool, string) {
 		}
 		return false, "operstate " + state
 	}
-	gateway := ""
-	for _, line := range c.ipRouteDefault() {
-		if m := routeViaRe.FindStringSubmatch(line); m != nil {
-			gateway = m[1]
-			break
+	if carrier, _ := readLine(c.Env.SysNet + "/" + dev + "/carrier"); carrier == "0" {
+		for _, name := range listDir(c.Env.SysNet + "/" + dev) {
+			member, ok := strings.CutPrefix(name, "lower_")
+			if !ok || globAny(member, "veth*", "vnet*", "tap*") {
+				continue
+			}
+			if up, _ := readLine(c.Env.SysNet + "/" + member + "/carrier"); up == "1" {
+				return true, ""
+			}
 		}
-	}
-	if gateway == "" {
-		return true, ""
-	}
-	if _, code := c.Run.Output("ping", "-c", "1", "-W", "2", gateway); code != 0 {
-		return false, "gateway ping failed"
+		return false, "carrier 0"
 	}
 	return true, ""
+}
+
+// neighbourAlive: the kernel neighbour states that mean the gateway's link-layer address is known. The kernel ages
+// them without our traffic (REACHABLE -> STALE -> DELAY -> PROBE), so a STALE entry on an idle box is fine.
+var neighbourAlive = map[string]bool{"REACHABLE": true, "STALE": true, "DELAY": true, "PROBE": true, "PERMANENT": true, "NOARP": true, "COMPLETE": true}
+
+// gatewayNeighbour is the kernel neighbour state of the gateway on dev ("" = no entry). It sends no packet.
+// `ip -j neigh` covers IPv4 and IPv6; when it is missing or prints no JSON, /proc/net/arp answers for IPv4
+// (flag 0x2 = complete, reported as COMPLETE; anything else as INCOMPLETE).
+func (c *Ctl) gatewayNeighbour(dev, gateway string) string {
+	out, code := c.Run.Output("ip", "-j", "neigh", "show", gateway, "dev", dev)
+	var entries []struct {
+		Dst   string   `json:"dst"`
+		State []string `json:"state"`
+	}
+	if code == 0 && json.Unmarshal(out, &entries) == nil {
+		best := ""
+		for _, e := range entries {
+			if e.Dst != gateway {
+				continue
+			}
+			for _, s := range e.State {
+				if best == "" || (neighbourAlive[s] && !neighbourAlive[best]) {
+					best = s
+				}
+			}
+		}
+		return best
+	}
+	if strings.Contains(gateway, ":") {
+		return ""
+	}
+	lines, _ := readLines(c.Env.Proc + "/net/arp")
+	for _, line := range lines {
+		f := strings.Fields(line)
+		if len(f) >= 6 && f[0] == gateway && f[5] == dev {
+			if f[2] == "0x2" {
+				return "COMPLETE"
+			}
+			return "INCOMPLETE"
+		}
+	}
+	return ""
+}
+
+// gatewayMiss is "" while the gateway has a live neighbour entry, else the reason of this probe's miss. state is
+// the neighbour state to show ("" when no gateway is configured). The address and MAC never appear in a reason.
+func (c *Ctl) gatewayMiss() (state, miss string) {
+	dev, gateway := c.uplinkRoute()
+	if gateway == "" {
+		return "", ""
+	}
+	state = c.gatewayNeighbour(dev, gateway)
+	switch {
+	case state == "":
+		return state, "no neighbour entry for the gateway"
+	case !neighbourAlive[state]:
+		return state, "gateway neighbour " + state
+	}
+	return state, ""
+}
+
+// networkCheck is the verdict the network LED follows: the link is up (immediate) and the gateway has a live
+// neighbour entry (red only after gatewayFailLimit misses in a row; fails is that count, kept by the caller). The
+// reason says what failed, or that a miss is being counted: "ok (gateway neighbour FAILED, 1 of 3)"; a healthy
+// verdict names the state: "ok (gateway neighbour STALE)".
+func (c *Ctl) networkCheck(dev string, fails *int) (bool, string) {
+	if ok, why := c.linkCheck(dev); !ok {
+		*fails = 0
+		return false, why
+	}
+	state, miss := c.gatewayMiss()
+	if miss == "" {
+		*fails = 0
+		if state == "" {
+			return true, ""
+		}
+		return true, "ok (gateway neighbour " + state + ")"
+	}
+	*fails++
+	if *fails >= gatewayFailLimit {
+		return false, miss
+	}
+	return true, fmt.Sprintf("ok (%s, %d of %d)", miss, *fails, gatewayFailLimit)
 }
 
 // linkSpeed is the negotiated speed in Mbit/s as printed, "0" when unknown (no link, or the

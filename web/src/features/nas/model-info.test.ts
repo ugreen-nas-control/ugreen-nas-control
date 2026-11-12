@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import registry from '../../../../backend/internal/nasctl/models.json';
 import { type Vars } from '../../core/i18n';
 import { en } from './i18n/en';
-import { type FanKind, type LedKind, type ModelFacts, modelBox, modelFacts, modelRows, type ViewKind } from './model-info';
+import { type FanKind, type LedKind, type ModelFacts, deviceInfo, modelBox, modelFacts, panelEvidence, type ViewKind } from './model-info';
 import type { Key } from './i18n/en';
 
 const t = (key: Key, vars: Vars = {}): string => en[key].replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? `{${name}}`));
@@ -49,25 +49,59 @@ test('the CS201x model is confirmed, the IT8613E probe models are probed', () =>
     expect(modelFacts('DXP4800 GT')?.fans).toBe('fixed');
 });
 
-test('the models table has one row per registry model with its case view, fans and LED word', () => {
-    const rows = modelRows();
-    expect(rows.map(r => r.name)).toEqual(registry.models.map(m => m.name));
-    for (const [i, m] of registry.models.entries()) {
-        const r = rows[i]!;
-        expect(r.series).toBe(m.series);
-        expect(r.re.test(m.fixtureDmi)).toBe(true);
-        expect(r.view).toBe(m.caseView as ViewKind);
-        expect(r.fans).toBe(modelFacts(m.fixtureDmi)!.fans);
-        const word = m.led !== 'bays' ? m.led : { verified: 'verified', community: 'confirmed', partial: 'confirmed' }[m.verified.leds.status] || 'untested';
-        expect(r.leds).toBe(word as typeof r.leds);
+const entry = (verified: Record<string, { status: string; by?: string; note?: string }>) => [{ name: 'X1', series: 'DX', dmiPattern: '^X1', verified }];
+const ok = { status: 'verified' };
+
+test('everything confirmed: the quiet "confirm again" action, no untested capability', () => {
+    const d = deviceInfo(
+        'X1',
+        entry({ leds: ok, fans: { status: 'community' }, case: { status: 'partial', note: 'n' }, sensors: ok, panel: { status: 'community', by: 'u' } })
+    )!;
+    expect(d.rows.map(r => [r.cap, r.state])).toEqual([
+        ['leds', 'confirmed'],
+        ['fans', 'users'],
+        ['case', 'partial'],
+        ['sensors', 'confirmed'],
+        ['panel', 'users']
+    ]);
+    expect(d.rows[2]!.note).toBe('n');
+    expect(d.untested).toEqual([]);
+    expect(d.cta).toBe('recheck');
+});
+
+test('some untested: the capabilities are listed and the primary action is "confirm"; not supported is no gap', () => {
+    const d = deviceInfo('X1', entry({ leds: { status: 'expected' }, fans: { status: 'unsupported' }, case: ok, sensors: { status: 'expected' }, panel: ok }))!;
+    expect(d.rows.find(r => r.cap === 'fans')!.state).toBe('none');
+    expect(d.untested).toEqual(['leds', 'sensors']);
+    expect(d.cta).toBe('confirm');
+});
+
+test('the front-panel evidence is the registry check of the model: partly on the DXP8800 Plus and the DXP4800 Plus, nothing elsewhere', () => {
+    expect(panelEvidence('DXP8800 Plus')).toMatchObject({ state: 'partial', by: 'Chiconydu69 (issue 165)' });
+    expect(panelEvidence('DXP8800 Plus')?.note).toContain('Power button');
+    expect(panelEvidence('DXP4800 Plus')?.state).toBe('partial');
+    expect(panelEvidence('DXP4800 Plus')?.note).toContain('Beeper: confirmed');
+    expect(panelEvidence('DXP4800 GT')?.state).toBe('untested');
+    expect(panelEvidence('DXP6800 Ultra')?.state).toBe('none');
+    expect(panelEvidence('Something Else')).toBeNull();
+});
+
+test('an unknown model has no device card data', () => {
+    expect(deviceInfo('Something Else')).toBeNull();
+});
+
+test('every registry model gets a card with its name, series and a row per tracked capability', () => {
+    for (const m of registry.models) {
+        const d = deviceInfo(m.fixtureDmi)!;
+        expect(d).not.toBeNull();
+        expect(d.series).toBe(m.series);
+        expect(d.rows.length).toBe(5);
+        expect(d.cta).toBe(d.untested.length ? 'confirm' : 'recheck');
     }
 });
 
-test('the table shows the new case views: DXP4800 and DXP8800 Plus full, DXP480T Plus and DXP2800 full', () => {
-    const by = Object.fromEntries(modelRows().map(r => [r.name, r]));
-    expect(by['DXP4800']!.view).toBe('full');
-    expect(by['DXP8800 Plus']!.view).toBe('full');
-    expect(by['DXP480T Plus']!.view).toBe('full');
-    expect(by['DXP2800']!.view).toBe('full');
-    expect(by['DXP480T Plus']!.leds).toBe('power');
+test('a partly confirmed capability is its own state, never "users", and keeps its note', () => {
+    const d = deviceInfo('X1', entry({ leds: ok, fans: ok, case: ok, sensors: ok, panel: { status: 'partial', note: 'Beeper only.' } }))!;
+    expect(d.rows.find(r => r.cap === 'panel')).toEqual({ cap: 'panel', state: 'partial', note: 'Beeper only.' });
+    expect(d.rows.filter(r => r.state === 'users')).toHaveLength(0);
 });

@@ -14,6 +14,8 @@ type Env struct {
 	PubPidFile   string // UGREEN_PUB_PIDFILE
 	PubLog       string // UGREEN_PUB_LOG
 	PubStatus    string // UGREEN_PUB_STATUS
+	PowerPidFile string // UGREEN_POWER_PIDFILE
+	PowerLog     string // UGREEN_POWER_LOG
 	LEDDir       string // UGREEN_LED_DIR
 	LEDCtl       string // UGREEN_LED_CTL
 	LEDI2C       string // UGREEN_LED_I2C
@@ -42,6 +44,8 @@ type Env struct {
 	SysNet       string // UGREEN_SYS_NET
 	SysNVMe      string // UGREEN_SYS_NVME
 	SysACPI      string // UGREEN_SYS_ACPI
+	LPSSProbe    string // UGREEN_LPSS_PROBE: the report of the last ugreen-led-i2c lpss-probe
+	LPSSState    string // UGREEN_LPSS_STATE: "ok" or "refused: <reason>" of the default LPSS LED path, this boot
 	LibModules   string // UGREEN_LIB_MODULES
 }
 
@@ -64,6 +68,8 @@ func EnvFromGetenv(get func(string) string, here string) Env {
 		PubPidFile:   orDefault(get, "UGREEN_PUB_PIDFILE", "/var/run/ugreen-nas-control-mqtt.pid"),
 		PubLog:       orDefault(get, "UGREEN_PUB_LOG", "/var/log/ugreen-nas-control-mqtt.log"),
 		PubStatus:    orDefault(get, "UGREEN_PUB_STATUS", "/var/run/ugreen-nas-control-mqtt.status"),
+		PowerPidFile: orDefault(get, "UGREEN_POWER_PIDFILE", "/var/run/ugreen-nas-control-power.pid"),
+		PowerLog:     orDefault(get, "UGREEN_POWER_LOG", "/var/log/ugreen-nas-control-power.log"),
 		LEDDir:       ledDir,
 		LEDCtl:       orDefault(get, "UGREEN_LED_CTL", ledDir+"/ugreen-led-ctl"),
 		LEDI2C:       orDefault(get, "UGREEN_LED_I2C", ledDir+"/ugreen-led-i2c"),
@@ -92,6 +98,8 @@ func EnvFromGetenv(get func(string) string, here string) Env {
 		SysNet:       orDefault(get, "UGREEN_SYS_NET", "/sys/class/net"),
 		SysNVMe:      orDefault(get, "UGREEN_SYS_NVME", "/sys/class/nvme"),
 		SysACPI:      orDefault(get, "UGREEN_SYS_ACPI", "/sys/bus/acpi/devices"),
+		LPSSProbe:    orDefault(get, "UGREEN_LPSS_PROBE", "/var/run/ugreen-nas-control.lpss-probe"),
+		LPSSState:    orDefault(get, "UGREEN_LPSS_STATE", "/var/run/ugreen-nas-control.lpss-state"),
 		LibModules:   orDefault(get, "UGREEN_LIB_MODULES", "/lib/modules"),
 	}
 }

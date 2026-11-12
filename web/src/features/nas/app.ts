@@ -60,8 +60,9 @@ import { type Key, t, tEnum, tRaw } from './text';
 import './fan/index';
 import { isCs201xModel } from './fan/cs201x';
 import { hasBeeper, hasButtons } from './panel-models';
-import { pluginChannel, switchTarget, SWITCH_COMMANDS } from './channel';
-import { caseText, modelBox, modelFacts, modelRows } from './model-info';
+import { pluginChannel, siteUrl, switchTarget, SWITCH_COMMANDS } from './channel';
+import { caseText, deviceInfo, modelBox, modelFacts } from './model-info';
+import { createFeedback } from './feedback-view';
 import { fanModules, type FanCtx, type FanModule } from './fan/module';
 import * as components from './ui/components';
 
@@ -198,8 +199,9 @@ function main(root: HTMLElement): void {
 
     const navLink = (nav: string, key: Key): string => linkBtn(t(key), `data-nav="${nav}"`);
 
-    // "All models": opens About with the supported-models table.
-    const modelsLink = (): string => linkBtn(t('model.all'), 'data-models-link');
+    // "All models": the website's model list, in a new tab.
+    const modelsLink = (): string =>
+        `<a class="unc-linkbtn" href="${siteUrl('#models', window.UGREEN_NAS_VERSION)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('model.all'))}</a>`;
     const modelNote = (text: string): string => `${escapeHtml(text)} ${modelsLink()}`;
 
     // Static spots in the page that hold a component: <span data-unc="btn" data-unc-label="<i18n key>" …>. Parameters are
@@ -395,6 +397,7 @@ function main(root: HTMLElement): void {
         'led:schedules': 'sub.led_schedules',
         'led:system': 'sub.led_system',
         settings: 'sub.settings',
+        feedback: 'sub.feedback',
         about: 'sub.about'
     };
 
@@ -742,46 +745,6 @@ function main(root: HTMLElement): void {
         return t(led.warning === 'standalone' && !led.enabled ? 'system.ledctl_standalone' : 'system.ledctl_off');
     }
 
-    function bindModelsFold() {
-        const fold = q<HTMLDetailsElement>('#unc-models-fold');
-
-        try {
-            fold.open = localStorage.getItem('unc-models-open') === '1';
-        } catch (error) {
-            /* closed */
-        }
-        fold.addEventListener('toggle', () => {
-            try {
-                localStorage.setItem('unc-models-open', fold.open ? '1' : '0');
-            } catch (error) {
-                /* not remembered */
-            }
-        });
-    }
-
-    const CONFIRMS: [key: string, text: Key, when: () => boolean, line: string][] = [
-        ['leds', 'models.confirm_leds', () => state.data?.led?.supported !== false, 'LEDs: colours and effects work'],
-        ['bays', 'models.confirm_bays', () => state.data?.led?.supported !== false, 'LEDs: the right bay blinks with "Identify" (bay order is right)'],
-        ['case', 'models.confirm_case', () => caseKnown(), 'Case view: front and rear look like my device'],
-        [
-            'inside',
-            'models.confirm_inside',
-            () => Boolean(state.hw) && !caseModel(state.hw as Hardware).noInside && caseKnown(),
-            'Case view: the inside matches (M.2 slots, RAM)'
-        ],
-        ['fans', 'models.confirm_fans', () => fanKnown() && !fanOff(), 'Fan control: modes and curves work, the fans react'],
-        ['temps', 'models.confirm_temps', () => true, 'Temperatures and the dashboard tile show the right values']
-    ];
-
-    function renderConfirm() {
-        const box = q('#unc-confirm-list');
-        const ticked = new Set(qa('#unc-confirm-list input:checked').map(input => input.dataset.confirm));
-
-        box.innerHTML = CONFIRMS.filter(([, , when]) => when())
-            .map(([key, text]) => chipCheck(`data-confirm="${key}"`, ticked.has(key), escapeHtml(t(text))))
-            .join('');
-    }
-
     // Unraid's own install dialog (global openPlugin of the page layout); without it the commands are shown to copy.
     function renderChannel(): void {
         const channel = pluginChannel(window.UGREEN_NAS_VERSION);
@@ -790,67 +753,59 @@ function main(root: HTMLElement): void {
         q('#unc-channel-text').textContent = t(channel === 'next' ? 'channel.now_next' : 'channel.now_stable');
         q('#unc-channel-to-next').hidden = !canOpen || target !== 'next';
         q('#unc-channel-to-stable').hidden = !canOpen || target !== 'stable';
-        q('#unc-channel-cmd').hidden = canOpen;
-        q('#unc-channel-cmd-hint').textContent = t(target === 'next' ? 'channel.cmd_next' : 'channel.cmd_stable');
-        q('#unc-channel-cmd-text').textContent = SWITCH_COMMANDS[target];
+        // On next with the button: the stable page has no switch back, so the way back stays visible here.
+        const back = canOpen && target === 'stable';
+        q('#unc-channel-cmd').hidden = canOpen && !back;
+        q('#unc-channel-cmd-hint').textContent = t(back ? 'channel.cmd_back' : target === 'next' ? 'channel.cmd_next' : 'channel.cmd_stable');
+        q('#unc-channel-cmd-text').textContent = SWITCH_COMMANDS[back ? 'next' : target];
     }
 
     function switchChannel(target: 'next' | 'stable'): void {
         if (typeof window.openPlugin !== 'function') return;
-        if (!window.confirm(t(target === 'next' ? 'channel.confirm_next' : 'channel.confirm_stable'))) return;
+        const message = target === 'next' ? t('channel.confirm_next') : t('channel.confirm_stable', { cmd: SWITCH_COMMANDS.next });
+        if (!window.confirm(message)) return;
         window.openPlugin(SWITCH_COMMANDS[target], t(target === 'next' ? 'channel.title_next' : 'channel.title_stable'));
     }
 
-    function openConfirmIssue() {
-        const info: Partial<Info> = state.data?.info || {};
-        const model = modelName() || 'unknown';
-        const marked = new Set(qa('#unc-confirm-list input:checked').map(input => input.dataset.confirm));
-        const lines = CONFIRMS.filter(([, , when]) => when()).map(([key, , , line]) => `- [${marked.has(key) ? 'x' : ' '}] ${line}`);
-        const comment = q<HTMLTextAreaElement>('#unc-confirm-text').value.trim();
-        const body = [
-            `Model: ${model}`,
-            `Plugin: ${window.UGREEN_NAS_VERSION || '?'}`,
-            `Unraid: ${info.unraid || '?'}, kernel ${info.kernel || '?'}`,
-            `Fan chip: ${state.data?.chip || 'none'}; LED controller: ${state.ledStatus?.i2c_address ? `I2C ${state.ledStatus.i2c_address}` : 'not found'}`,
-            '',
-            ...lines,
-            ...(comment ? ['', comment] : [])
-        ].join('\n');
-        const url = `https://github.com/ugreen-nas-control/ugreen-nas-control/issues/new?labels=${encodeURIComponent('model-report')}&title=${encodeURIComponent(`Model report: ${model}`)}&body=${encodeURIComponent(body)}`;
-
-        window.open(url, '_blank', 'noopener');
-    }
-
-    function renderModels() {
+    // The "Your device" card of About: what the registry knows per capability on this model and the way to the Feedback view.
+    function renderDevice() {
         const mine = modelName();
-        const rows = modelRows();
-        const cell = (kind: string, text: string): string => `<td class="m-${kind}">${escapeHtml(text)}</td>`;
+        const device = deviceInfo(mine);
+        const model = device?.name ?? mine;
+        const ICO = { confirmed: 'check', users: 'check', partial: 'info', untested: 'alert', none: 'info' } as const;
+        const TONE = { confirmed: 'ok', users: 'ok', partial: 'warn', untested: 'warn', none: 'plain' } as const;
+        const go = (label: string, tone: string, ico: Ico) => `<div class="unc-actions">${btn({ label, ico, tone, attrs: 'data-device-cta' })}</div>`;
+        const all = `<a class="unc-linkbtn" href="${siteUrl('#models', window.UGREEN_NAS_VERSION)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('device.all_models'))}</a>`;
 
-        q('#unc-models').innerHTML = `
-            <table class="unc-table unc-models">
-                <thead><tr>
-                    <th>${escapeHtml(t('models.col_model'))}</th><th>${escapeHtml(t('models.col_leds'))}</th>
-                    <th>${escapeHtml(t('models.col_case'))}</th><th>${escapeHtml(t('models.col_fans'))}</th>
-                </tr></thead>
-                <tbody>${rows
-                    .map(
-                        ({ series, name, re, leds, view, fans }, i) => `${
-                            i === 0 || rows[i - 1]?.series !== series
-                                ? `
-                    <tr class="series"><th colspan="4">${escapeHtml(t('models.series', { s: series }))}</th></tr>`
-                                : ''
-                        }
-                    <tr class="${re.test(mine) ? 'mine' : ''}">
-                        <td><b>${escapeHtml(name)}</b>${re.test(mine) ? ` <small class="unc-muted">${escapeHtml(t('models.mine'))}</small>` : ''}</td>
-                        ${cell(leds, t(`models.st_${leds}`))}
-                        ${cell(view, view === 'none' ? '–' : t(view === 'full' ? 'models.case_full' : 'models.case_fr'))}
-                        ${cell(fans === 'none' ? 'none' : 'yes', fans === 'fixed' ? '✓' : fans === 'none' ? '–' : t('models.fan_test'))}
-                    </tr>`
-                    )
-                    .join('')}
-                </tbody>
-            </table>
-            ${note(escapeHtml(t('models.footnote')))}`;
+        if (!device) {
+            q('#unc-device').innerHTML = `
+                <p><b>${escapeHtml(mine || '–')}</b></p>
+                ${note(escapeHtml(t('device.unknown', { model: mine || '–' })), { tone: 'warn', box: true, ico: 'alert', tag: 'div' })}
+                ${go(t('device.tell'), 'primary', 'chat')}
+                <p class="unc-about-help">${all}</p>`;
+            return;
+        }
+        const rows = device.rows
+            .map(
+                ({ cap, state, note: text }) => `
+                <div class="unc-device-row">
+                    <span class="unc-device-cap">${escapeHtml(t(`device.cap_${cap}`))}</span>
+                    ${pill({ tone: TONE[state], ico: ICO[state], text: t(`device.st_${state}`) })}
+                    ${text ? `<span class="unc-device-note unc-muted">${escapeHtml(text)}</span>` : ''}
+                </div>`
+            )
+            .join('');
+        const list = device.untested.map(cap => t(`device.cap_${cap}`)).join(', ');
+        const cta =
+            device.cta === 'confirm'
+                ? `${note(escapeHtml(t('device.untested', { model: device.name, list })), { tone: 'warn', box: true, ico: 'alert', tag: 'div' })}${go(t('device.confirm'), 'primary', 'check')}`
+                : `<p class="unc-muted">${escapeHtml(t('device.all_confirmed', { model: device.name }))}</p>${go(t('device.recheck'), '', 'chat')}`;
+
+        q('#unc-device').innerHTML = `
+            <p class="unc-device-name"><b>${escapeHtml(model)}</b> <span class="unc-muted">${escapeHtml(t('device.series', { s: device.series }))}</span></p>
+            <div class="unc-device-rows">${rows}</div>
+            ${cta}
+            <p class="unc-about-help">${all}</p>`;
     }
 
     function conflictFact(): string {
@@ -1782,8 +1737,8 @@ function main(root: HTMLElement): void {
         renderFans();
         renderModes();
         renderSystem();
-        renderModels();
-        renderConfirm();
+        renderDevice();
+        feedback.render();
         renderCurves();
         renderSafety();
         drawFanModules();
@@ -1903,6 +1858,14 @@ function main(root: HTMLElement): void {
     // Fan control the page may offer comes from the status (fan_caps); the case pictures also for the DXP4800 family,
     // drawn after the DXP4800 Plus; elsewhere the pages stay out of the way.
     const modelName = () => state.hw?.model || state.data?.info?.model || '';
+    const feedback = createFeedback({
+        root,
+        api,
+        t,
+        product: modelName,
+        versions: () => ({ plugin: window.UGREEN_NAS_VERSION || '', unraid: state.data?.info?.unraid || '', kernel: state.data?.info?.kernel || '' }),
+        toast
+    });
     const fanKnown = () => state.data?.fan_caps?.kind === 'fixed' || (state.data?.fan_caps?.kind === 'probe' && state.data.fan_caps.channels > 0);
     const fanProbing = () => state.data?.fan_caps?.kind === 'probe' && state.data.fan_caps.channels === 0 && !fanOff();
     const fanOff = () => state.data?.settings?.fan_control === false;
@@ -3260,6 +3223,15 @@ function main(root: HTMLElement): void {
         board.push(
             sensorRow({ ico: icon('board'), name: t('temps.board'), src: data.chip ? chipName(data.chip) : 'acpitz', vals: [tempVal(s.board, 'other')] })
         );
+        if (s.acpi_zone != null)
+            board.push(
+                sensorRow({
+                    ico: icon('board'),
+                    name: t('temps.acpi'),
+                    src: `acpitz: ${t('temps.acpi_hint')}`,
+                    vals: [{ label: '', text: deg(plausible(s.acpi_zone)), level: 'na' }]
+                })
+            );
         (data.chip_temps || []).forEach((temp, i) => {
             if (plausible(temp) != null)
                 board.push(
@@ -3429,11 +3401,8 @@ function main(root: HTMLElement): void {
         qa('[data-nav]').forEach(button => {
             button.addEventListener('click', () => showView(button.dataset.nav ?? ''));
         });
-        document.addEventListener('click', event => {
-            if (!hit(event)?.closest('[data-models-link]')) return;
-            q<HTMLDetailsElement>('#unc-models-fold').open = true;
-            showView('about');
-            q('#unc-models-card').scrollIntoView({ block: 'start' });
+        q('#unc-device').addEventListener('click', event => {
+            if (hit(event)?.closest('[data-device-cta]')) showView('feedback');
         });
         q('.unc-ov').addEventListener('click', event => {
             const link = hit(event)?.closest<HTMLElement>('[data-nav]');
@@ -3618,8 +3587,7 @@ function main(root: HTMLElement): void {
             );
         });
 
-        bindModelsFold();
-        q('#unc-confirm-send').addEventListener('click', openConfirmIssue);
+        feedback.bind();
         q('#unc-channel-to-next').addEventListener('click', () => switchChannel('next'));
         q('#unc-channel-to-stable').addEventListener('click', () => switchChannel('stable'));
 
@@ -3706,6 +3674,7 @@ function main(root: HTMLElement): void {
         });
         qa('[data-i18n-html]').forEach(element => {
             element.innerHTML = tRaw(element.dataset.i18nHtml ?? '');
+            element.querySelectorAll<HTMLAnchorElement>('a[data-site]').forEach(a => (a.href = siteUrl(a.dataset.site ?? '', window.UGREEN_NAS_VERSION)));
         });
         // Narrow layout shows icons only: the label stays as tooltip and accessible name.
         qa('.unc-nav button[data-nav]').forEach(button => {

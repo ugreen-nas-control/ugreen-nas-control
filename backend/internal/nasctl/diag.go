@@ -13,6 +13,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -55,9 +56,9 @@ func (a Anon) text(s string, ip bool) string {
 			continue
 		}
 		// Not inside a longer name: a host called "nas" must not cut "ugreen-nas-ctl".
-		re := regexp.MustCompile(`(?i)(^|[^A-Za-z0-9-])` + regexp.QuoteMeta(h) + `([^A-Za-z0-9-]|$)`)
+		re := regexp.MustCompile(`(?im)(^|[^A-Za-z0-9-])(` + regexp.QuoteMeta(h) + `)([^A-Za-z0-9-]|$)`)
 		for range 2 {
-			s = re.ReplaceAllString(s, "${1}<host>${2}")
+			s = replaceHost(re, s)
 		}
 	}
 	s = macRe.ReplaceAllString(s, "<removed>")
@@ -144,13 +145,18 @@ func reportSummary(r Report) string {
 		mem = append(mem, fmt.Sprintf("%d MB %s %d MT/s", m.SizeMB, m.Type, m.SpeedMT))
 	}
 	l = append(l, "memory: "+orDash(strings.Join(mem, "; ")))
-	if r.Fan.Found {
+	reg := productReg(r.Machine.Product)
+	if reg.NoFan() {
+		l = append(l, "fan chip: no fan control on this model")
+	} else if r.Fan.Found {
 		l = append(l, fmt.Sprintf("fan chip: %s revision %v base %s ports %s", r.Fan.Chip, orDash(fmt.Sprint(orNil(r.Fan.Revision))), orDash(r.Fan.Base), orDash(r.Fan.Ports)))
 	} else {
 		l = append(l, "fan chip: not found: "+orDash(r.Fan.Error))
 	}
 	led := fmt.Sprintf("led: supported %t, blocker %s, probe %s", r.LED.Supported, orDash(r.LED.Blocker), r.LED.Probe)
-	if r.LED.Bus != "" || r.LED.Address != "" {
+	if reg.PowerLEDOnly() {
+		led += ", power LED only"
+	} else if r.LED.Bus != "" || r.LED.Address != "" {
 		led += fmt.Sprintf(", bus %s address %s, %d leds", r.LED.Bus, r.LED.Address, r.LED.LEDCount)
 	}
 	if r.LED.Error != "" {
@@ -247,6 +253,11 @@ func ledSection(d LEDDiag) Section {
 	}
 	l = appendResult(l, "per-LED state (name mode brightness R G B on_ms off_ms)", d.Get, d.GetErr)
 	l = appendResult(l, "i2c scan all", scanText(d.Scan), d.ScanErr)
+	if d.ScanErr != "" {
+		if left := unscannedBuses(d.Adapters, d.Scan); len(left) > 0 {
+			l = append(l, "  not scanned (the scan did not get to them): "+strings.Join(left, ", "))
+		}
+	}
 	switch {
 	case d.StatusSkipped != "":
 		l = append(l, "ugreen-led-ctl status skipped: "+d.StatusSkipped)
@@ -275,11 +286,13 @@ func appendResult(l []string, title, out, err string) []string {
 // scanText: one line per bus, "/dev/i2c-2: 0x44 0x4a ..." (busy: addresses a kernel driver holds).
 func scanText(s string) string {
 	var m map[string]struct {
-		Answer []string `json:"answer"`
-		Busy   []string `json:"busy"`
-		Error  string   `json:"error"`
+		Answer  []string `json:"answer"`
+		Busy    []string `json:"busy"`
+		Error   string   `json:"error"`
+		Name    string   `json:"name"`
+		Skipped string   `json:"skipped"`
 	}
-	if json.Unmarshal([]byte(s), &m) != nil {
+	if json.Unmarshal([]byte(completeScan(s)), &m) != nil {
 		return s
 	}
 	buses := make([]string, 0, len(m))
@@ -290,6 +303,10 @@ func scanText(s string) string {
 	var out []string
 	for _, b := range buses {
 		v := m[b]
+		if v.Skipped != "" {
+			out = append(out, b+" ("+v.Name+"): skipped, "+v.Skipped)
+			continue
+		}
 		line := b + ": " + orDash(strings.Join(v.Answer, " "))
 		if len(v.Busy) > 0 {
 			line += "  busy: " + strings.Join(v.Busy, " ")
@@ -349,6 +366,7 @@ type fanStatus struct {
 	Sensors struct {
 		CPU          *int `json:"cpu"`
 		Board        *int `json:"board"`
+		ACPI         *int `json:"acpi_zone"`
 		NotConnected []struct {
 			Source string `json:"source"`
 			Name   string `json:"name"`
@@ -430,7 +448,11 @@ func fanSection(d FanDiag) Section {
 		}
 		l = append(l, line)
 	}
-	l = append(l, fmt.Sprintf("temps: cpu %s  board %s", tempText(st.Sensors.CPU), tempText(st.Sensors.Board)))
+	line := fmt.Sprintf("temps: cpu %s  board %s", tempText(st.Sensors.CPU), tempText(st.Sensors.Board))
+	if st.Sensors.ACPI != nil {
+		line += fmt.Sprintf("  acpi zone %s (fixed BIOS value on UGREEN boards, unreliable, not used)", tempText(st.Sensors.ACPI))
+	}
+	l = append(l, line)
 	for _, n := range st.Sensors.NotConnected {
 		l = append(l, fmt.Sprintf("temp %s %s: not connected (raw %d C)", n.Source, n.Name, n.Raw))
 	}
@@ -573,6 +595,7 @@ func logSection(lines []string, err string) Section {
 
 // runTimeout runs a tool with a deadline and returns its stdout; the error holds its stderr or why it failed.
 func runTimeout(d time.Duration, path string, args ...string) (string, error) {
+	defer timed("tool", path+" "+strings.Join(args, " "))()
 	if dl := diagDeadline(); !dl.IsZero() {
 		left := time.Until(dl)
 		if left <= 0 {
@@ -681,9 +704,10 @@ func hostnames() []string {
 	return []string{h}
 }
 
+var scanTimeout = 30 * time.Second
+
 const (
 	toolTimeout = 15 * time.Second
-	scanTimeout = 30 * time.Second
 	diagBudget  = 60 * time.Second // all tool calls of one diag run together
 )
 
@@ -697,22 +721,68 @@ func diagDeadline() time.Time {
 	return time.Time{}
 }
 
-// sections collects the output blocks; a panic or error stays in its own block.
+// sections collects the output blocks in the order they were added. A block added with async runs in the background
+// (at most maxParallel at once), so the slow tool calls overlap; the output order stays the order of the add calls.
 type sections struct {
-	list   []Section
-	failed []string // titles of the blocks that produced nothing but an error
+	slots []*asyncSection
+	sem   chan struct{}
 }
 
-func (s *sections) add(title string, fn func() Section) {
-	sec := section(title, fn)
-	if sec.Err != "" && sec.Body == "" {
-		s.failed = append(s.failed, title)
+// asyncSection is one block; done closes once sec is final.
+type asyncSection struct {
+	sec  Section
+	done chan struct{}
+}
+
+// maxParallel bounds the collectors (and so the tool processes) running at the same time.
+const maxParallel = 6
+
+func (a *asyncSection) wait() { <-a.done }
+
+// add runs fn now and waits for it.
+func (s *sections) add(title string, fn func() Section) *asyncSection {
+	a := &asyncSection{done: make(chan struct{})}
+	a.sec = section(title, fn)
+	close(a.done)
+	s.slots = append(s.slots, a)
+	return a
+}
+
+// async starts fn in the background once every block in after has finished. The caller returns after a slot is free,
+// so the blocks start in the order of the calls.
+func (s *sections) async(title string, fn func() Section, after ...*asyncSection) *asyncSection {
+	if s.sem == nil {
+		s.sem = make(chan struct{}, maxParallel)
 	}
-	s.list = append(s.list, sec)
+	a := &asyncSection{done: make(chan struct{})}
+	s.slots = append(s.slots, a)
+	s.sem <- struct{}{}
+	go func() {
+		defer close(a.done)
+		defer func() { <-s.sem }()
+		for _, d := range after {
+			d.wait()
+		}
+		a.sec = section(title, fn)
+	}()
+	return a
+}
+
+// finish waits for every block and returns them in order plus the titles of the blocks that produced nothing but an error.
+func (s *sections) finish() (list []Section, failed []string) {
+	for _, a := range s.slots {
+		a.wait()
+		if a.sec.Err != "" && a.sec.Body == "" {
+			failed = append(failed, a.sec.Title)
+		}
+		list = append(list, a.sec)
+	}
+	return list, failed
 }
 
 // section runs one collector; a panic or error stays in its own section.
 func section(title string, fn func() Section) (s Section) {
+	defer timed("section", title)()
 	defer func() {
 		if r := recover(); r != nil {
 			s = Section{Title: title, Err: fmt.Sprint("internal error: ", r)}
@@ -760,7 +830,7 @@ func (c *Ctl) ledDiag(r Report, h fan.Hardware) LEDDiag {
 	}
 	d.Modprobe = c.i2cDev()
 	d.Get, d.GetErr = errText(runTimeout(toolTimeout, c.Env.LEDI2C, "--plain", "get", "all"))
-	d.Scan, d.ScanErr = errText(runTimeout(scanTimeout, c.Env.LEDI2C, "scan", "all"))
+	d.Scan, d.ScanErr = c.i2cScan()
 	if d.GT {
 		d.CS201x, d.CS201xErr = errText(runTimeout(toolTimeout, c.Env.LEDI2C, "cs201x"))
 	}
@@ -815,6 +885,9 @@ func (c *Ctl) fanDiag(model string) FanDiag {
 	case fan.FanKind(model) == fan.KindProbe:
 		extra("probe-fans tachs (every tach input, read only)", "tachs", "probe-fans", "tachs")
 	}
+	if fan.HasIT8613E(model) {
+		extra("IT8613E header 4 control registers 0x1e (UGREEN) and 0x7f (mainline it87), raw, read only", "ite-ctrl", "probe-fans", "regs")
+	}
 	extra("power-on-ac (read)", "power-on-ac", "power-on-ac")
 	d.Aux = append(d.Aux, run(c.Env.FanTool, "history", "history", "history", "1h"), run(c.Env.FanTool, "profile sources", "profiles", "profile", "sources"))
 	if panel.ButtonsFor(model) != nil && c.Env.Panel != "" {
@@ -823,7 +896,7 @@ func (c *Ctl) fanDiag(model string) FanDiag {
 	return d
 }
 
-func (c *Ctl) diag() int {
+func (c *Ctl) diag(asJSON bool) int {
 	if runtime.GOOS != "linux" {
 		c.errf("ERROR: diag reads an Unraid (Linux) box; this is %s.\n", runtime.GOOS)
 		return 1
@@ -833,8 +906,10 @@ func (c *Ctl) diag() int {
 		return 1
 	}
 
+	c.diagNote(asJSON, "collecting, this takes up to a minute (I2C scan)...")
 	anon := Anon{Hostnames: hostnames()}
 	now := time.Now()
+	started := now
 	deadlineNano.Store(now.Add(diagBudget).UnixNano())
 	defer deadlineNano.Store(0)
 
@@ -850,13 +925,25 @@ func (c *Ctl) diag() int {
 		in = Inputs{Env: c.Env, Blocker: c.ledBlocker(), Rivals: c.rivalList()}
 		in.Hardware = fan.ReadHardware()
 		in.BayPorts = fan.BayPorts(in.Hardware.Model)
-		if out, err := runTimeout(toolTimeout, c.Env.FanTool, "probe"); err == nil || out != "" {
-			in.FanProbe = []byte(out)
-		}
+		// The fan and the LED probe are different tools and different registers; they run side by side.
+		var wg sync.WaitGroup
+		var fanPanic any
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer func() { fanPanic = recover() }()
+			if out, err := runTimeout(toolTimeout, c.Env.FanTool, "probe"); err == nil || out != "" {
+				in.FanProbe = []byte(out)
+			}
+		}()
 		if in.Blocker != "model" {
 			in.LEDRan = true
-			out, err := runTimeout(toolTimeout, c.Env.LEDI2C, "probe")
-			in.LEDOK, in.LEDProbe = err == nil, []byte(out)
+			out, ok, reason := c.ledProbe()
+			in.LEDOK, in.LEDProbe, in.LEDError = ok, []byte(out), reason
+		}
+		wg.Wait()
+		if fanPanic != nil {
+			panic(fanPanic)
 		}
 		rep = Build(in)
 	}); msg != "" {
@@ -874,15 +961,15 @@ func (c *Ctl) diag() int {
 		secs.add("Environment facts", func() Section { return Section{Title: "Environment facts", Err: msg} })
 	}
 
-	secs.add("DMI", func() Section { return dmiSection(c.Env.DMIDir) })
-	secs.add("LED", func() Section {
+	secs.async("DMI", func() Section { return dmiSection(c.Env.DMIDir) })
+	ledSec := secs.async("LED", func() Section {
 		facts.LED = c.ledDiag(rep, in.Hardware)
 		facts.LED.anonymize(anon)
 		return ledSection(facts.LED)
 	})
-	secs.add("Front panel pads", func() Section { return padsSection(c.padsDiag(model)) })
-	secs.add("NVMe", func() Section { return nvmeSection(c.nvmeDiag(in.Hardware)) })
-	secs.add("Fans", func() Section {
+	secs.async("Front panel pads", func() Section { return padsSection(c.padsDiag(model)) })
+	secs.async("NVMe", func() Section { return nvmeSection(c.nvmeDiag(in.Hardware)) })
+	fanSec := secs.async("Fans", func() Section {
 		facts.Fan = c.fanDiag(model)
 		facts.FanDaemonDown = !facts.Fan.DaemonRunning
 		var st fanStatus
@@ -891,25 +978,26 @@ func (c *Ctl) diag() int {
 		}
 		return fanSection(facts.Fan)
 	})
-	secs.add("Other fan and LED tools", func() Section {
+	rivalSec := secs.async("Other fan and LED tools", func() Section {
 		facts.Rivals = c.rivalDiag(facts.FanSt)
 		return rivalSection(facts.Rivals)
-	})
-	secs.add("Features", func() Section {
+	}, fanSec)
+	// The features table reads what the LED, fan and rival blocks found.
+	secs.async("Features", func() Section {
 		return featuresSection(c.featureInputs(model, facts))
-	})
-	secs.add("Drives", func() Section {
+	}, ledSec, fanSec, rivalSec)
+	secs.async("Drives", func() Section {
 		data, err := os.ReadFile(c.Env.DisksINI)
 		return drivesSection(data, err, isFile(filepath.Join(c.Env.PluginsBoot, "unassigned.devices.plg")))
 	})
-	secs.add("Settings", func() Section {
+	secs.async("Settings", func() Section {
 		fanCfg, e1 := os.ReadFile(c.Env.FanCfg)
 		ledCfg, e2 := os.ReadFile(c.Env.LEDCfg)
 		return settingsSection(fanCfg, ledCfg, e1, e2, c.running(c.Env.PubPidFile))
 	})
 	var syslog string
 	guard(func() { syslog = tail(c.Env.Syslog, 1<<20) })
-	secs.add("Plugin state", func() Section {
+	secs.async("Plugin state", func() Section {
 		st := StateDiag{Version: rep.PluginVersion, OwnFiles: facts.Env.OwnFiles, CronPresent: isFile(c.Env.LEDCron)}
 		if data, err := os.ReadFile(filepath.Join(c.Env.PluginsBoot, "ugreen-nas-control.plg")); err == nil {
 			if m := entityRe("pluginURL").FindSubmatch(data); m != nil {
@@ -922,33 +1010,34 @@ func (c *Ctl) diag() int {
 		st.InstallLines = pluginLines(anon, syslog, now)
 		return stateSection(st)
 	})
-	secs.add("Environment", func() Section { return envSection(facts.Env) })
-	secs.add("hwmon", func() Section { return hwmonSection(c.Env.Hwmon) })
-	secs.add("I/O ports", func() Section { return ioportsSection(c.Env.Proc) })
-	secs.add("PCI", func() Section {
+	secs.async("Environment", func() Section { return envSection(facts.Env) })
+	secs.async("hwmon", func() Section { return hwmonSection(c.Env.Hwmon) })
+	secs.async("I/O ports", func() Section { return ioportsSection(c.Env.Proc) })
+	secs.async("PCI", func() Section {
 		out, err := runTimeout(toolTimeout, "lspci", "-nn")
 		return lspciSection(anon, out, errString(err))
 	})
-	secs.add("dmesg", func() Section {
+	secs.async("dmesg", func() Section {
 		out, err := runTimeout(toolTimeout, "dmesg")
 		return dmesgSection(anon, out, errString(err))
 	})
-	secs.add("Log", func() Section {
+	secs.async("Log", func() Section {
 		if syslog == "" {
 			return logSection(nil, "cannot read the syslog")
 		}
 		return logSection(logLines(anon, syslog, 50), "")
 	})
-	facts.Failed = secs.failed
+	list, failed := secs.finish()
+	facts.Failed = failed
 
 	var checks []string
-	list := secs.list
+	var ev Evidence
+	var reg *RegModel
 	if msg := guard(func() {
-		var reg *RegModel
 		if models, err := loadRegistry(modelsJSON); err == nil {
 			reg = matchModel(models, model)
 		}
-		ev := BuildEvidence(EvInputs{Reg: reg, Now: now, Report: rep, Fan: facts.Fan, FanSt: facts.FanSt, LED: facts.LED, Rivals: facts.Rivals})
+		ev = BuildEvidence(EvInputs{Reg: reg, Now: now, Report: rep, Fan: facts.Fan, FanSt: facts.FanSt, LED: facts.LED, Rivals: facts.Rivals})
 		modelSec, modelChecks := modelSection(reg, ev)
 		list = append(append([]Section{modelSec}, list...), evidenceSection(ev))
 		checks = modelChecks
@@ -957,13 +1046,23 @@ func (c *Ctl) diag() int {
 	}
 	var out string
 	if msg := guard(func() {
+		facts.Reg = reg
 		checks = append(diagChecks(facts), checks...)
 		out = RenderDiag(anon, now, kernelVersion(c.Env.Proc), rep, checks, list)
 	}); msg != "" {
 		c.errf("ERROR: diag failed while writing the output: %s\n", msg)
 		return 1
 	}
+	if asJSON {
+		if ev.Schema == "" {
+			ev.Model = EvModel{ID: "unknown", Name: rep.Machine.Product}
+			ev.PluginVersion, ev.UnraidVersion = rep.PluginVersion, rep.UnraidVersion
+		}
+		_, _ = c.Out.Write(BuildFeedback(anon, ev, reg, rep, facts.LED.I2C, kernelVersion(c.Env.Proc), out, time.Since(started)).JSON())
+		return 0
+	}
 	c.out("%s", out)
+	c.diagNote(asJSON, "done in %d s", int(time.Since(started).Round(time.Second)/time.Second))
 	return 0
 }
 
@@ -1024,4 +1123,71 @@ func (c *Ctl) featureInputs(model string, f Facts) FeatureInputs {
 	}
 	in.Scripts = scriptInterpreters(c.Env.SensorsDir)
 	return in
+}
+
+// replaceHost swaps the host name for <host>, except where it is the key of a "key: value" line: a box called
+// "Unraid" keeps its header line "unraid: 7.3.4".
+func replaceHost(re *regexp.Regexp, s string) string {
+	var b strings.Builder
+	last := 0
+	for _, m := range re.FindAllStringSubmatchIndex(s, -1) {
+		start, end := m[4], m[5] // the host name itself
+		lineStart := strings.LastIndexByte(s[:start], '\n') + 1
+		if strings.TrimSpace(s[lineStart:start]) == "" && strings.HasPrefix(s[end:], ":") {
+			continue
+		}
+		b.WriteString(s[last:start])
+		b.WriteString("<host>")
+		last = end
+	}
+	b.WriteString(s[last:])
+	return b.String()
+}
+
+// diagNote is the progress line on stderr of the text mode; stdout carries only the report, and --json stays silent.
+func (c *Ctl) diagNote(asJSON bool, format string, a ...any) {
+	if !asJSON {
+		c.errf("diag: "+format+"\n", a...)
+	}
+}
+
+// i2cScan runs "scan all" (display buses skipped) or, with --full-scan, "scan all --include-display". The tool
+// prints one bus per line as it finishes, so a timeout keeps the output of every finished bus.
+func (c *Ctl) i2cScan() (string, string) {
+	args := []string{"scan", "all"}
+	if c.FullScan {
+		args = append(args, "--include-display")
+	}
+	return errText(runTimeout(scanTimeout, c.Env.LEDI2C, args...))
+}
+
+// completeScan closes the JSON object of a scan that was cut off: the tool writes one finished bus per line.
+func completeScan(s string) string {
+	s = strings.TrimRight(s, "\n ,")
+	if json.Valid([]byte(s)) {
+		return s
+	}
+	if json.Valid([]byte(s + "\n}")) {
+		return s + "\n}"
+	}
+	if i := strings.LastIndex(s, "\n"); i > 0 {
+		return strings.TrimRight(s[:i], ", ") + "\n}"
+	}
+	return s
+}
+
+// unscannedBuses names the adapters (from "i2c-N=name") that have no line in the scan output.
+func unscannedBuses(adapters []string, scan string) []string {
+	var m map[string]json.RawMessage
+	if json.Unmarshal([]byte(completeScan(scan)), &m) != nil {
+		return nil
+	}
+	var out []string
+	for _, a := range adapters {
+		id, name, _ := strings.Cut(a, "=")
+		if _, ok := m["/dev/"+id]; !ok {
+			out = append(out, "/dev/"+id+" ("+name+")")
+		}
+	}
+	return out
 }
