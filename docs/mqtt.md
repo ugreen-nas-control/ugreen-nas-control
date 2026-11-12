@@ -59,6 +59,7 @@ Alarms carry a `code` (`cpu_hot`, `cpu_unreadable`, `disk_hot`, `nvme_hot`, `fan
 
 MQTT 3.1.1, clean session, keep-alive 30 s, reconnect after 1 s up to every 60 s. Commands are subscribed at QoS 1.
 
+- TLS (1.2 or newer) checks the broker certificate and its host name against the CA certificates of the NAS. A certificate from a private or self-signed CA is refused with `x509: certificate signed by unknown authority`, a host name the certificate does not name with `certificate is valid for ..., not ...`; there is no setting for another CA or to skip the check, so connect by a name the certificate carries.
 - A refused connection is logged with the broker's reason (protocol version, client identifier, server unavailable, user name or password, not authorized).
 - A subscription the broker refuses (SUBACK failure, for example by its access rules) is logged; commands then never arrive.
 - Client ID, user name and will topic must be valid UTF-8 without NUL, each string at most 65535 bytes; otherwise the plugin logs the error and does not connect.
