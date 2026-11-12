@@ -8,6 +8,7 @@ export const mqttEs: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': 'Publicador en marcha',
     'mqtt.stopped': 'Publicador detenido',
     'mqtt.not_running': 'El publicador no está en marcha. El motivo está en el registro /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'El publicador no alcanza el broker: {error}',
     'mqtt.start_failed': 'Guardado, pero el publicador no ha arrancado: {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Nombre de host o dirección IPv4, sin el puerto.',

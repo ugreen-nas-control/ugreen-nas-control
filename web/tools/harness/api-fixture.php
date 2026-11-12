@@ -257,7 +257,7 @@ function fan_get(string $action, array $fan, array $status, array $state): void
             out(['ok' => true] + power_ac_answer($state));
             // no break
         case 'mqtt_get':
-            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + ['running' => ($state['mqtt']['mqtt_enabled'] ?? '') === '1']);
+            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + ['running' => ($state['mqtt']['mqtt_enabled'] ?? '') === '1', 'last_error' => '']);
             // no break
         case 'panel_buttons':
             $panel = $GLOBALS['fx']['panel'];
@@ -497,7 +497,7 @@ function fan_post(string $action, array $fan, array $status, array $state, calla
             }
             $config = array_merge(array_diff_key($state['mqtt'] ?? [], array_flip($collected[1])), $collected[0]);
             $save(['mqtt' => $config]);
-            out(['ok' => true] + mqtt_view($config) + ['running' => ($config['mqtt_enabled'] ?? '') === '1']);
+            out(['ok' => true] + mqtt_view($config) + ['running' => ($config['mqtt_enabled'] ?? '') === '1', 'last_error' => '']);
             // no break
         case 'panel_beep':
             $raw = $_POST['ms'] ?? '200';

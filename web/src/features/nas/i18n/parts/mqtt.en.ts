@@ -7,6 +7,7 @@ export const mqttEn = {
     'mqtt.running': 'Publisher running',
     'mqtt.stopped': 'Publisher stopped',
     'mqtt.not_running': 'The publisher is not running. The reason is in the log /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'The publisher cannot reach the broker: {error}',
     'mqtt.start_failed': 'Saved, but the publisher did not start: {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Host name or IPv4 address, without the port.',

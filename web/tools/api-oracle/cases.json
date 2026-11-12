@@ -728,6 +728,54 @@
     },
     { "id": "nas.mqtt_get.defaults", "api": "nas", "query": { "action": "mqtt_get" } },
     {
+      "id": "nas.mqtt_get.unreachable",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": {
+        "/var/log/ugreen-nas-control-mqtt.log": "mqtt: dial tcp 192.168.40.99:1883: connect: no route to host; retrying in 1s\nmqtt: dial tcp 192.168.40.99:1883: connect: no route to host; retrying in 2s\n"
+      },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.refused-login",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: broker refused the connection: bad user name or password; retrying in 4s\n" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.log-without-retry",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: subscription refused by the broker (SUBACK 0x80); remote commands will not arrive\n" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_get.log-empty",
+      "api": "nas",
+      "query": { "action": "mqtt_get" },
+      "files": { "/var/log/ugreen-nas-control-mqtt.log": "" },
+      "ctl": [{ "args": ["mqtt-status"], "out": "running (pid 4242)\n" }]
+    },
+    {
+      "id": "nas.mqtt_set.log-is-read-after-a-save",
+      "api": "nas",
+      "body": {
+        "action": "mqtt_set",
+        "enabled": "1",
+        "tls": "0",
+        "control": "0",
+        "control_updates": "0",
+        "control_containers": "0",
+        "host": "broker.lan",
+        "port": "",
+        "user": "",
+        "name": "",
+        "interval": ""
+      },
+      "files": { "/var/log/ugreen-nas-control-mqtt.log": "mqtt: dial tcp 10.0.0.9:1883: i/o timeout; retrying in 8s\n" }
+    },
+    {
       "id": "nas.mqtt_get.configured-running",
       "api": "nas",
       "query": { "action": "mqtt_get" },

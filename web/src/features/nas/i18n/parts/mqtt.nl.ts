@@ -9,6 +9,7 @@ export const mqttNl: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': 'Publisher draait',
     'mqtt.stopped': 'Publisher gestopt',
     'mqtt.not_running': 'De publisher draait niet. De reden staat in het log /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'De publisher bereikt de broker niet: {error}',
     'mqtt.start_failed': 'Opgeslagen, maar de publisher is niet gestart: {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Hostnaam of IPv4-adres, zonder poort.',

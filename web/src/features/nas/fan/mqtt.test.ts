@@ -16,7 +16,8 @@ const saved: MqttResponse = {
     control: true,
     control_updates: false,
     control_containers: true,
-    running: true
+    running: true,
+    last_error: ''
 };
 
 test('the draft starts from the saved settings and sends them back unchanged, without a password', () => {

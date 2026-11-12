@@ -1,6 +1,6 @@
 # MQTT
 
-The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default. Switch it on in the MQTT card on the Settings page; a save restarts the publisher. The settings are the keys below in `fan.cfg`, which can also be edited by hand, then `ugreen-nas-ctl mqtt-stop` and `mqtt-start`.
+The plugin can publish the status of the NAS to an MQTT broker, for displays and Home Assistant. It is off by default. Switch it on in the MQTT card on the Settings page; a save restarts the publisher. While the broker cannot be reached, the card shows the reason from the log. The settings are the keys below in `fan.cfg`, which can also be edited by hand, then `ugreen-nas-ctl mqtt-stop` and `mqtt-start`.
 
 The publisher is `ugreen-nas-fan publish` (`backend/internal/mqtt`, a small hand-written MQTT 3.1.1 client, no dependency). It only reads, the way the status page does, and never writes a fan register. It runs apart from the fan daemon, so it also runs where fan control is off. `ugreen-nas-ctl start` and `stop` start and stop it with the daemon; `mqtt-start`, `mqtt-stop` and `mqtt-status` handle it alone. Pid file `/var/run/ugreen-nas-control-mqtt.pid`, log `/var/log/ugreen-nas-control-mqtt.log` (replaced on every start).
 

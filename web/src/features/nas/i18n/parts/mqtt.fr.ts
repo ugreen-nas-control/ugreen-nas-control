@@ -9,6 +9,7 @@ export const mqttFr: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': 'Éditeur en marche',
     'mqtt.stopped': 'Éditeur arrêté',
     'mqtt.not_running': 'L’éditeur ne tourne pas. La raison figure dans le journal /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'L’éditeur n’atteint pas le broker : {error}',
     'mqtt.start_failed': 'Enregistré, mais l’éditeur n’a pas démarré : {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Nom d’hôte ou adresse IPv4, sans le port.',

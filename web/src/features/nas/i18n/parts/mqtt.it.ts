@@ -9,6 +9,7 @@ export const mqttIt: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': 'Publisher in esecuzione',
     'mqtt.stopped': 'Publisher fermo',
     'mqtt.not_running': 'Il publisher non è in esecuzione. Il motivo è nel log /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'Il publisher non raggiunge il broker: {error}',
     'mqtt.start_failed': 'Salvato, ma il publisher non è partito: {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Nome host o indirizzo IPv4, senza la porta.',

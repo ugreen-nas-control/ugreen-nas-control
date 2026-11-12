@@ -74,3 +74,25 @@ echo json_encode(array_map(function ($input) { $bad = null; return mqtt_collect(
     const want = inputs.map(input => mqttBadKey(input));
     expect(table.map(([what], i) => `${what}: ${got[i]}`)).toEqual(table.map(([what], i) => `${what}: ${want[i]}`));
 });
+
+// What the card shows as the reason the broker cannot be reached: the last line of the publisher's log, while the log is fresh.
+test.skipIf(!php)('the connect error is the last log line, only while the log is fresh', async () => {
+    const retry = 'mqtt: dial tcp 192.168.40.99:1883: connect: no route to host; retrying in 32s';
+    const cases: [log: string, age: number, want: string][] = [
+        [`${retry}\n`, 5, 'dial tcp 192.168.40.99:1883: connect: no route to host'],
+        [`mqtt: dial tcp x: refused; retrying in 1s\n${retry}\n`, 60, 'dial tcp 192.168.40.99:1883: connect: no route to host'],
+        [retry, 120, 'dial tcp 192.168.40.99:1883: connect: no route to host'],
+        [`${retry}\n`, 121, ''],
+        ['', 0, ''],
+        ['mqtt: subscription refused by the broker (SUBACK 0x80); remote commands will not arrive\n', 0, ''],
+        [`${retry}\ncommand "reboot" rejected: ts too old\n`, 0, ''],
+        ['mqtt: broker refused the connection: bad user name or password; retrying in 4s\n', 0, 'broker refused the connection: bad user name or password'],
+        [`mqtt: ${'x'.repeat(301)}; retrying in 1s\n`, 0, '']
+    ];
+    const script = `require ${JSON.stringify(join(root, 'web/plugin/include/mqtt.php'))};
+$cases = json_decode(file_get_contents('php://stdin'), true);
+echo json_encode(array_map(fn($c) => mqtt_connect_error($c[0], $c[1]), $cases));`;
+    const run = Bun.spawn([php!, '-r', script], { stdin: new Blob([JSON.stringify(cases)]), stdout: 'pipe' });
+    const got: string[] = JSON.parse(await new Response(run.stdout).text());
+    expect(got).toEqual(cases.map(c => c[2]));
+});

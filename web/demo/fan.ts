@@ -526,6 +526,7 @@ function mqttView(config: Record<string, string>): Obj {
         control: config.mqtt_control === '1',
         control_updates: config.mqtt_control_updates === '1',
         control_containers: config.mqtt_control_containers === '1',
-        running: config.mqtt_enabled === '1'
+        running: config.mqtt_enabled === '1',
+        last_error: ''
     };
 }

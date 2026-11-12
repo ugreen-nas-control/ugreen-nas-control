@@ -102,7 +102,8 @@ function drawState(ctx: FanCtx): void {
     if (!box || !saved) return;
     const { ui, t } = ctx;
     const pill = ui.pill({ tone: saved.running ? 'ok' : 'plain', ico: saved.running ? 'check' : '', text: t(saved.running ? 'mqtt.running' : 'mqtt.stopped') });
-    const warn = saved.enabled && !saved.running ? ui.note(escapeHtml(t('mqtt.not_running')), { tone: 'warn', box: true, tag: 'div', ico: 'alert' }) : '';
+    const problem = !saved.enabled ? '' : !saved.running ? t('mqtt.not_running') : saved.last_error ? t('mqtt.unreachable', { error: saved.last_error }) : '';
+    const warn = problem ? ui.note(escapeHtml(problem), { tone: 'warn', box: true, tag: 'div', ico: 'alert' }) : '';
     box.innerHTML = `<div class="unc-fan-tools-status">${pill}</div>${warn}`;
 }
 

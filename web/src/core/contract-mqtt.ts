@@ -22,6 +22,8 @@ export type MqttResponse = ApiOk & {
     control_containers: boolean;
     /** The publisher process is up now. */
     running: boolean;
+    /** Why it cannot reach the broker, from its log while it keeps retrying (a log older than two minutes counts as recovered); empty when it can. */
+    last_error: string;
     /** After a set only: `ugreen-nas-ctl mqtt-start` failed; the settings are saved. */
     start_failed?: string;
 };

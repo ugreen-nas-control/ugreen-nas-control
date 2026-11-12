@@ -8,6 +8,7 @@ export const mqttZh: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': '发布程序运行中',
     'mqtt.stopped': '发布程序已停止',
     'mqtt.not_running': '发布程序没有运行。原因见日志 /var/log/ugreen-nas-control-mqtt.log。',
+    'mqtt.unreachable': '发布程序无法连接 broker：{error}',
     'mqtt.start_failed': '已保存，但发布程序没有启动：{error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': '主机名或 IPv4 地址，不含端口。',

@@ -9,6 +9,7 @@ export const mqttDe: Record<keyof typeof mqttEn, string> = {
     'mqtt.running': 'Sender läuft',
     'mqtt.stopped': 'Sender gestoppt',
     'mqtt.not_running': 'Der Sender läuft nicht. Den Grund nennt das Log /var/log/ugreen-nas-control-mqtt.log.',
+    'mqtt.unreachable': 'Der Sender erreicht den Broker nicht: {error}',
     'mqtt.start_failed': 'Gespeichert, aber der Sender ist nicht gestartet: {error}',
     'mqtt.host': 'Broker',
     'mqtt.host_hint': 'Hostname oder IPv4-Adresse, ohne Port.',

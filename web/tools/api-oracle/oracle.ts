@@ -97,7 +97,9 @@ export const loadCases = (): CaseTable => JSON.parse(readFileSync(CASES_FILE, 'u
 export const loadGolden = (): Record<string, Result> => JSON.parse(readFileSync(GOLDEN_FILE, 'utf8')) as Record<string, Result>;
 
 const rewrite = (text: string, fs: string) =>
-    text.replace(/(?<![\w.:-])\/(usr\/local\/emhttp|boot|var\/local\/emhttp|var\/run|proc)(?=\/|\b)/g, m => fs + m).replace(/\btime\(\)/g, String(NOW));
+    text
+        .replace(/(?<![\w.:-])\/(usr\/local\/emhttp|boot|var\/local\/emhttp|var\/run|var\/log|proc)(?=\/|\b)/g, m => fs + m)
+        .replace(/\btime\(\)/g, String(NOW));
 
 export function phpCommand(): string[] {
     return Bun.which('php') ? ['php'] : ['nix', 'shell', 'nixpkgs#php84', '-c', 'php'];

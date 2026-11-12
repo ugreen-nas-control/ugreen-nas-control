@@ -7,6 +7,11 @@ declare(strict_types=1);
 // the NAS: mqtt_get only says whether one is set. A save applies at once: the publisher stops and, if switched on,
 // starts again. Uses respond(), run(), read_settings(), save_settings(), CTL and CONFIG_FILE from api.php.
 
+// The publisher's log, replaced on every start (backend/internal/nasctl, UGREEN_PUB_LOG). A failed connection is retried at
+// least every 60 s and logs each try; a log older than this means the connection came back.
+const MQTT_LOG = '/var/log/ugreen-nas-control-mqtt.log';
+const MQTT_LOG_FRESH = 120;
+
 const MQTT_FLAGS = [
     'enabled' => 'mqtt_enabled',
     'tls' => 'mqtt_tls',
@@ -114,10 +119,31 @@ function mqtt_running(): bool
     return run(CTL, ['mqtt-status'])['code'] === 0;
 }
 
+// Why the publisher cannot reach the broker, from the last line of its log ("mqtt: <error>; retrying in 8s"); empty when the
+// log is older than MQTT_LOG_FRESH seconds, ends otherwise or has no such line. $age: seconds since the log was written.
+function mqtt_connect_error(string $log, int $age): string
+{
+    if ($age > MQTT_LOG_FRESH) {
+        return '';
+    }
+
+    $lines = explode("\n", rtrim($log, "\n"));
+
+    return preg_match('/^mqtt: (.{1,300}); retrying in [0-9]+s$/Du', end($lines), $match) === 1 ? $match[1] : '';
+}
+
+function mqtt_status(): array
+{
+    $log = is_file(MQTT_LOG) ? (string) @file_get_contents(MQTT_LOG, false, null, max(0, (int) @filesize(MQTT_LOG) - 4096)) : '';
+    $age = $log === '' ? PHP_INT_MAX : max(0, time() - (int) @filemtime(MQTT_LOG));
+
+    return ['running' => mqtt_running(), 'last_error' => mqtt_connect_error($log, $age)];
+}
+
 // GET mqtt_get
 function mqtt_get(): never
 {
-    respond(['ok' => true] + mqtt_view(read_settings()) + ['running' => mqtt_running()]);
+    respond(['ok' => true] + mqtt_view(read_settings()) + mqtt_status());
 }
 
 // POST mqtt_set enabled, tls, control, control_updates, control_containers = 0|1; host, port, user, name, interval
@@ -138,7 +164,7 @@ function mqtt_set(array $input): never
     // A running publisher keeps the settings it started with, so it always restarts; ctl starts it only when switched on.
     run(CTL, ['mqtt-stop']);
     $start = run(CTL, ['mqtt-start']);
-    $reply = ['ok' => true] + mqtt_view(read_settings()) + ['running' => mqtt_running()];
+    $reply = ['ok' => true] + mqtt_view(read_settings()) + mqtt_status();
 
     if ($start['code'] !== 0) {
         $reply['start_failed'] = $start['message'];
