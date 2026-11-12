@@ -48,6 +48,8 @@ type client struct {
 	// Called on every (re)connect, after CONNACK, and for every message received.
 	onConnect func()
 	onMessage func(topic string, payload []byte, retained bool)
+	// Called when the connection state changes: connected, or failed with the reason while the client retries.
+	onStatus func(state, reason string)
 
 	mu     sync.Mutex
 	conn   net.Conn
@@ -178,10 +180,10 @@ func (c *client) subscribe(topic string) error {
 	return c.write(subscribePacket(id, topic, 1))
 }
 
-// session connects once and serves the connection until it breaks.
-func (c *client) session(quit <-chan struct{}) error {
+// dial connects and runs the CONNECT / CONNACK exchange. The connection comes back with that exchange's deadline still set.
+func (c *client) dial() (net.Conn, *bufio.Reader, error) {
 	if err := c.validate(); err != nil {
-		return err
+		return nil, nil, err
 	}
 	d := net.Dialer{Timeout: 10 * time.Second}
 	var conn net.Conn
@@ -192,26 +194,42 @@ func (c *client) session(quit <-chan struct{}) error {
 		conn, err = d.Dial("tcp", c.addr)
 	}
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
-	defer func() { _ = conn.Close() }()
 
 	r := bufio.NewReader(conn)
 	_ = conn.SetDeadline(time.Now().Add(10 * time.Second))
 	if _, err := conn.Write(c.connectPacket()); err != nil {
-		return err
+		_ = conn.Close()
+		return nil, nil, err
 	}
 	typ, _, body, err := readPacket(r)
 	if err != nil {
-		return err
+		_ = conn.Close()
+		return nil, nil, err
 	}
 	if typ != mqttConnack || len(body) != 2 {
-		return errors.New("mqtt: no CONNACK")
+		_ = conn.Close()
+		return nil, nil, errors.New("mqtt: no CONNACK")
 	}
 	if body[1] != 0 {
-		return fmt.Errorf("mqtt: connection refused: %s", connackReason(body[1]))
+		_ = conn.Close()
+		return nil, nil, fmt.Errorf("mqtt: connection refused: %s", connackReason(body[1]))
 	}
+	return conn, r, nil
+}
+
+// session connects once and serves the connection until it breaks.
+func (c *client) session(quit <-chan struct{}) error {
+	conn, r, err := c.dial()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = conn.Close() }()
 	_ = conn.SetDeadline(time.Time{})
+	if c.onStatus != nil {
+		c.onStatus("connected", "")
+	}
 
 	c.mu.Lock()
 	c.conn = conn
@@ -340,6 +358,9 @@ func (c *client) run(stop <-chan struct{}) {
 			wait = time.Second
 		}
 		logf("mqtt: %v; retrying in %s", err, wait)
+		if c.onStatus != nil {
+			c.onStatus("failed", reasonOf(err))
+		}
 		select {
 		case <-time.After(wait):
 		case <-stop:

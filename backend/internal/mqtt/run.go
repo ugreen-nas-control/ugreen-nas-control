@@ -32,6 +32,9 @@ func Run() error {
 		clientID:  "ugreen-nas-" + cfg.Name,
 		willTopic: prefix + "availability", willPayload: []byte("offline"),
 	}
+	cl.onStatus = func(state, reason string) { writeStatus(StatusPath, Status{State: state, Reason: reason}) }
+	writeStatus(StatusPath, Status{State: "connecting"})
+	defer func() { _ = os.Remove(StatusPath) }()
 	last := map[string][]byte{}
 	send := func(topic string, v any, retain bool) {
 		b, err := json.Marshal(v)

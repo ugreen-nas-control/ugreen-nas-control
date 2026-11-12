@@ -29,6 +29,14 @@ func runFan(args []string) int {
 		}
 		return 0
 	}
+	if len(args) > 0 && args[0] == "mqtt-test" {
+		// Settings as JSON on stdin; the answer is JSON on stdout (the settings page: "Test connection").
+		if err := mqtt.RunTest(os.Stdin, os.Stdout); err != nil {
+			fmt.Fprintln(os.Stderr, "ERROR:", err)
+			return 1
+		}
+		return 0
+	}
 	os.Args = append([]string{"ugreen-nas-fan"}, args...)
 	fan.Main()
 	return 0

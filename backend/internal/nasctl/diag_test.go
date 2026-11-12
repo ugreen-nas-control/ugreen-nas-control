@@ -813,3 +813,29 @@ func TestAnonRemovesCompressedIPv6AndDashMAC(t *testing.T) {
 		t.Errorf("scrub: %q", got)
 	}
 }
+
+func TestMQTTConnectionFromStatusAndLog(t *testing.T) {
+	status := func(state, reason string) *mqtt.Status { return &mqtt.Status{State: state, Reason: reason} }
+	cases := []struct {
+		name string
+		in   FeatureInputs
+		want string
+	}{
+		{"stopped", FeatureInputs{}, "publisher stopped"},
+		{"connected", FeatureInputs{MQTTRunning: true, MQTTStatus: status("connected", "")}, "connected"},
+		{"connecting", FeatureInputs{MQTTRunning: true, MQTTStatus: status("connecting", "")}, "connecting"},
+		{"tcp refused", FeatureInputs{MQTTRunning: true, MQTTStatus: status("failed", "dial tcp 10.0.0.1:1883: connect: connection refused")}, "failing: connection refused"},
+		{"login refused", FeatureInputs{MQTTRunning: true, MQTTStatus: status("failed", "connection refused: bad user name or password (code 4)")}, "failing: login refused"},
+		{"not authorized", FeatureInputs{MQTTRunning: true, MQTTStatus: status("failed", "connection refused: not authorized (code 5)")}, "failing: login refused"},
+		{"refused by the broker", FeatureInputs{MQTTRunning: true, MQTTStatus: status("failed", "connection refused: server unavailable (code 3)")}, "failing: refused by the broker"},
+		{"timeout", FeatureInputs{MQTTRunning: true, MQTTStatus: status("failed", "dial tcp 10.0.0.1:1883: i/o timeout")}, "failing: timeout"},
+		{"log only, login refused", FeatureInputs{MQTTRunning: true, MQTTLog: "mqtt: connection refused: bad user name or password (code 4); retrying in 4s"}, "failing: login refused"},
+		{"log only, tcp refused", FeatureInputs{MQTTRunning: true, MQTTLog: "mqtt: dial tcp x:1883: connect: connection refused; retrying in 4s"}, "failing: connection refused"},
+		{"log only, nothing", FeatureInputs{MQTTRunning: true}, "no connection error logged"},
+	}
+	for _, c := range cases {
+		if got := mqttConnection(c.in); got != c.want {
+			t.Errorf("%s: %q, want %q", c.name, got, c.want)
+		}
+	}
+}
