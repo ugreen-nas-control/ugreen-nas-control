@@ -261,7 +261,7 @@
       "fr nav settings": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "c025ee1eaa2e"
+        "text": "305fed8d63d1"
       },
       "fr nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -2019,7 +2019,7 @@
       "fr nav settings": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "61b0748f0d92"
+        "text": "0417e5812d96"
       },
       "fr nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -3908,7 +3908,7 @@
       "fr nav settings": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "2c7d2e4e0db9"
+        "text": "40de7df64fb4"
       },
       "fr nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
@@ -5808,7 +5808,7 @@
       "fr nav settings": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "0051e1a5a12d"
+        "text": "8a93b09e2919"
       },
       "fr nav about": {
         "requests": ["nas GET {\"action\":\"status\"}"],
