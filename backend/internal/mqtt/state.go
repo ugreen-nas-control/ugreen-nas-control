@@ -310,7 +310,8 @@ func buildAlarms(cpu *int, bays []fan.Bay, nvme []fan.NVMe, st *fan.State, cfg f
 	if st != nil && st.Failsafe != "" {
 		hint = "fans at full speed"
 	}
-	if cpu != nil && *cpu >= cfg.CPUCrit {
+	// With the daemon running its debounced emergency (below) decides; the raw reading would flag a one-poll spike.
+	if st == nil && cpu != nil && *cpu >= cfg.CPUCrit {
 		add(Alarm{Level: "crit", Code: "cpu_hot", Text: "CPU too hot", Value: cpu, Limit: cfg.CPUCrit, Hint: hint})
 	}
 	if b, ok := hottestBay(bays); ok && *b.Temp >= cfg.DiskCrit {
@@ -322,7 +323,11 @@ func buildAlarms(cpu *int, bays []fan.Bay, nvme []fan.NVMe, st *fan.State, cfg f
 		}
 	}
 	if st != nil {
-		switch st.Failsafe {
+		reason := st.Failsafe
+		if reason == "" {
+			reason = st.Unapplied // a rival controls the fans: the emergency is still reported
+		}
+		switch reason {
 		case "cpu_unreadable":
 			add(Alarm{Level: "crit", Code: "cpu_unreadable", Text: "CPU temperature unreadable", Hint: hint})
 		case "cpu_hot":
