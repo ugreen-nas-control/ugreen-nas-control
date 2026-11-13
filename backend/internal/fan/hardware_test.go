@@ -438,3 +438,29 @@ func TestParseDmidecodeSameLocator(t *testing.T) {
 		}
 	}
 }
+
+func TestReadHardwareDXP2800GT(t *testing.T) {
+	fakeSys(t)
+	for _, model := range []string{"DXP2800 GT", "DXP2800 GT V1"} {
+		if err := os.WriteFile(filepath.Join(dmiDir, "product_name"), []byte(model+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		hw := ReadHardware()
+		if len(hw.Bays) != 2 {
+			t.Fatalf("%s: bays %+v", model, hw.Bays)
+		}
+		for i, dev := range []string{"sda", "sdb"} {
+			if hw.Bays[i].Bay != i+1 || hw.Bays[i].Device != dev || !hw.Bays[i].Present {
+				t.Errorf("%s bay %d: %+v", model, i+1, hw.Bays[i])
+			}
+		}
+		if len(hw.NVMe) == 0 {
+			t.Fatal("no NVMe drives in fixture")
+		}
+		for _, drive := range hw.NVMe {
+			if drive.Slot != "m2" {
+				t.Errorf("%s: %s in %s, want m2", model, drive.ID, drive.Slot)
+			}
+		}
+	}
+}
