@@ -29,7 +29,7 @@ import type {
     StatusResponse
 } from '../../core/contract';
 import { caseModel, frontHtml, socket, SOCKET, type SocketKind, withM2Bays } from './components/front';
-import { berlin, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
+import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
 import { curveAt, curveText, effectivePoints, parseCurve, rpmAt as rpmAtRows, rpmTicks as rpmTicksOf, validCurve, type CurvePoint } from '../../core/curve';
 import { hit, setRangeFill } from '../../core/dom';
 import { fanIcon } from '../../core/fanspin';
@@ -1266,7 +1266,7 @@ function main(root: HTMLElement): void {
         if (measured.length) {
             return note(
                 `
-                <p><strong>${escapeHtml(t('calib.done', { time: berlin(calib.table?.time ?? 0) }))}</strong></p>
+                <p><strong>${escapeHtml(t('calib.done', { time: dateTime(calib.table?.time ?? 0) }))}</strong></p>
                 <ul class="unc-min-fans">${measured.map(fan => `<li>${escapeHtml(t('calib.fan_range', { fan: fan.label, lo: rpmRange(fan.rows)[0], hi: rpmRange(fan.rows)[1], pct: spinsFrom(fan.rows) ?? 100 }))}</li>`).join('')}</ul>
                 <p class="unc-muted">${escapeHtml(t('calib.gain_short'))}</p>
                 <div>${linkBtn(t('calib.again'), measureAttrs(true))}</div>`,
@@ -1290,7 +1290,7 @@ function main(root: HTMLElement): void {
     function measureSummary(): string {
         const ranges = measuredFans().map(fan => `${fan.label} ${rpmRange(fan.rows)[0]}–${rpmRange(fan.rows)[1]} ${t('fan.rpm')}`);
 
-        return [t('calib.done', { time: berlin(calibOf().table?.time ?? 0) }), ...ranges].join(' · ');
+        return [t('calib.done', { time: dateTime(calibOf().table?.time ?? 0) }), ...ranges].join(' · ');
     }
 
     function minFansHtml(): string {
@@ -1341,7 +1341,7 @@ function main(root: HTMLElement): void {
                     : failed
                       ? t('calib.failed_title')
                       : measured.length
-                        ? t('calib.done', { time: berlin(calibOf().table?.time ?? 0) })
+                        ? t('calib.done', { time: dateTime(calibOf().table?.time ?? 0) })
                         : t('flow.unmeasured')
             },
             min: {

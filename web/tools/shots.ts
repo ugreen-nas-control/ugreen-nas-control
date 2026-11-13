@@ -19,6 +19,8 @@ import { isCs201x, isReadOnlyFan, withVariants } from '../demo/variants';
 import { hasBeeper, hasButtons } from '../src/features/nas/panel-models';
 import { socialHtml } from '../../docs/site/social';
 
+// Pinned like the e2e run, so the screenshots do not depend on the runner's zone.
+process.env.TZ = 'Europe/Berlin';
 const root = resolve(import.meta.dir, '../..');
 const OUT = process.env.SHOTS_OUT ?? join(root, '.build/shots');
 const WIDTH = 1440;
