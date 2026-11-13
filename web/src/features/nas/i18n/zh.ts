@@ -261,6 +261,8 @@ export const zh: Record<Key, string> = {
     'case.inside_hint_like_8800plus': '内部按 DXP8800 Plus 绘制:本型号主板的布局尚不清楚。内存和 M.2 的编号为假定;如果你的机器不同,请提交 issue。',
     'case.inside_hint_4800base':
         '底部检修盖板，依据 UGREEN 手册和打开盖板的照片绘制：左侧两个 M.2 插槽，右侧一个 SO-DIMM 插槽（出厂已装一条内存）。哪块 SSD 在哪个 M.2 插槽为假设；如果你的机器不同，请提交 issue。',
+    'case.inside_hint_4800plus':
+        '底部检修面板按 DXP4800 Plus 用户的照片绘制：右侧为重叠的内存插槽，M.2-1（M2-KEYM1）紧邻内存，M.2-3（M2-KEYM3）在更左侧。内部的 M2-KEYM2 插槽未显示。内存编号和各 M.2 插槽中的 SSD 对应关系仍为推测。',
     'case.inside_hint_4800':
         '底部检修盖板。插槽名称与主板丝印一致：M.2-1 即 M2-KEYM1（靠近内存），M.2-3 即 M2-KEYM3；M2-KEYM2 在机箱内部，用于出厂系统模块。RAM 1 / RAM 2 的编号为假设；如果你的机器不同，请提交 issue。',
     'in.slot_empty': '{label} · 空',

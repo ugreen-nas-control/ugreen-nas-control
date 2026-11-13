@@ -47,6 +47,7 @@ export interface CaseModel {
     ramSlots?: number;
     inside8800?: boolean;
     inside4800?: boolean;
+    inside4800plus?: boolean;
     lanAuto?: boolean;
     inside6011?: boolean;
     pcie?: boolean;
@@ -347,7 +348,23 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
         }
     ],
     [
-        /^DXP4800( Plus| Pro)$/,
+        /^DXP4800 Plus$/,
+        {
+            front: [
+                ['sd', 'SD'],
+                ['usbc', '10G'],
+                ['usba', '10G']
+            ],
+            rear4800: true,
+            rear: [],
+            inside4800: true,
+            inside4800plus: true,
+            m2Nos: [1, 3],
+            hint: 'case.inside_hint_4800plus'
+        }
+    ],
+    [
+        /^DXP4800 Pro$/,
         {
             front: [
                 ['sd', 'SD'],
