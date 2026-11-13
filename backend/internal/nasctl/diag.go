@@ -1118,6 +1118,9 @@ func (c *Ctl) featureInputs(model string, f Facts) FeatureInputs {
 		in.LEDSt = parseKV(f.LED.Status)
 	}
 	in.MQTTLog = tail(c.Env.PubLog, 4096)
+	if s, ok := mqtt.ReadStatus(c.Env.PubStatus); ok {
+		in.MQTTStatus = &s
+	}
 	in.Scripts = scriptInterpreters(c.Env.SensorsDir)
 	return in
 }

@@ -2,6 +2,8 @@ package nasctl
 
 import (
 	"strings"
+
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/mqtt"
 )
 
 // Env holds every path the command reads. The variable names are fixed by the web UI and the goldens, so tests
@@ -13,6 +15,7 @@ type Env struct {
 	FanCfg       string // UGREEN_FAN_CONFIG
 	PubPidFile   string // UGREEN_PUB_PIDFILE
 	PubLog       string // UGREEN_PUB_LOG
+	PubStatus    string // UGREEN_PUB_STATUS
 	PowerPidFile string // UGREEN_POWER_PIDFILE
 	PowerLog     string // UGREEN_POWER_LOG
 	LEDDir       string // UGREEN_LED_DIR
@@ -66,6 +69,7 @@ func EnvFromGetenv(get func(string) string, here string) Env {
 		FanCfg:       orDefault(get, "UGREEN_FAN_CONFIG", boot+"/fan.cfg"),
 		PubPidFile:   orDefault(get, "UGREEN_PUB_PIDFILE", "/var/run/ugreen-nas-control-mqtt.pid"),
 		PubLog:       orDefault(get, "UGREEN_PUB_LOG", "/var/log/ugreen-nas-control-mqtt.log"),
+		PubStatus:    orDefault(get, "UGREEN_PUB_STATUS", mqtt.StatusPath),
 		PowerPidFile: orDefault(get, "UGREEN_POWER_PIDFILE", "/var/run/ugreen-nas-control-power.pid"),
 		PowerLog:     orDefault(get, "UGREEN_POWER_LOG", "/var/log/ugreen-nas-control-power.log"),
 		LEDDir:       ledDir,

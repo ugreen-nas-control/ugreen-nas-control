@@ -3,6 +3,7 @@ import { historyEs } from './parts/history.es';
 import { scheduleEs } from './parts/schedule.es';
 import { panelEs } from './parts/panel.es';
 import { powerEs } from './parts/power.es';
+import { mqttEs } from './parts/mqtt.es';
 import { toolsEs } from './parts/tools.es';
 import type { Key } from './en';
 
@@ -541,5 +542,6 @@ export const es: Record<Key, string> = {
     'case.inside_hint_dh':
         'El interior según los renders de producto de UGREEN: las dos ranuras M.2 en el lateral de la jaula de discos, los dos zócalos de RAM en la placa base de abajo. La numeración de ambos pares es supuesta; abre un issue si tu equipo es distinto. La segunda ranura de RAM sale del texto de especificaciones de UGREEN; las fotos muestran un SO-DIMM.',
     ...panelEs,
-    ...powerEs
+    ...powerEs,
+    ...mqttEs
 };

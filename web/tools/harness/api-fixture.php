@@ -19,6 +19,7 @@ function out(array $data, int $code = 200): never
 }
 
 require_once __DIR__ . '/include/fan_v2.php';
+require_once __DIR__ . '/include/mqtt.php';
 
 const FAN_V1_INT = ['min_pct', 'cpu_crit', 'disk_crit', 'nvme_offset'];
 const FAN_V1_BOOL = ['case_follows_cpu', 'stall_notify'];
@@ -125,6 +126,12 @@ function power_ac_answer(array $state): array
         'source' => $ac['source'],
         'last_set' => $state['power_ac_last'] ?? null,
     ];
+}
+
+// No publisher runs in the harness: switched on counts as connected.
+function mqtt_fixture_status(bool $on): array
+{
+    return ['running' => $on, 'connection' => $on ? 'connected' : 'off', 'reason' => ''];
 }
 
 function fan_no_backlight(array $fan): void
@@ -254,6 +261,9 @@ function fan_get(string $action, array $fan, array $status, array $state): void
             // no break
         case 'power_ac_get':
             out(['ok' => true] + power_ac_answer($state));
+            // no break
+        case 'mqtt_get':
+            out(['ok' => true] + mqtt_view($state['mqtt'] ?? []) + mqtt_fixture_status(($state['mqtt']['mqtt_enabled'] ?? '') === '1'));
             // no break
         case 'panel_power':
             out(['ok' => true] + ($state['panel_power'] ?? ['enabled' => false, 'hold' => 1.5]));
@@ -487,6 +497,34 @@ function fan_post(string $action, array $fan, array $status, array $state, calla
             $state['power_ac_mode'] = $mode;
             $state['power_ac_last'] = ['mode' => $mode, 'time' => fx_time()];
             out(['ok' => true, 'set' => $mode] + power_ac_answer($state) + ['verified' => $ac['readable']]);
+            // no break
+        case 'mqtt_set':
+            $bad = null;
+            $collected = mqtt_collect($_POST, $bad);
+            if ($collected === null) {
+                fan_fail('Invalid value for ' . $bad);
+            }
+            $config = array_merge(array_diff_key($state['mqtt'] ?? [], array_flip($collected[1])), $collected[0]);
+            $save(['mqtt' => $config]);
+            out(['ok' => true] + mqtt_view($config) + mqtt_fixture_status(($config['mqtt_enabled'] ?? '') === '1'));
+            // no break
+        case 'mqtt_test':
+            $host = (string) ($_POST['host'] ?? '');
+            foreach (['host', 'port', 'user'] as $field) {
+                $value = $_POST[$field] ?? '';
+                [$key, $valid] = mqtt_rules()[$field];
+                if (!is_string($value) || ($value !== '' && !$valid($value))) {
+                    fan_fail('Invalid value for ' . $key);
+                }
+            }
+            if ($host === '') {
+                fan_fail('Invalid value for mqtt_host');
+            }
+            // Hosts ending in .invalid cannot be resolved, as in RFC 6761; every other one takes the connection.
+            if (str_ends_with($host, '.invalid')) {
+                out(['ok' => true, 'connected' => false, 'reason' => 'dial tcp: lookup ' . $host . ': no such host']);
+            }
+            out(['ok' => true, 'connected' => true]);
             // no break
         case 'panel_power':
             $enabled = $_POST['enabled'] ?? null;

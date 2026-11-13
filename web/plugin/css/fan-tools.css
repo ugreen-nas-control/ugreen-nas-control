@@ -71,3 +71,18 @@
 
 /* Front panel and CS201x cards. */
 .unc-fanmod .unc-facts { margin: 0; }
+
+.unc-mqtt .unc-mqtt-control { display: grid; gap: var(--sp-2); }
+.unc-mqtt .unc-mqtt-control > small { color: var(--unc-muted); }
+.unc-mqtt [data-control-warn][hidden] { display: none; }
+.unc-mqtt input:disabled { opacity: .5; }
+.unc-mqtt input[type="text"],
+.unc-mqtt input[type="password"] {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--unc-border);
+    border-radius: 8px;
+    background: var(--unc-card-2);
+}
+.unc-mqtt input[type="text"]:focus-visible,
+.unc-mqtt input[type="password"]:focus-visible { border-color: var(--unc-accent); }
