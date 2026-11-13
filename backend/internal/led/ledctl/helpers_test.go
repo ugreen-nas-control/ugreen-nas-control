@@ -191,7 +191,7 @@ func newRig(t *testing.T, product string) *rig {
 	}
 	env := Env{
 		Tool: "/nonexistent/led-tool", ToolFromEnv: true, Self: "/nonexistent/ugreen-led-ctl",
-		Config: p("leds.cfg"), DisksINI: p("disks.ini"), VarINI: p("var.ini"), SmartDir: p("smart"),
+		Config: p("leds.cfg"), DisksINI: p("disks.ini"), DevsINI: p("devs.ini"), VarINI: p("var.ini"), SmartDir: p("smart"),
 		SysBlock: p("sys/block"), SysNet: p("sys/net"), SysATA: p("sys/ata"), SysPCI: p("sys/pci"),
 		PidFile: p("run/pid"), ScheduleState: p("run/schedule"), FxPidFile: p("run/fx.pid"), FxLog: p("run/fx.log"),
 		IdentifyPrefix: p("run/identify-"), AlertState: p("run/alert"), PhasePrefix: p("run/phase-"),
