@@ -23,6 +23,8 @@ import type {
     PanelBeepResponse,
     PanelPowerResponse,
     PanelButtonsResponse,
+    PanelResetStatusResponse,
+    PanelResetSetResponse,
     PowerAcMode,
     PowerAcResponse,
     Watchdog
@@ -397,6 +399,7 @@ export interface NasGet {
     fan_backlight: FanBacklightResponse;
     cs201x_read: Cs201xReadResponse;
     panel_buttons: PanelButtonsResponse;
+    panel_reset_status: PanelResetStatusResponse;
     panel_power: PanelPowerResponse;
     power_ac_get: PowerAcResponse;
     mqtt_get: MqttResponse;
@@ -431,6 +434,7 @@ export interface NasPost {
     cs201x_confirm: { fans?: string };
     cs201x_forget: Record<string, never>;
     panel_beep: { ms?: number };
+    panel_reset_set: { value: 'on' | 'off' };
     panel_power: { enabled: Flag; hold?: string };
     power_ac_set: { mode: PowerAcMode };
     mqtt_set: MqttSet;
@@ -447,6 +451,7 @@ export interface NasPostReply {
     fan_backlight: FanBacklightSetResponse;
     cs201x_confirm: Cs201xConfirmResponse;
     panel_beep: PanelBeepResponse;
+    panel_reset_set: PanelResetSetResponse;
     panel_power: PanelPowerResponse;
     power_ac_set: PowerAcResponse;
     mqtt_set: MqttResponse;

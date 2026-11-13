@@ -18,6 +18,9 @@ type Env struct {
 	PubStatus    string // UGREEN_PUB_STATUS
 	PowerPidFile string // UGREEN_POWER_PIDFILE
 	PowerLog     string // UGREEN_POWER_LOG
+	PanelResetFlag string // UGREEN_PANEL_RESET_FLAG
+	PanelResetPID  string // UGREEN_PANEL_RESET_PID
+	PanelResetLog  string // UGREEN_PANEL_RESET_LOG
 	LEDDir       string // UGREEN_LED_DIR
 	LEDCtl       string // UGREEN_LED_CTL
 	LEDI2C       string // UGREEN_LED_I2C
@@ -72,6 +75,9 @@ func EnvFromGetenv(get func(string) string, here string) Env {
 		PubStatus:    orDefault(get, "UGREEN_PUB_STATUS", mqtt.StatusPath),
 		PowerPidFile: orDefault(get, "UGREEN_POWER_PIDFILE", "/var/run/ugreen-nas-control-power.pid"),
 		PowerLog:     orDefault(get, "UGREEN_POWER_LOG", "/var/log/ugreen-nas-control-power.log"),
+		PanelResetFlag: orDefault(get, "UGREEN_PANEL_RESET_FLAG", boot+"/network-reset.enabled"),
+		PanelResetPID:  orDefault(get, "UGREEN_PANEL_RESET_PID", "/var/run/ugreen-nas-control-panel-reset.pid"),
+		PanelResetLog:  orDefault(get, "UGREEN_PANEL_RESET_LOG", "/var/log/ugreen-nas-control-panel-reset.log"),
 		LEDDir:       ledDir,
 		LEDCtl:       orDefault(get, "UGREEN_LED_CTL", ledDir+"/ugreen-led-ctl"),
 		LEDI2C:       orDefault(get, "UGREEN_LED_I2C", ledDir+"/ugreen-led-i2c"),
