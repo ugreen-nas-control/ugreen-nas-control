@@ -3,6 +3,7 @@ import { historyFr } from './parts/history.fr';
 import { scheduleFr } from './parts/schedule.fr';
 import { panelFr } from './parts/panel.fr';
 import { powerFr } from './parts/power.fr';
+import { mqttFr } from './parts/mqtt.fr';
 import { toolsFr } from './parts/tools.fr';
 import type { Key } from './en';
 
@@ -266,6 +267,10 @@ export const fr: Record<Key, string> = {
         "La trappe de service sous le boîtier, d'après le manuel UGREEN : deux supports de RAM, M.2 en dessous et à côté ; le slot PCIe se trouve dans le châssis. La numérotation de RAM 1 / RAM 2 et M.2-1 / M.2-2 est supposée ; ouvrez un ticket si votre appareil diffère.",
     'case.inside_hint_like_8800plus':
         "L'intérieur est dessiné d'après le DXP8800 Plus : la carte de ce modèle n'est pas connue. La numérotation de la RAM et des M.2 est supposée ; ouvre un ticket si ton boîtier diffère.",
+    'case.inside_hint_4800base':
+        "La trappe de service sous le boîtier d'après le manuel d'UGREEN et une photo de la trappe ouverte : deux emplacements M.2 à gauche, un support SO-DIMM à leur droite (un module est monté d'origine). Quel SSD se trouve dans quel emplacement M.2 est supposé ; ouvrez un ticket si votre appareil diffère.",
+    'case.inside_hint_4800plus':
+        'La trappe inférieure, dessinée à partir de la photo d’un propriétaire de DXP4800 Plus : supports RAM superposés à droite ; M.2-1 (M2-KEYM1) près de la RAM et M.2-3 (M2-KEYM3) plus à gauche. Le connecteur interne M2-KEYM2 n’est pas représenté. La numérotation de la RAM et l’affectation des SSD aux emplacements M.2 restent supposées.',
     'case.inside_hint_4800':
         "La trappe de service sous le boîtier. Les emplacements portent les noms imprimés sur la carte : M.2-1 est M2-KEYM1 (à côté de la RAM) et M.2-3 est M2-KEYM3 ; M2-KEYM2 se trouve dans le boîtier, pour le module système d'origine. La numérotation de RAM 1 / RAM 2 est supposée ; ouvrez un ticket si votre appareil diffère.",
     'in.slot_empty': '{label} · vide',
@@ -554,5 +559,6 @@ export const fr: Record<Key, string> = {
     'case.inside_hint_dh':
         "L'intérieur d'après les rendus produit d'UGREEN : les deux emplacements M.2 sur le côté de la cage à disques, les deux supports RAM sur la carte mère en dessous. La numérotation des deux paires est supposée ; ouvrez un ticket si votre boîtier diffère. Le second support RAM vient du texte de spécifications d'UGREEN ; les photos montrent un SO-DIMM.",
     ...panelFr,
-    ...powerFr
+    ...powerFr,
+    ...mqttFr
 };

@@ -3,6 +3,7 @@ import { historyEn } from './parts/history.en';
 import { scheduleEn } from './parts/schedule.en';
 import { panelEn } from './parts/panel.en';
 import { powerEn } from './parts/power.en';
+import { mqttEn } from './parts/mqtt.en';
 import { toolsEn } from './parts/tools.en';
 
 export const en = {
@@ -262,6 +263,10 @@ export const en = {
         "The bottom service panel after UGREEN's manual: two RAM sockets, M.2 below and beside them; the PCIe slot sits inside the frame. RAM 1 / RAM 2 and M.2-1 / M.2-2 are numbered by assumption; open an issue if your box differs.",
     'case.inside_hint_like_8800plus':
         'The inside is drawn after the DXP8800 Plus: the board of this model is not known. RAM and M.2 numbering is assumed; open an issue if your box differs.',
+    'case.inside_hint_4800base':
+        "The underside service panel after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket to their right (a module is fitted at the factory). Which SSD sits in which M.2 slot is assumed; open an issue if your box differs.",
+    'case.inside_hint_4800plus':
+        'The underside service panel, drawn from a DXP4800 Plus owner’s photo: overlapping RAM sockets at the right; M.2-1 (M2-KEYM1) beside the RAM and M.2-3 (M2-KEYM3) farther left. The internal M2-KEYM2 slot is not shown. RAM numbering and which SSD occupies each M.2 slot are still assumed.',
     'case.inside_hint_4800':
         'The underside service panel. The slots are named as printed on the board: M.2-1 is M2-KEYM1 (next to the RAM) and M.2-3 is M2-KEYM3; M2-KEYM2 is inside the case, for the factory system module. RAM 1 / RAM 2 are numbered by assumption; open an issue if your box differs.',
     'in.slot_empty': '{label} · empty',
@@ -547,7 +552,8 @@ export const en = {
     'case.inside_hint_dh':
         "The inside after UGREEN's product renders: the two M.2 slots on the side of the drive cage, the two RAM sockets on the mainboard below. The numbering of both pairs is assumed; open an issue if your box differs. The second RAM socket is taken from UGREEN's spec text, the photos show one SO-DIMM.",
     ...panelEn,
-    ...powerEn
+    ...powerEn,
+    ...mqttEn
 } as const;
 
 export type Key = keyof typeof en;

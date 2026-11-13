@@ -1,10 +1,12 @@
-name: 'Labels (area)'
+name: 'Labels'
 
 # Type labels come from the issue forms. Area labels are added here and never removed: issues from the form's
 # "Area" field, PRs from the changed paths (.github/labeler.yml). Labels set by a human stay.
 on:
   issues:
     types: [opened, edited]
+  issue_comment:
+    types: [created]
   # pull_request_target runs with write access for fork PRs too. Safe here: no checkout, no PR code runs; the
   # labeler reads only the list of changed paths from the API and the config from the base branch.
   pull_request_target: # zizmor: ignore[dangerous-triggers] no checkout, no PR code, see above
@@ -53,6 +55,32 @@ jobs:
             *) exit 0 ;;
           esac
           gh issue edit "$NUMBER" --add-label "$label"
+
+  issue-reply:
+    if: >-
+      ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control'
+      && github.event_name == 'issue_comment'
+      && !github.event.issue.pull_request
+      && github.event.issue.state == 'open'
+      && github.event.comment.user.type == 'User'
+      && github.event.comment.user.id == github.event.issue.user.id
+      && contains(github.event.issue.labels.*.name, 'waiting for reply') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Remove waiting for reply after the reporter comments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Read the current state: the issue may have closed or the label may have been removed while queued.
+          waiting=$(gh issue view "$NUMBER" --json state,labels --jq '.state == "OPEN" and any(.labels[]; .name == "waiting for reply")')
+          if [ "$waiting" = true ]; then
+            gh issue edit "$NUMBER" --remove-label 'waiting for reply'
+          fi
 
   pull-request:
     if: ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control' && (github.event_name == 'pull_request_target' && github.event.action != 'edited') }}

@@ -369,6 +369,23 @@ export const SCENARIOS: Scenario[] = [
         }
     },
     {
+        id: 'mqtt',
+        applies: always,
+        async run(s) {
+            await s.open();
+            await s.go('settings');
+            await s.until("!!document.querySelector('#unc-mqtt-host')", 'the MQTT card');
+            await s.step('mqtt broker typed', () => s.type('#unc-mqtt-host', 'broker.lan'));
+            await s.step('mqtt test connection', () => s.click('[data-test]'));
+            await s.step('mqtt test with a host that does not resolve', async () => {
+                await s.set('#unc-mqtt-host', 'nobroker.invalid');
+                await s.click('[data-test]');
+            });
+            await s.step('mqtt switched on', () => s.click('#unc-mqtt-enabled'));
+            await s.step('mqtt saved', () => s.click('#unc-mqtt-save'));
+        }
+    },
+    {
         id: 'calibrate',
         applies: withFan,
         async run(s) {

@@ -29,7 +29,7 @@ import type {
     StatusResponse
 } from '../../core/contract';
 import { caseModel, frontHtml, socket, SOCKET, type SocketKind, withM2Bays } from './components/front';
-import { berlin, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
+import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
 import { curveAt, curveText, effectivePoints, parseCurve, rpmAt as rpmAtRows, rpmTicks as rpmTicksOf, validCurve, type CurvePoint } from '../../core/curve';
 import { hit, setRangeFill } from '../../core/dom';
 import { fanIcon } from '../../core/fanspin';
@@ -1266,7 +1266,7 @@ function main(root: HTMLElement): void {
         if (measured.length) {
             return note(
                 `
-                <p><strong>${escapeHtml(t('calib.done', { time: berlin(calib.table?.time ?? 0) }))}</strong></p>
+                <p><strong>${escapeHtml(t('calib.done', { time: dateTime(calib.table?.time ?? 0) }))}</strong></p>
                 <ul class="unc-min-fans">${measured.map(fan => `<li>${escapeHtml(t('calib.fan_range', { fan: fan.label, lo: rpmRange(fan.rows)[0], hi: rpmRange(fan.rows)[1], pct: spinsFrom(fan.rows) ?? 100 }))}</li>`).join('')}</ul>
                 <p class="unc-muted">${escapeHtml(t('calib.gain_short'))}</p>
                 <div>${linkBtn(t('calib.again'), measureAttrs(true))}</div>`,
@@ -1290,7 +1290,7 @@ function main(root: HTMLElement): void {
     function measureSummary(): string {
         const ranges = measuredFans().map(fan => `${fan.label} ${rpmRange(fan.rows)[0]}–${rpmRange(fan.rows)[1]} ${t('fan.rpm')}`);
 
-        return [t('calib.done', { time: berlin(calibOf().table?.time ?? 0) }), ...ranges].join(' · ');
+        return [t('calib.done', { time: dateTime(calibOf().table?.time ?? 0) }), ...ranges].join(' · ');
     }
 
     function minFansHtml(): string {
@@ -1341,7 +1341,7 @@ function main(root: HTMLElement): void {
                     : failed
                       ? t('calib.failed_title')
                       : measured.length
-                        ? t('calib.done', { time: berlin(calibOf().table?.time ?? 0) })
+                        ? t('calib.done', { time: dateTime(calibOf().table?.time ?? 0) })
                         : t('flow.unmeasured')
             },
             min: {
@@ -2325,11 +2325,11 @@ function main(root: HTMLElement): void {
             <text x="${tx}" y="${H * 0.68}" fill="#4a5460" font-size="${(H * 0.15).toFixed(1)}">${escapeHtml(size)}</text>`;
     }
 
-    function ramModule(L: number, H: number, mod: Dimm): string {
+    function ramModule(L: number, H: number, mod: Dimm, connectorTop = false): string {
         const speed = mod.configured_mt || mod.speed_mt;
 
         return `<rect width="${L}" height="${H}" rx="3" fill="#1f6a43" stroke="#2f9a63" stroke-width="1.200"/>
-            ${goldFingers(1, H * 0.86, L - 2, H * 0.12, 64, 26)}
+            ${goldFingers(1, H * (connectorTop ? 0.02 : 0.86), L - 2, H * 0.12, 64, 26)}
             <circle cx="0" cy="${H * 0.42}" r="${H * 0.1}" fill="#0b0d0f"/><circle cx="${L}" cy="${H * 0.42}" r="${H * 0.1}" fill="#0b0d0f"/>
             ${[0, 1, 2, 3].map(i => `<rect x="${L * 0.06 + i * L * 0.225}" y="${H * 0.12}" width="${L * 0.17}" height="${H * 0.46}" rx="1.500" fill="#14171a" stroke="#2b3036" stroke-width=".8"/>`).join('')}
             <rect x="${L * 0.2}" y="${H * 0.3}" width="${L * 0.6}" height="${H * 0.3}" rx="2" fill="#f1f3f5"/>
@@ -2670,31 +2670,37 @@ function main(root: HTMLElement): void {
             </svg>`;
     }
 
-    // DXP4800, Plus and Pro: the service panel on the underside after UGREEN's manual and a photo of the open panel:
-    // two SO-DIMM sockets stacked (RAM 1 on top) and two M.2 slots side by side (M.2-1 at the left), connectors at the bottom.
+    // Plus: issue 297's owner photo shows overlapping SO-DIMM sockets at the right, M2-KEYM1 beside them and
+    // M2-KEYM3 farther left. The Pro retains the manual's layout until its board is compared.
     function inside4800Html(hw: Hardware): string {
+        const plus = Boolean(caseModel(hw).inside4800plus);
+        const m2Left = plus || Boolean(caseModel(hw).m2Left);
+        const ramX = m2Left ? 330 : 0;
         const [m2One, m2Two] = m2Drives(hw);
         const memory = hw.memory;
+        const ramLabel = (y: number, mod: Dimm | undefined, n: number): string => {
+            const sub = mod?.size_mb ? `${fmtRam(mod.size_mb)} ${mod.type || ''}`.trim() : t('case.empty');
+
+            return `${boardText(30, y, t('case.ram_slot', { n }))}<text x="30" y="${y + 14}" style="fill:var(--bd-text2)" font-size="11">${escapeHtml(sub)}</text>`;
+        };
         const ram = (y: number, mod: Dimm | undefined, n: number): string => {
             const filled = Boolean(mod?.size_mb);
-            const socket = `<rect x="30" y="${y}" width="350" height="112" rx="5" style="fill:var(--bd-sock);stroke:var(--bd-sockedge)" stroke-width="2"/><rect x="30" y="${y + 100}" width="350" height="12" rx="3" style="fill:var(--bd-sock2)"/><rect x="22" y="${y + 40}" width="8" height="30" rx="2" fill="#aeb6bf"/><rect x="380" y="${y + 40}" width="8" height="30" rx="2" fill="#aeb6bf"/>`;
-            const body = mod && filled ? `<g transform="translate(35 ${y + 4})">${ramModule(340, 96, mod)}</g>` : '';
-            const sub = mod && filled ? `${fmtRam(mod.size_mb)} ${mod.type || ''}`.trim() : t('case.empty');
-
-            return `${socket}${body}${boardText(30, y + 132, t('case.ram_slot', { n }))}<text x="30" y="${y + 146}" style="fill:var(--bd-text2)" font-size="11">${escapeHtml(sub)}</text>`;
+            const socket = `<rect x="30" y="${y}" width="350" height="112" rx="5" style="fill:var(--bd-sock);stroke:var(--bd-sockedge)" stroke-width="2"/><rect x="30" y="${y + (plus ? 0 : 100)}" width="350" height="12" rx="3" style="fill:var(--bd-sock2)"/><rect x="22" y="${y + 40}" width="8" height="30" rx="2" fill="#aeb6bf"/><rect x="380" y="${y + 40}" width="8" height="30" rx="2" fill="#aeb6bf"/>`;
+            const body = mod && filled ? `<g transform="translate(35 ${y + 4})">${ramModule(340, 96, mod, plus)}</g>` : '';
+            return `${socket}${body}${plus ? '' : ramLabel(y + 132, mod, n)}`;
         };
         const m2 = (x: number, drive: Nvme | undefined, n: number): string => {
             const label = t('in.m2', { n: caseModel(hw).m2Nos?.[n - 1] ?? n });
             const top = 130;
             const len = 330;
-            const frame = `<circle cx="${x + 37}" cy="${top - 16}" r="7" fill="#b87333"/><rect x="${x - 2}" y="${top + len}" width="78" height="10" rx="2" fill="#aeb6bf"/>`;
+            const frame = `<circle cx="${x + 37}" cy="${plus ? top + len + 16 : top - 16}" r="7" fill="#b87333"/><rect x="${x - 2}" y="${plus ? top - 10 : top + len}" width="78" height="10" rx="2" fill="#aeb6bf"/>`;
             if (!drive) {
                 return `${frame}${place(x, top, len, true, `<rect width="${len}" height="74" rx="3" fill="none" style="stroke:var(--bd-sockedge)" stroke-width="2" stroke-dasharray="6 5"/>`)}${boardText(x, top + len + 38, t('in.slot_empty', { label }))}`;
             }
             const role = drive.boot ? t('nvme.boot') : ssdRoleText(drive.role);
             const roleText = role.length > 20 ? `${role.slice(0, 19)}…` : role;
 
-            return `${frame}${place(x, top, len, true, nvmeModule(len, 74, drive))}${tempBadge6800(x, top + len + 24, drive.temp)}${boardText(x, top + len + 54, label)}${roleText ? boardText(x, top + len + 68, roleText) : ''}`;
+            return `${frame}${place(x, top, len, true, nvmeModule(len, 74, drive, plus))}${tempBadge6800(x, top + len + 24, drive.temp)}${boardText(x, top + len + 54, label)}${roleText ? boardText(x, top + len + 68, roleText) : ''}`;
         };
 
         return `
@@ -2707,11 +2713,10 @@ function main(root: HTMLElement): void {
                 <rect x="120" y="40" width="760" height="560" rx="4" fill="url(#unc-ribs)"/>
                 <g transform="translate(120 40)">
                     <circle cx="420" cy="22" r="8" fill="#b87333"/><circle cx="22" cy="536" r="8" fill="#b87333"/><circle cx="738" cy="22" r="8" fill="#b87333"/><circle cx="738" cy="536" r="8" fill="#b87333"/>
-                    ${ram(40, memory[0], 1)}
-                    ${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}
-                    ${m2(440, m2One, 1)}
-                    ${m2(580, m2Two, 2)}
-                    <g transform="rotate(-90 700 300)"><text x="700" y="318" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text></g>
+                    <g transform="translate(${ramX} 0)">${plus ? `${ram(90, memory[1], 2)}${ram(125, memory[0], 1)}${ramLabel(275, memory[0], 1)}${ramLabel(315, memory[1], 2)}` : `${ram(40, memory[0], 1)}${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}`}</g>
+                    ${m2(plus ? 180 : m2Left ? 40 : 440, m2One, 1)}
+                    ${m2(plus ? 40 : m2Left ? 180 : 580, m2Two, 2)}
+                    ${m2Left ? `<text x="540" y="${plus ? 510 : 440}" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text>` : `<g transform="rotate(-90 700 300)"><text x="700" y="318" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text></g>`}
                 </g>
             </svg>`;
     }

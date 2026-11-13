@@ -4,7 +4,7 @@
 import { errorMessage } from '../../../core/api';
 import type { StatusResponse } from '../../../core/contract';
 import type { PanelButtonsResponse, PanelPowerResponse } from '../../../core/contract-fan-probe';
-import { berlin } from '../../../core/format';
+import { dateTime } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { panelConfirmed, panelEvidence } from '../model-info';
 import { hasBeeper, hasButtons, powerDoubtful } from '../panel-models';
@@ -55,7 +55,7 @@ function drawButtons(ctx: FanCtx): void {
     const read = state.read;
     const states = read
         ? `<div class="unc-fan-tools-status">${pill(t('panel.power'), read.power_readable && read.power !== 'unreadable' ? read.power === 'held' : null, read.power === 'unreadable')}${pill(t('panel.reset'), read.reset === 'unreadable' ? null : read.reset === 'held', read.reset === 'unreadable')}</div>
-           <p class="unc-muted">${escapeHtml(t('panel.read_at', { time: berlin(read.time) }))}</p>`
+           <p class="unc-muted">${escapeHtml(t('panel.read_at', { time: dateTime(read.time) }))}</p>`
         : `<p class="unc-muted">${escapeHtml(t(state.loading ? 'panel.reading' : 'panel.not_read'))}</p>`;
     const error = state.error ? ui.note(escapeHtml(t('panel.read_failed', { error: state.error })), { tone: 'bad', box: true, tag: 'div', ico: 'alert' }) : '';
     const doubt = powerDoubtful(model) ? ui.note(escapeHtml(t('panel.power_doubtful')), { tone: 'warn', box: true, tag: 'div', ico: 'alert' }) : '';

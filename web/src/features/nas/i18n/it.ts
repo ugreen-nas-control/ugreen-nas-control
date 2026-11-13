@@ -3,6 +3,7 @@ import { historyIt } from './parts/history.it';
 import { scheduleIt } from './parts/schedule.it';
 import { panelIt } from './parts/panel.it';
 import { powerIt } from './parts/power.it';
+import { mqttIt } from './parts/mqtt.it';
 import { toolsIt } from './parts/tools.it';
 import type { Key } from './en';
 
@@ -265,6 +266,10 @@ export const it: Record<Key, string> = {
         'Il pannello di servizio sul fondo secondo il manuale UGREEN: due zoccoli RAM, M.2 sotto e accanto; lo slot PCIe si trova nel telaio. La numerazione di RAM 1 / RAM 2 e M.2-1 / M.2-2 è presunta; se il tuo dispositivo è diverso, apri una issue.',
     'case.inside_hint_like_8800plus':
         "L'interno è disegnato sul DXP8800 Plus: la scheda di questo modello non è nota. La numerazione di RAM e M.2 è presunta; apri una issue se il tuo box è diverso.",
+    'case.inside_hint_4800base':
+        'Il pannello di servizio sul fondo secondo il manuale UGREEN e una foto del pannello aperto: due slot M.2 a sinistra, uno zoccolo SO-DIMM alla loro destra (un modulo è montato di fabbrica). Quale SSD si trova in quale slot M.2 è presunto; se il tuo dispositivo è diverso, apri una issue.',
+    'case.inside_hint_4800plus':
+        'Il pannello inferiore, disegnato dalla foto di un proprietario di DXP4800 Plus: socket RAM sovrapposti a destra; M.2-1 (M2-KEYM1) accanto alla RAM e M.2-3 (M2-KEYM3) più a sinistra. Lo slot interno M2-KEYM2 non è mostrato. La numerazione della RAM e la posizione degli SSD negli slot M.2 sono ancora presunte.',
     'case.inside_hint_4800':
         'Il pannello di servizio sul fondo. Gli slot hanno i nomi stampati sulla scheda: M.2-1 è M2-KEYM1 (accanto alla RAM) e M.2-3 è M2-KEYM3; M2-KEYM2 è dentro il case, per il modulo di sistema di fabbrica. La numerazione di RAM 1 / RAM 2 è presunta; se il tuo dispositivo è diverso, apri una issue.',
     'in.slot_empty': '{label} · vuoto',
@@ -552,5 +557,6 @@ export const it: Record<Key, string> = {
     'case.inside_hint_dh':
         "L'interno secondo i render del prodotto UGREEN: i due slot M.2 sul lato della gabbia dei dischi, i due zoccoli RAM sulla scheda madre sotto. La numerazione di entrambe le coppie è ipotizzata; apri una issue se il tuo box è diverso. Il secondo zoccolo RAM viene dalle specifiche di UGREEN; le foto mostrano un SO-DIMM.",
     ...panelIt,
-    ...powerIt
+    ...powerIt,
+    ...mqttIt
 };

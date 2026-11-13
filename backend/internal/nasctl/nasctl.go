@@ -388,7 +388,10 @@ func (c *Ctl) pubStart() int {
 	return 0
 }
 
-func (c *Ctl) pubStop() { c.terminate(c.Env.PubPidFile, 30) }
+func (c *Ctl) pubStop() {
+	c.terminate(c.Env.PubPidFile, 30)
+	_ = os.Remove(c.Env.PubStatus)
+}
 
 // ledModel is the first line of the DMI product name.
 func (c *Ctl) ledModel() string {

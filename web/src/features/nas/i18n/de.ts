@@ -3,6 +3,7 @@ import { historyDe } from './parts/history.de';
 import { scheduleDe } from './parts/schedule.de';
 import { panelDe } from './parts/panel.de';
 import { powerDe } from './parts/power.de';
+import { mqttDe } from './parts/mqtt.de';
 import { toolsDe } from './parts/tools.de';
 import type { Key } from './en';
 
@@ -265,6 +266,10 @@ export const de: Record<Key, string> = {
         'Die Wartungsklappe an der Unterseite nach dem UGREEN-Handbuch: zwei RAM-Sockel, M.2 darunter und daneben; der PCIe-Slot sitzt im Rahmen. Die Nummerierung von RAM 1 / RAM 2 und M.2-1 / M.2-2 ist angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
     'case.inside_hint_like_8800plus':
         'Das Innere ist nach dem DXP8800 Plus gezeichnet: die Platine dieses Modells ist nicht bekannt. Die Nummerierung von RAM und M.2 ist angenommen; öffne ein Issue, wenn deine Box abweicht.',
+    'case.inside_hint_4800base':
+        'Die Wartungsklappe an der Unterseite nach UGREENs Handbuch und einem Foto der geöffneten Klappe: zwei M.2-Slots links, rechts daneben ein SO-DIMM-Sockel (ab Werk ist ein Modul eingebaut). Welche SSD in welchem M.2-Slot steckt, ist angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
+    'case.inside_hint_4800plus':
+        'Das Servicefach an der Unterseite nach dem Foto eines DXP4800-Plus-Besitzers: überlappende RAM-Sockel rechts; M.2-1 (M2-KEYM1) neben dem RAM und M.2-3 (M2-KEYM3) weiter links. Der interne Steckplatz M2-KEYM2 ist nicht dargestellt. RAM-Nummerierung und SSD-Zuordnung zu den M.2-Slots sind weiterhin angenommen.',
     'case.inside_hint_4800':
         'Die Wartungsklappe an der Unterseite. Die Slots heißen wie auf der Platine aufgedruckt: M.2-1 ist M2-KEYM1 (neben dem RAM), M.2-3 ist M2-KEYM3; M2-KEYM2 liegt im Gehäuse, für das Systemmodul ab Werk. Die Nummerierung von RAM 1 / RAM 2 ist angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
     'in.slot_empty': '{label} · leer',
@@ -552,5 +557,6 @@ export const de: Record<Key, string> = {
     'case.inside_hint_dh':
         'Das Innere nach UGREENs Produktrenderings: die beiden M.2-Steckplätze an der Seite des Laufwerkskäfigs, die beiden RAM-Sockel auf dem Mainboard darunter. Die Nummerierung beider Paare ist angenommen; bei Abweichung bitte ein Issue öffnen. Der zweite RAM-Sockel stammt aus UGREENs Spezifikationstext, die Fotos zeigen ein SO-DIMM.',
     ...panelDe,
-    ...powerDe
+    ...powerDe,
+    ...mqttDe
 };

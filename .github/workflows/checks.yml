@@ -52,6 +52,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           BASE_REF: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           set -euo pipefail
           full() { printf '%s=true\n' go web shell workflows >>"$GITHUB_OUTPUT"; echo "full run: $1"; exit 0; }
@@ -412,6 +413,7 @@ jobs:
           case "$HEAD_REF" in
             release/*) echo "Release branch: guard skipped."; exit 0 ;;
           esac
+          if [ "$HEAD_REF" = main ] && [ "$SAME_REPO" = true ]; then echo "Back-merge from main: guard skipped."; exit 0; fi
           if printf '%s\n' "$files" | grep -Eq '^[a-z_]+ (plugin/ugreen-nas-control\.plg|CHANGELOG\.md)$'; then
             echo "::error::plugin/ugreen-nas-control.plg and CHANGELOG.md are only changed by the release workflow (branch release/X.Y.Z). Remove them from this PR and add a fragment .changes/<slug>.md instead."
             fail=1

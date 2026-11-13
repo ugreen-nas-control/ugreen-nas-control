@@ -271,6 +271,7 @@ func runDaemon(chip Fans) (runErr error) {
 	var calibCache tableCache
 	lastMode, lastFailsafe, lastMissing := "", "", ""
 	var y yielding
+	var cpuSmooth cpuFilter
 	k := newController()
 	pet := &Petter{}
 	probe := newJobProbe()
@@ -304,6 +305,7 @@ func runDaemon(chip Fans) (runErr error) {
 		}
 		s := readSensors()
 		st := State{Time: time.Now().Unix(), Mode: c.Mode, CPUTemp: s.CPU, Targets: map[string]int{}}
+		s.CPU = cpuSmooth.next(s.CPU, c.CPUCrit)
 
 		if c.Mode != lastMode {
 			logf("fan mode: %s", c.Mode)

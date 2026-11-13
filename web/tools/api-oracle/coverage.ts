@@ -61,7 +61,8 @@ export function errorTexts(): string[] {
         'include/fan_probe.php',
         'include/fan_profile.php',
         'include/panel.php',
-        'include/power_ac.php'
+        'include/power_ac.php',
+        'include/mqtt.php'
     ];
     const out = new Set<string>();
     for (const file of files) {

@@ -15,6 +15,7 @@ require_once __DIR__ . '/include/fan_probe.php';
 require_once __DIR__ . '/include/fan_backlight.php';
 require_once __DIR__ . '/include/panel.php';
 require_once __DIR__ . '/include/power_ac.php';
+require_once __DIR__ . '/include/mqtt.php';
 
 const PLUGIN_DIR = '/usr/local/emhttp/plugins/ugreen-nas-control';
 const FAN_TOOL = PLUGIN_DIR . '/backend/ugreen-nas-fan';
@@ -250,6 +251,9 @@ if ($method === 'GET') {
     }
     if ($action === 'power_ac_get') {
         power_ac_get();
+    }
+    if ($action === 'mqtt_get') {
+        mqtt_get();
     }
     if ($action === 'diag_status') {
         diag_status();
@@ -511,6 +515,12 @@ if ($action === 'panel_power') {
 }
 if ($action === 'power_ac_set') {
     power_ac_set($input);
+}
+if ($action === 'mqtt_set') {
+    mqtt_set($input);
+}
+if ($action === 'mqtt_test') {
+    mqtt_test($input);
 }
 
 if ($action === 'fan_v2') {
