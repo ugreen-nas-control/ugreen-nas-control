@@ -1,6 +1,7 @@
 import type { Model } from './schema';
 
-const BY = 'upstream maintainer (development box)';
+const BY = 'alexanderschubert (maintainer, issue 302)';
+const REF = 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302';
 
 export default {
     id: 'dxp6800-pro',
@@ -29,20 +30,34 @@ export default {
         leds: {
             status: 'verified',
             by: BY,
-            version: '0.7.0',
-            date: '2026-10-24',
-            note: 'LED control shipped in this plugin on 0.7.0, developed on this box; miskcoo verified the protocol on the model too.'
+            ref: REF,
+            version: '5.6.0',
+            date: '2026-11-12',
+            note: 'LED control confirmed on 5.6.0 by the maintainer on the development box.'
         },
-        fans: { status: 'verified', by: BY, version: '0.1.0', date: '2026-10-06', note: 'First version of the plugin: made for this model.' },
+        fans: {
+            status: 'verified',
+            by: BY,
+            ref: REF,
+            version: '5.6.0',
+            date: '2026-11-12',
+            note: 'Fan control confirmed on 5.6.0; fan2, fan3 and fan4 follow their targets.'
+        },
         case: {
             status: 'verified',
             by: BY,
-            version: '0.10.4',
-            date: '2026-10-24',
+            ref: REF,
+            version: '5.6.0',
+            date: '2026-11-12',
             note: 'Inside view (M.2 slots on CPU and chipset, system slot, PCIe slot) and the rear drawn after the device.'
         },
-        sensors: { status: 'verified', by: BY, version: '0.1.0', date: '2026-10-06' },
-        panel: { status: 'expected' }
+        sensors: { status: 'verified', by: BY, ref: REF, version: '5.6.0', date: '2026-11-12' },
+        panel: {
+            status: 'expected',
+            by: BY,
+            ref: REF,
+            note: 'Front panel reported working on 5.6.0; held power-button detection has not been confirmed.'
+        }
     },
     sources: ['https://wundertech.net/best-ugreen-nas/'],
     note: 'Six bays, two M.2 slots plus the internal system slot, a PCIe slot, two 10G LAN ports. Fan control through the IT8613E; the reference model of the plugin.',
