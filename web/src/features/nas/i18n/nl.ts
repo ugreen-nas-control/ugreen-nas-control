@@ -269,6 +269,8 @@ export const nl: Record<Key, string> = {
         'De binnenkant is getekend naar de DXP8800 Plus: het moederbord van dit model is niet bekend. De nummering van RAM en M.2 is aangenomen; open een issue als jouw kast afwijkt.',
     'case.inside_hint_4800base':
         'Het serviceluik aan de onderkant naar de handleiding van UGREEN en een foto van het open luik: twee M.2-slots links, rechts daarvan één SO-DIMM-sokkel (af fabriek zit er een module in). Welke SSD in welk M.2-slot zit, is aangenomen; wijkt jouw apparaat af, open dan een issue.',
+    'case.inside_hint_4800plus':
+        'Het servicepaneel aan de onderkant, getekend naar de foto van een DXP4800 Plus-eigenaar: overlappende RAM-sockets rechts; M.2-1 (M2-KEYM1) naast het RAM en M.2-3 (M2-KEYM3) verder links. Het interne M2-KEYM2-slot wordt niet getoond. De RAM-nummering en de toewijzing van SSD’s aan M.2-slots zijn nog aangenomen.',
     'case.inside_hint_4800':
         'Het serviceluik aan de onderkant. De slots heten zoals op het moederbord gedrukt: M.2-1 is M2-KEYM1 (naast het RAM) en M.2-3 is M2-KEYM3; M2-KEYM2 zit in de behuizing, voor de systeemmodule van de fabriek. De nummering van RAM 1 / RAM 2 is aangenomen; wijkt jouw apparaat af, open dan een issue.',
     'in.slot_empty': '{label} · leeg',
