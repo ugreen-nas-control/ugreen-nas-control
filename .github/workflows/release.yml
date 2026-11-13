@@ -257,12 +257,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      actions: write
       contents: read
       pull-requests: write
     steps:
       - name: Open main -> next PR
         env:
           GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
+          HAVE_TOKEN: ${{ secrets.RELEASE_PR_TOKEN != '' }}
+          WORKFLOW_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.check.outputs.version }}
         run: |
@@ -275,3 +278,7 @@ jobs:
           gh pr create --base next --head main \
             --title "chore: merge main (v${VERSION}) back into next" \
             --body "Brings the release commit of v${VERSION} (rendered plg, CHANGELOG) into next. Use a merge commit; GitHub offers no fast-forward, so it is a trivial merge."
+          if [ "$HAVE_TOKEN" != true ]; then
+            # Events from GITHUB_TOKEN do not start CI on the PR; workflow_dispatch is the exception. ci-ok has no bypass on next.
+            GH_TOKEN="$WORKFLOW_TOKEN" gh workflow run checks.yml --ref main
+          fi
