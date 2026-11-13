@@ -67,12 +67,12 @@ func TestLedSettingsShowEveryKnownKey(t *testing.T) {
 		"bay1_serial=\"WD-WCC4N1234567\"\nsmart_ack_WD_X=\"123\"\nmqtt_pass=\"hunter2\"\nbogus=\"x\"\nui_theme=\"auto\"\n"
 	got := strings.Join(redactCfg([]byte(cfg), 100, ledCfgKey), "\n")
 	for _, want := range []string{"mode=fx", "disk1_color=255 160 0", "disk8_effect=blink", "netdev_speed_2500=0 200 83", "night_start=22:00", "ui_theme=auto",
-		"bay1_serial: <hidden> (set)", "smart_ack_WD_X: <hidden> (set)", "mqtt_pass: <hidden>", "bogus: <hidden>"} {
+		"bay1_serial: <hidden> (set)", "smart_ack_<drive>: <hidden> (set)", "mqtt_pass: <hidden>", "bogus: <hidden>"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q:\n%s", want, got)
 		}
 	}
-	for _, no := range []string{"WD-WCC4N1234567", "hunter2", "=123", "=x"} {
+	for _, no := range []string{"WD-WCC4N1234567", "WD_X", "hunter2", "=123", "=x"} {
 		if strings.Contains(got, no) {
 			t.Errorf("leak %q:\n%s", no, got)
 		}
@@ -939,5 +939,43 @@ func TestDiagMarksACPIZoneUnreliable(t *testing.T) {
 	body := fanSection(FanDiag{Status: []byte(status)}).Body
 	if !strings.Contains(body, "temps: cpu 38 C  board -  acpi zone 28 C (fixed BIOS value on UGREEN boards, unreliable, not used)") {
 		t.Fatalf("section = %s", body)
+	}
+}
+
+func TestSmartAckKeysHideTheDriveId(t *testing.T) {
+	for _, c := range []struct{ cfg, want string }{
+		{`smart_ack_ST4000VN000_1H4168_Z3050XRZ="5=8"`, "smart_ack_<drive>: <hidden> (set)"},
+		{`smart_ack_WD_X=""`, "smart_ack_<drive>: <hidden> (empty)"},
+	} {
+		got := strings.Join(redactCfg([]byte(c.cfg), 100, ledCfgKey), "\n")
+		if got != c.want {
+			t.Errorf("%q -> %q, want %q", c.cfg, got, c.want)
+		}
+	}
+}
+
+func TestHostnameKeepsModelNames(t *testing.T) {
+	models := []RegModel{{ID: "dxp6800-pro", Name: "DXP6800 Pro"}, {ID: "dxp4800-gt", Name: "DXP4800 GT"}}
+	for _, c := range []struct {
+		host string
+		want []string
+	}{
+		{"DXP6800", nil},
+		{"dxp6800.lan", []string{"dxp6800.lan"}},
+		{"dxp4800-gt", nil},
+		{"Tower", []string{"Tower"}},
+		{"unraid.local", []string{"unraid.local", "unraid"}},
+	} {
+		if got := hostnamesToScrub(c.host, models); !slices.Equal(got, c.want) {
+			t.Errorf("%s -> %v, want %v", c.host, got, c.want)
+		}
+	}
+	a := Anon{Hostnames: hostnamesToScrub("DXP6800", models)}
+	if got := a.Text("model: UGREEN DXP6800 Pro\nregistry: dxp6800-pro (DXP6800 Pro)"); strings.Contains(got, "<host>") {
+		t.Error(got)
+	}
+	a = Anon{Hostnames: hostnamesToScrub("Tower", models)}
+	if got := a.Text("host Tower up"); got != "host <host> up" {
+		t.Error(got)
 	}
 }
