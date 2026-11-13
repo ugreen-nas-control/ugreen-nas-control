@@ -330,7 +330,7 @@ func (c *Ctl) daemonRun(ctx context.Context) int {
 				var w []string
 				if dev != "" {
 					w = strings.Fields(c.disks[dev])
-					if field(w, 3, "0") == "1" {
+					if c.diskStandby(dev) {
 						brightness = c.standbyBrightness(brightness)
 						if standbyMode == "pulse" {
 							look = "pulse"
