@@ -46,6 +46,11 @@ func (c *loopChip) count() int {
 // state it wrote.
 func runLoop(t *testing.T, cfg string, clock time.Time, rivals []conflict.Conflict, pause bool, s Sensors) (State, *loopChip) {
 	t.Helper()
+	return runLoopRead(t, cfg, clock, rivals, pause, func() Sensors { return s }, nil)
+}
+
+func runLoopRead(t *testing.T, cfg string, clock time.Time, rivals []conflict.Conflict, pause bool, read func() Sensors, observe func()) (State, *loopChip) {
+	t.Helper()
 	dir := t.TempDir()
 	set := func(p *string, name string) {
 		old := *p
@@ -56,6 +61,9 @@ func runLoop(t *testing.T, cfg string, clock time.Time, rivals []conflict.Confli
 	set(&statePath, "state.json")
 	defer func(old string) { historyPath = old }(historyPath)
 	historyPath = ""
+	if observe != nil {
+		historyPath = filepath.Join(dir, "history.sock")
+	}
 	set(&biosPath, "bios")
 	set(&lockPath, "lock")
 	set(&calibPath, "fan_rpm.json")
@@ -70,7 +78,7 @@ func runLoop(t *testing.T, cfg string, clock time.Time, rivals []conflict.Confli
 	}
 	oldTick, oldRead, oldNow, oldDet := tick, readSensors, now, detectConflicts
 	tick = 10 * time.Millisecond
-	readSensors = func() Sensors { return s }
+	readSensors = read
 	now = func() time.Time { return clock }
 	detectConflicts = func() []conflict.Conflict { return rivals }
 	t.Cleanup(func() { tick, readSensors, now, detectConflicts = oldTick, oldRead, oldNow, oldDet })
@@ -89,6 +97,9 @@ func runLoop(t *testing.T, cfg string, clock time.Time, rivals []conflict.Confli
 			break
 		}
 		time.Sleep(5 * time.Millisecond)
+	}
+	if observe != nil {
+		observe()
 	}
 	_ = syscall.Kill(os.Getpid(), syscall.SIGTERM)
 	if err := <-done; err != nil {
@@ -127,5 +138,35 @@ func TestLoopRivalStillYields(t *testing.T) {
 	st, chip := runLoop(t, loopQuiet, mon3am, rival(), false, sens(45, 40))
 	if n := chip.count(); n != 0 || len(st.Conflict) != 1 || st.QuietActive {
 		t.Fatalf("writes %d, state %+v", n, st)
+	}
+}
+
+func TestLoopHistoryKeepsRawCPUSpike(t *testing.T) {
+	reads := 0
+	var answer HistoryAnswer
+	var queryErr error
+	st, chip := runLoopRead(t, v2Base, mon3am, nil, false, func() Sensors {
+		reads++
+		if reads == 3 {
+			return sens(93, 40)
+		}
+		return sens(47, 40)
+	}, func() { answer, queryErr = QueryHistory(historyPath, "1h") })
+	if queryErr != nil {
+		t.Fatal(queryErr)
+	}
+	if st.Failsafe != "" {
+		t.Fatalf("one spike triggered emergency: %s", st.Failsafe)
+	}
+	if st.CPUTemp == nil || *st.CPUTemp != 47 {
+		t.Fatalf("raw status = %v", st.CPUTemp)
+	}
+	if len(answer.CPU) == 0 || answer.CPU[len(answer.CPU)-1] == nil || *answer.CPU[len(answer.CPU)-1] <= 47 {
+		t.Fatalf("history lost the raw 93 C spike: %v", answer.CPU)
+	}
+	for _, duty := range chip.writes["fan2"] {
+		if duty == 255 {
+			t.Fatal("one spike drove fan to 100 %")
+		}
 	}
 }
