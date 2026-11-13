@@ -48,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
+      actions: write
       contents: write
       pull-requests: write
     steps:
@@ -62,6 +63,7 @@ jobs:
         env:
           # PRs from GITHUB_TOKEN do not start CI; RELEASE_PR_TOKEN (optional) does. See release.yml.
           GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
+          HAVE_TOKEN: ${{ secrets.RELEASE_PR_TOKEN != '' }}
           PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
@@ -78,4 +80,8 @@ jobs:
           git push --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
           if [ -z "$(gh pr list --head "$branch" --base next --state open --json number --jq '.[].number')" ]; then
             gh pr create --base next --head "$branch" --title "chore: update flake.lock" --body "Weekly \`nix flake update\`."
+          fi
+          if [ "$HAVE_TOKEN" != true ]; then
+            # workflow_dispatch is the one GITHUB_TOKEN event that starts CI; ci-ok has no bypass on next.
+            GH_TOKEN="$PUSH_TOKEN" gh workflow run checks.yml --ref "$branch"
           fi
