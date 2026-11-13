@@ -143,7 +143,9 @@ function formatter(kind: 'clock' | 'day', timeZone: string | undefined): Intl.Da
     let f = formats.get(key);
     if (!f) {
         const options: Intl.DateTimeFormatOptions =
-            kind === 'clock' ? { timeZone, hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' } : { timeZone, day: '2-digit', month: '2-digit' };
+            kind === 'clock'
+                ? { timeZone, hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' }
+                : { timeZone, day: '2-digit', month: '2-digit' };
         formats.set(key, (f = new Intl.DateTimeFormat('de-DE', options)));
     }
     return f;
