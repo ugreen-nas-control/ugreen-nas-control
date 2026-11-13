@@ -49,11 +49,11 @@ export const friendly = (value: unknown): string =>
         .replace(/\s+/g, ' ')
         .trim();
 
-/** Always day.month.year, 24 h, whatever the UI language: "27.10.2026 23:41". */
-export const berlin = (seconds: number): string =>
+/** Always day.month.year, 24 h, whatever the UI language, in the browser's time zone (or `timeZone`): "27.10.2026 23:41". */
+export const dateTime = (seconds: number, timeZone?: string): string =>
     new Date(seconds * 1000)
         .toLocaleString('de-DE', {
-            timeZone: 'Europe/Berlin',
+            timeZone,
             hour12: false,
             day: '2-digit',
             month: '2-digit',

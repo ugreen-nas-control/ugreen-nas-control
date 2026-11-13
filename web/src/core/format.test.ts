@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { berlin, biosDate, chipName, deg, fmtRam, fmtSize, friendly, linkSpeed, rangeFill, shortCpu, speedShort, speedText, tempClass } from './format';
+import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, linkSpeed, rangeFill, shortCpu, speedShort, speedText, tempClass } from './format';
 
 test('deg', () => {
     expect(deg(51)).toBe('51 °C');
@@ -47,9 +47,10 @@ test('names', () => {
     expect(friendly('Samsung_SSD__850_EVO ')).toBe('Samsung SSD 850 EVO');
 });
 
-test('berlin time is day.month.year 24 h', () => {
-    expect(berlin(1_761_600_000)).toBe('27.10.2025 22:20');
-    expect(berlin(1_767_225_600)).toBe('01.01.2026 01:00');
+test('dateTime is day.month.year 24 h in the given zone', () => {
+    expect(dateTime(1_761_600_000, 'Europe/Berlin')).toBe('27.10.2025 22:20');
+    expect(dateTime(1_767_225_600, 'Europe/Berlin')).toBe('01.01.2026 01:00');
+    expect(dateTime(1_767_225_600, 'Europe/Lisbon')).toBe('01.01.2026 00:00');
 });
 
 test('rangeFill', () => {
