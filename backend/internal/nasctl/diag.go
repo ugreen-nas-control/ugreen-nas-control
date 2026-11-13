@@ -697,11 +697,37 @@ func hostnames() []string {
 	if err != nil || h == "" {
 		return nil
 	}
+	models, _ := loadRegistry(modelsJSON)
+	return hostnamesToScrub(h, models)
+}
+
+// hostnamesToScrub lists the host name and its short form, minus a name that is a word of a registry model name
+// or id: a box called "DXP6800" must not turn "UGREEN DXP6800 Pro" into "UGREEN <host> Pro".
+func hostnamesToScrub(h string, models []RegModel) []string {
+	var out []string
 	short, _, _ := strings.Cut(h, ".")
-	if short != h {
-		return []string{h, short}
+	for _, n := range []string{h, short} {
+		if !isModelWord(n, models) && !slices.Contains(out, n) {
+			out = append(out, n)
+		}
 	}
-	return []string{h}
+	return out
+}
+
+func isModelWord(n string, models []RegModel) bool {
+	for _, m := range models {
+		for _, s := range []string{m.Name, m.ID} {
+			if strings.EqualFold(s, n) {
+				return true
+			}
+			for _, w := range strings.FieldsFunc(s, func(r rune) bool { return r == ' ' || r == '-' }) {
+				if strings.EqualFold(w, n) {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 var scanTimeout = 30 * time.Second
