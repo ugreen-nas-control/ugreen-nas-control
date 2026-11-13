@@ -263,6 +263,8 @@ export const en = {
         "The bottom service panel after UGREEN's manual: two RAM sockets, M.2 below and beside them; the PCIe slot sits inside the frame. RAM 1 / RAM 2 and M.2-1 / M.2-2 are numbered by assumption; open an issue if your box differs.",
     'case.inside_hint_like_8800plus':
         'The inside is drawn after the DXP8800 Plus: the board of this model is not known. RAM and M.2 numbering is assumed; open an issue if your box differs.',
+    'case.inside_hint_4800base':
+        "The underside service panel after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket to their right (a module is fitted at the factory). Which SSD sits in which M.2 slot is assumed; open an issue if your box differs.",
     'case.inside_hint_4800':
         'The underside service panel. The slots are named as printed on the board: M.2-1 is M2-KEYM1 (next to the RAM) and M.2-3 is M2-KEYM3; M2-KEYM2 is inside the case, for the factory system module. RAM 1 / RAM 2 are numbered by assumption; open an issue if your box differs.',
     'in.slot_empty': '{label} · empty',

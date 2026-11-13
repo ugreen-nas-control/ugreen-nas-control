@@ -2672,7 +2672,10 @@ function main(root: HTMLElement): void {
 
     // DXP4800, Plus and Pro: the service panel on the underside after UGREEN's manual and a photo of the open panel:
     // two SO-DIMM sockets stacked (RAM 1 on top) and two M.2 slots side by side (M.2-1 at the left), connectors at the bottom.
+    // m2Left (DXP4800): the M.2 slots at the left running front to back, the single SO-DIMM socket to their right.
     function inside4800Html(hw: Hardware): string {
+        const m2Left = Boolean(caseModel(hw).m2Left);
+        const ramX = m2Left ? 330 : 0;
         const [m2One, m2Two] = m2Drives(hw);
         const memory = hw.memory;
         const ram = (y: number, mod: Dimm | undefined, n: number): string => {
@@ -2707,11 +2710,10 @@ function main(root: HTMLElement): void {
                 <rect x="120" y="40" width="760" height="560" rx="4" fill="url(#unc-ribs)"/>
                 <g transform="translate(120 40)">
                     <circle cx="420" cy="22" r="8" fill="#b87333"/><circle cx="22" cy="536" r="8" fill="#b87333"/><circle cx="738" cy="22" r="8" fill="#b87333"/><circle cx="738" cy="536" r="8" fill="#b87333"/>
-                    ${ram(40, memory[0], 1)}
-                    ${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}
-                    ${m2(440, m2One, 1)}
-                    ${m2(580, m2Two, 2)}
-                    <g transform="rotate(-90 700 300)"><text x="700" y="318" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text></g>
+                    <g transform="translate(${ramX} 0)">${ram(40, memory[0], 1)}${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}</g>
+                    ${m2(m2Left ? 40 : 440, m2One, 1)}
+                    ${m2(m2Left ? 180 : 580, m2Two, 2)}
+                    ${m2Left ? `<text x="540" y="440" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text>` : `<g transform="rotate(-90 700 300)"><text x="700" y="318" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text></g>`}
                 </g>
             </svg>`;
     }

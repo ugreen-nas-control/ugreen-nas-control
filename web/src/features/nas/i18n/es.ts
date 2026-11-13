@@ -258,6 +258,8 @@ export const es: Record<Key, string> = {
         'El panel de servicio de la parte inferior según el manual de UGREEN: dos ranuras de RAM, M.2 debajo y al lado; la ranura PCIe está dentro del bastidor. La numeración de RAM 1 / RAM 2 y M.2-1 / M.2-2 es supuesta; si tu equipo difiere, abre un issue.',
     'case.inside_hint_like_8800plus':
         'El interior está dibujado según el DXP8800 Plus: la placa de este modelo no se conoce. La numeración de RAM y M.2 es supuesta; abre un issue si tu caja es distinta.',
+    'case.inside_hint_4800base':
+        'El panel de servicio de la parte inferior según el manual de UGREEN y una foto del panel abierto: dos slots M.2 a la izquierda y un zócalo SO-DIMM a su derecha (de fábrica lleva un módulo). Qué SSD está en qué slot M.2 es supuesto; si tu equipo difiere, abre un issue.',
     'case.inside_hint_4800':
         'El panel de servicio de la parte inferior. Los slots se llaman como en la placa: M.2-1 es M2-KEYM1 (junto a la RAM) y M.2-3 es M2-KEYM3; M2-KEYM2 está dentro de la carcasa, para el módulo de sistema de fábrica. La numeración de RAM 1 / RAM 2 es supuesta; si tu equipo difiere, abre un issue.',
     'in.slot_empty': '{label} · vacía',
