@@ -440,7 +440,7 @@ func runDaemon(chip Fans) (runErr error) {
 		}
 
 		calib := calibCache.get(calibPath)
-		sample := Sample{At: now(), CPU: s.CPU, CaseTemp: st.CaseTemp, Fans: map[string]FanSample{}}
+		sample := Sample{At: now(), CPU: st.CPUTemp, CaseTemp: st.CaseTemp, Fans: map[string]FanSample{}}
 		if !errors.Is(err, hw.ErrLockTimeout) { // the lock is busy: no second wait in the same tick
 			_ = withLock(func() error {
 				for _, ch := range chip.Outputs() {
