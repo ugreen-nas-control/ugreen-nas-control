@@ -53,6 +53,8 @@ export interface CaseModel {
     sys?: boolean;
     // Numbers printed on the board for the two M.2 slots drawn, when they are not 1 and 2.
     m2Nos?: [number, number];
+    // inside4800: the M.2 slots at the left and the SO-DIMM socket to their right (DXP4800).
+    m2Left?: boolean;
     hint?: Key;
     noInside?: boolean;
     screen?: boolean;
@@ -339,8 +341,9 @@ export const CASE_MODELS: [RegExp, CaseModel][] = [
             lanLabels: ['LAN 2.5G', 'LAN 2.5G'],
             rear: [],
             inside4800: true,
-            m2Nos: [1, 3],
-            hint: 'case.inside_hint_4800'
+            m2Left: true,
+            ramSlots: 1,
+            hint: 'case.inside_hint_4800base'
         }
     ],
     [

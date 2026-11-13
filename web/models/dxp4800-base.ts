@@ -47,7 +47,7 @@ export default {
             version: '5.6.0',
             date: '2026-11-12',
             ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
-            note: "Reported working on 5.6.0 (#299): two 2.5G LAN ports (Intel I226-V), drawn on the rear. Inside view after UGREEN's manual; the M.2 slot numbering is assumed (the two NVMe drives sit on root ports 00:1d.2 and 00:1d.0)."
+            note: "Reported working on 5.6.0 (#299): two 2.5G LAN ports (Intel I226-V), drawn on the rear. Inside view after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket; which SSD sits in which M.2 slot is assumed (the two NVMe drives sit on root ports 00:1d.2 and 00:1d.0)."
         },
         sensors: {
             status: 'community',
