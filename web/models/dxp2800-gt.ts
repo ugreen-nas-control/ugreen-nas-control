@@ -29,7 +29,7 @@ export default {
         },
         case: {
             status: 'expected',
-            note: "Inside after UGREEN's manual; slot numbering assumed. Front and rear after the product photos, not compared on a device."
+            note: "Inside after UGREEN's manual; M.2 numbering and bay order assumed. Front and rear after the product photos, not compared on a device."
         },
         sensors: { status: 'expected' },
         panel: { status: 'expected', note: "Buttons from UGREEN's driver source; the vendor driver has no beeper for this model." }
