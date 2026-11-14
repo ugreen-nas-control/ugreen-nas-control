@@ -161,6 +161,7 @@ workflows-lint:
 [group('check')]
 workflows-policy-test:
     bun test scripts/workflows-policy.test.ts
+    bun test scripts/release-issues.test.ts
 
 # Fake Unraid on php -S around the plugin files, API from the fixture of one model in web/models/: just harness dxp4800-gt
 [group('dev')]

@@ -447,7 +447,7 @@ jobs:
       - uses: ./.github/actions/prefetch-nix-src # zizmor: ignore[self-repository] actionlint rejects the $/ form
       - run: nix develop .#lint -c actionlint
       - run: nix develop .#lint -c zizmor --offline .github/workflows
-      - run: nix develop .#lint -c bash -c 'bun test scripts/workflows-policy.test.ts && bun scripts/workflows-policy.ts'
+      - run: nix develop .#lint -c bash -c 'bun test scripts/workflows-policy.test.ts scripts/release-issues.test.ts && bun scripts/workflows-policy.ts'
 
   # The release PR (release/X.Y.Z -> main): rebuild from the branch and compare with the draft release the
   # Release workflow created. The archive is reproducible, so any difference is a bad or tampered build.
