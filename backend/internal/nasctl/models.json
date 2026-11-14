@@ -70,7 +70,7 @@
       "id": "dx4600-pro",
       "name": "DX4600 Pro",
       "series": "DX",
-      "dmiPattern": "^DX4600 Pro$",
+      "dmiPattern": "^DX4600 Pro",
       "fixtureDmi": "DX4600 Pro",
       "cpu": "Intel Pentium Silver N6005",
       "bays": 4,
@@ -97,6 +97,37 @@
         "panel": { "status": "expected", "note": "Buttons from UGREEN's driver source; the vendor driver has no beeper for this model." }
       },
       "note": "First-generation four-bay model, no longer listed on the UGREEN store. Two 2.5G LAN ports, two M.2 slots, two DDR4 sockets. Case view; no fan control."
+    },
+    {
+      "id": "dx4600-variants",
+      "name": "DX4600 variants",
+      "series": "DX",
+      "dmiPattern": "^DX4600([+]| Plus)",
+      "fixtureDmi": "DX4600+",
+      "cpu": null,
+      "bays": 4,
+      "m2Slots": null,
+      "m2": null,
+      "lan": null,
+      "led": "bays",
+      "caseView": "front-rear",
+      "fan": null,
+      "overall": "expected",
+      "verified": {
+        "leds": {
+          "status": "expected",
+          "ref": "https://github.com/miskcoo/ugreen_leds_controller/pull/126",
+          "note": "Keep recognition of other DX4600-family names, including DX4600+, without assigning the Pro CPU or other specifications to them. Upstream PR 126 includes DX4600+ in its legacy protocol discovery path but reports hardware testing only on the plain DX4600. This variant and its bay order remain unconfirmed with this plugin."
+        },
+        "fans": { "status": "unsupported" },
+        "case": {
+          "status": "expected",
+          "note": "Front and rear use the existing family drawing. No inside view: RAM and M.2 layout are unknown for these variants."
+        },
+        "sensors": { "status": "expected" },
+        "panel": { "status": "expected", "note": "DX4600-family driver data only; not confirmed on these variants." }
+      },
+      "note": "Other DX4600-family variants: specifications and physical layout remain unconfirmed. No fan control."
     },
     {
       "id": "dx4700",
