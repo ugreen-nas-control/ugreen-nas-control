@@ -262,10 +262,11 @@ type ecBeeper struct {
 var errECTimeout = errors.New("embedded controller timeout")
 
 func (e *ecBeeper) locked(fn func() error) error {
+	transaction := func() error { return hw.WithECLock(fn) }
 	if e.lock != nil {
-		return e.lock(fn)
+		return e.lock(transaction)
 	}
-	return hw.WithLock(fn)
+	return hw.WithLock(transaction)
 }
 
 func (e *ecBeeper) waitFlag(flag byte, set bool) error {
