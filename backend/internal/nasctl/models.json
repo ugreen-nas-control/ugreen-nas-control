@@ -431,7 +431,7 @@
           "version": "5.2.0",
           "date": "2026-11-05",
           "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/184",
-          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. RAM numbering and the SSD-to-slot mapping are still assumed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
+          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. The owner confirmed the SSD-to-slot mapping in #297: root port 00:06.2 is M2-KEYM1 beside the RAM, 00:06.0 is M2-KEYM3 farther left (API slots m2-1 and m2-2 respectively). RAM numbering and the internal M2-KEYM2 root port remain unconfirmed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
         },
         "sensors": {
           "status": "expected",
@@ -775,7 +775,7 @@
       "verified": {
         "leds": {
           "status": "expected",
-          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet."
+          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. A non-Pro owner confirmed the MCU at 0x3a on I801 (not DesignWare) under Ubuntu and reported that the I801 bus is visible again on Unraid 7.3.4 / kernel 6.18.58 with pinctrl_meteorlake and intel_lpss_pci loaded (miskcoo issue 93); LED writes with this plugin remain unconfirmed. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet."
         },
         "fans": {
           "status": "expected",

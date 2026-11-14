@@ -26,7 +26,7 @@ export default {
     verified: {
         leds: {
             status: 'expected',
-            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet.'
+            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. A non-Pro owner confirmed the MCU at 0x3a on I801 (not DesignWare) under Ubuntu and reported that the I801 bus is visible again on Unraid 7.3.4 / kernel 6.18.58 with pinctrl_meteorlake and intel_lpss_pci loaded (miskcoo issue 93); LED writes with this plugin remain unconfirmed. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet.'
         },
         fans: {
             status: 'expected',
@@ -43,7 +43,8 @@ export default {
         'https://ai.ugreen.com/products/ugreen-idx6011-32gb-ai-nas',
         'https://ai.ugreen.com/products/ugreen-idx6011-pro-ai-nas',
         'https://nascompares.com/2026/01/21/ugreen-idx6011-pro-ai-nas-review/',
-        'https://github.com/noodlemctwoodle/unraid-ugreen-idx6011-pro'
+        'https://github.com/noodlemctwoodle/unraid-ugreen-idx6011-pro',
+        'https://github.com/miskcoo/ugreen_leds_controller/issues/93'
     ],
     note: 'Six bays, two M.2 slots, a display at the front (Pro: 3.7 inch LCD), two 10G LAN ports, two Thunderbolt 4 ports, OCuLink. Fan control on the Pro only; the plain iDX6011 and iDX6012 show fan readings only (read-only).',
     shots: true,
