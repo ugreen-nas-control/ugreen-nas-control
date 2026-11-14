@@ -4,7 +4,7 @@ export default {
     id: 'dx4600-pro',
     name: 'DX4600 Pro',
     series: 'DX',
-    dmiPattern: '^DX4600',
+    dmiPattern: '^DX4600 Pro',
     fixtureDmi: 'DX4600 Pro',
     cpu: 'Intel Pentium Silver N6005',
     ram: { type: 'DDR4', mt: 3200 },

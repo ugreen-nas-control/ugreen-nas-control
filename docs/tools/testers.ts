@@ -1,6 +1,7 @@
 /** People credited in the README (rendered by gen-docs.ts). Add the reporter's GitHub login when a model report is recorded (docs/hardware.md). */
 export const TESTERS: { login: string; did: string }[] = [
-    { login: 'deiviest', did: 'Plain iDX6011: LED confirmation and ug-fand EC coexistence report (#318)' },
+    { login: 'sbbbsbbb', did: 'Non-Pro DX4600: upstream CLI LED control test on DSM (miskcoo PR 132)' },
+    { login: 'deiviest', did: 'Plain iDX6011: LED control, Identify, standby status and EC coexistence report (#318)' },
     { login: '321chills', did: 'DXP2800 GT: wiring research and fan control test' },
     { login: 'miskcoo', did: 'LED protocol and bay mapping (ugreen_leds_controller driver)' },
     { login: 'datarepos76', did: 'DXP480T Plus: power LED reports (#145), DXP480T Plus report with diag (#271)' },

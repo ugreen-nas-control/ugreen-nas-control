@@ -2,6 +2,7 @@ package fan
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"sync"
@@ -92,8 +93,6 @@ func runLoopRead(t *testing.T, cfg string, clock time.Time, rivals []conflict.Co
 	for time.Now().Before(deadline) {
 		if b, err := os.ReadFile(statePath); err == nil && json.Unmarshal(b, &st) == nil && st.Time > 0 {
 			time.Sleep(60 * time.Millisecond) // a few more ticks
-			b, _ = os.ReadFile(statePath)
-			_ = json.Unmarshal(b, &st)
 			break
 		}
 		time.Sleep(5 * time.Millisecond)
@@ -101,6 +100,9 @@ func runLoopRead(t *testing.T, cfg string, clock time.Time, rivals []conflict.Co
 	if observe != nil {
 		observe()
 	}
+	// The observer may wait for a later sample; return the state after that observation.
+	b, _ := os.ReadFile(statePath)
+	_ = json.Unmarshal(b, &st)
 	_ = syscall.Kill(os.Getpid(), syscall.SIGTERM)
 	if err := <-done; err != nil {
 		t.Fatal(err)
@@ -143,6 +145,7 @@ func TestLoopRivalStillYields(t *testing.T) {
 
 func TestLoopHistoryKeepsRawCPUSpike(t *testing.T) {
 	reads := 0
+	recovered := make(chan struct{})
 	var answer HistoryAnswer
 	var queryErr error
 	st, chip := runLoopRead(t, v2Base, mon3am, nil, false, func() Sensors {
@@ -150,16 +153,31 @@ func TestLoopHistoryKeepsRawCPUSpike(t *testing.T) {
 		if reads == 3 {
 			return sens(93, 40)
 		}
+		if reads == 5 {
+			// Starting the fifth read means the fourth (47 C) state and history sample
+			// were published. A fixed sleep can stop on the spike on a busy race runner.
+			close(recovered)
+		}
 		return sens(47, 40)
-	}, func() { answer, queryErr = QueryHistory(historyPath, "1h") })
+	}, func() {
+		select {
+		case <-recovered:
+			answer, queryErr = QueryHistory(historyPath, "1h")
+		case <-time.After(5 * time.Second):
+			queryErr = errors.New("daemon did not publish the recovery sample")
+		}
+	})
 	if queryErr != nil {
 		t.Fatal(queryErr)
 	}
 	if st.Failsafe != "" {
 		t.Fatalf("one spike triggered emergency: %s", st.Failsafe)
 	}
-	if st.CPUTemp == nil || *st.CPUTemp != 47 {
-		t.Fatalf("raw status = %v", st.CPUTemp)
+	if st.CPUTemp == nil {
+		t.Fatal("raw CPU status is missing")
+	}
+	if *st.CPUTemp != 47 {
+		t.Fatalf("raw status = %d, want 47", *st.CPUTemp)
 	}
 	if len(answer.CPU) == 0 || answer.CPU[len(answer.CPU)-1] == nil || *answer.CPU[len(answer.CPU)-1] <= 47 {
 		t.Fatalf("history lost the raw 93 C spike: %v", answer.CPU)

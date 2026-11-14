@@ -233,7 +233,7 @@ func TestLayoutFor(t *testing.T) {
 	if len(l.bayPorts) != 4 || l.bayPorts[3] != 4 || l.slots["0000:00:01.4"] != "m2-1" || l.slots["0000:00:01.6"] != "m2-2" {
 		t.Errorf("DXP4800 GT: %+v", l)
 	}
-	for _, model := range []string{"DXP4800 Plus", "DXP4800", "DXP4800 Pro"} {
+	for _, model := range []string{"DXP4800", "DXP4800 Pro"} {
 		if l := layoutFor(model); len(l.bayPorts) != 4 || l.bayPorts[0] != 1 || l.otherSlot != "m2" || l.slots != nil {
 			t.Errorf("%q: %+v", model, l)
 		}
@@ -288,9 +288,29 @@ func TestReadHardwareDXP4800Plus(t *testing.T) {
 	if len(hw.Bays) != 4 {
 		t.Errorf("bays: %+v", hw.Bays)
 	}
+	// The fake tree includes both reported root ports and two unconfirmed ones.
+	// IDs are intentionally unlike the report: placement must follow the root port.
+	want := map[string]string{"nvme0": "m2-1", "nvme1": "m2", "nvme2": "m2", "nvme3": "m2-2"}
+	if len(hw.NVMe) != len(want) {
+		t.Fatalf("NVMe: %+v", hw.NVMe)
+	}
 	for _, d := range hw.NVMe {
-		if d.Slot != "m2" {
-			t.Errorf("%s in slot %q", d.ID, d.Slot)
+		if d.Slot != want[d.ID] {
+			t.Errorf("%s in slot %q, want %q", d.ID, d.Slot, want[d.ID])
+		}
+	}
+	// A reboot may change controller enumeration, but not the root port wiring.
+	class := filepath.Join(sysDir, "class", "nvme")
+	if err := os.Rename(filepath.Join(class, "nvme0"), filepath.Join(class, "nvme4")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(filepath.Join(class, "nvme3"), filepath.Join(class, "nvme0")); err != nil {
+		t.Fatal(err)
+	}
+	want["nvme0"], want["nvme4"] = "m2-2", "m2-1"
+	for _, d := range ReadHardware().NVMe {
+		if d.Slot != want[d.ID] {
+			t.Errorf("after enumeration change: %s in slot %q, want %q", d.ID, d.Slot, want[d.ID])
 		}
 	}
 }

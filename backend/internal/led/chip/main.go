@@ -41,7 +41,7 @@ lpss-probe DXP2800 SUB2 boards: the LED controller sits behind an Intel LPSS I2C
           (writes controller registers, never an LED frame) and reads the chip id. Needs no opt-in; LED
           control uses this path by default when every check passes (lpss_leds="0" in leds.cfg turns it off)
 
---bus     the SMBus device (default: the "SMBus I801 adapter")
+--bus     the I2C device (default: auto-detect an adapter)
 --debug   print every step of the DXP2800 SUB2 path (power, bring-up, each transfer) to stderr;
           UNC_LPSS_DEBUG=1 does the same
 --force   use the address even while a kernel driver (led_ugreen) holds it
