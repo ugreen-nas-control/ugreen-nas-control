@@ -2,9 +2,9 @@ import type { Model } from './schema';
 
 export default {
     id: 'idx6011',
-    name: 'iDX6011 / iDX6012 / Pro',
+    name: 'iDX6012 / iDX6011 Pro',
     series: 'iDX',
-    dmiPattern: '^iDX601[12]',
+    dmiPattern: '^iDX601(1 Pro|2)',
     fixtureDmi: 'iDX6011 Pro',
     cpu: 'Intel Core Ultra 5 125H (Pro: Core Ultra 7 255H)',
     ram: { type: 'LPDDR5X', mt: 8400 },
@@ -26,7 +26,7 @@ export default {
     verified: {
         leds: {
             status: 'expected',
-            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. A non-Pro owner confirmed the MCU at 0x3a on I801 (not DesignWare) under Ubuntu and reported that the I801 bus is visible again on Unraid 7.3.4 / kernel 6.18.58 with pinctrl_meteorlake and intel_lpss_pci loaded (miskcoo issue 93); LED writes with this plugin remain unconfirmed. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet.'
+            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet.'
         },
         fans: {
             status: 'expected',
