@@ -74,11 +74,8 @@ stop_daemons() {
 # Fan control: the IT8613E (DXP6800 Pro) or the IT5571 EC (DXP4800 GT) is reached through /dev/port, no kernel module.
 # LEDs only if they were switched on. Both also run at boot. Neither is an install failure.
 start_daemons() {
-    if "${PLUGIN_DIR}/backend/ugreen-nas-fan" probe >/dev/null 2>&1; then
-        "${PLUGIN_DIR}/backend/ugreen-nas-ctl" start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
-    else
-        log "WARNING: No supported fan controller found; only system info and temperatures are available."
-    fi
+    # start honours fan_control="0" before probing the chip; LEDs-only installs must not probe it here.
+    "${PLUGIN_DIR}/backend/ugreen-nas-ctl" start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
     # The shutdown on a held power button (off unless switched on in the settings) needs no fan controller.
     "${PLUGIN_DIR}/backend/ugreen-nas-ctl" power-start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
     if [ -f "${BOOT_DIR}/led.enabled" ]; then

@@ -21,6 +21,29 @@ const (
 
 var lockOverride string
 
+// ECLockPath is shared with ug-fand and ug-paneld (Reevoy24/ugreen-idx6011-panel).
+// Keep our existing hardware lock as well: it also protects Super-I/O and CS201x ports.
+const ECLockPath = "/run/ug-ec.lock"
+
+var ecLockOverride string
+
+// SetECLockPath redirects the cooperative EC lock for tests.
+func SetECLockPath(path string) (restore func()) {
+	old := ecLockOverride
+	ecLockOverride = path
+	return func() { ecLockOverride = old }
+}
+
+// WithECLock serializes one complete EC transaction with other cooperating tools.
+// Callers take their own hardware lock first; never nest the EC lock itself.
+func WithECLock(fn func() error) error {
+	path := ECLockPath
+	if ecLockOverride != "" {
+		path = ecLockOverride
+	}
+	return WithLockAt(path, fn)
+}
+
 // SetLockPath points the lock at another file (tests); the returned func puts the old one back.
 func SetLockPath(path string) (restore func()) {
 	old := lockOverride
