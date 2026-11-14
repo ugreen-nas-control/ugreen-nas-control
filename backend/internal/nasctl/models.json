@@ -431,7 +431,7 @@
           "version": "5.2.0",
           "date": "2026-11-05",
           "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/184",
-          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. RAM numbering and the SSD-to-slot mapping are still assumed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
+          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. The owner confirmed the SSD-to-slot mapping in #297: root port 00:06.2 is M2-KEYM1 beside the RAM, 00:06.0 is M2-KEYM3 farther left (API slots m2-1 and m2-2 respectively). RAM numbering and the internal M2-KEYM2 root port remain unconfirmed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
         },
         "sensors": {
           "status": "expected",
@@ -751,10 +751,47 @@
       "note": "Eight bays, two M.2 slots, two 10G LAN ports and two Thunderbolt 4 ports. LEDs are enabled but nobody has confirmed them."
     },
     {
-      "id": "idx6011",
-      "name": "iDX6011 / iDX6012 / Pro",
+      "id": "idx6011-plain",
+      "name": "iDX6011",
       "series": "iDX",
-      "dmiPattern": "^iDX601[12]",
+      "dmiPattern": "^iDX6011$",
+      "fixtureDmi": "iDX6011",
+      "cpu": "Intel Core Ultra 5 125H",
+      "bays": 6,
+      "m2Slots": 2,
+      "m2": { "slots": ["m2-1", "m2-2"], "pcieSlot": true },
+      "lan": { "maxMbit": [10000, 10000] },
+      "led": "bays",
+      "caseView": "full",
+      "fan": null,
+      "overall": "community",
+      "verified": {
+        "leds": {
+          "status": "community",
+          "by": "deiviest (issue 318)",
+          "version": "5.6.0",
+          "date": "2026-11-14",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/318",
+          "note": "Confirmed on the plain iDX6011 with 5.6.0 and Unraid 7.3.4: MCU at 0x3a on I801, Identify lights LAN and disks 1-6 in front-label order, power colour and brightness changes work. Status mode with activity disabled keeps sleeping drives asleep, dims occupied bays and turns empty bays off. Physical SATA-to-bay mapping checked only for occupied bays 1 and 2; activity remains untested. EC coexistence with ug-fand is tracked separately in #318."
+        },
+        "fans": {
+          "status": "unsupported",
+          "note": "Fan control is not offered on the plain model. The backend can read its two system fans (mode 0x9c/0x9e, duty 0x9d/0x9f, tach 0x96-0x99), but never writes fan registers. Shared EC access with ug-fand is tracked in #318."
+        },
+        "case": {
+          "status": "expected",
+          "note": "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. Not compared on a device. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
+        },
+        "sensors": { "status": "expected" },
+        "panel": { "status": "expected" }
+      },
+      "note": "Plain six-bay iDX6011: LED control confirmed with 5.6.0. No fan control; read-only fan backend. Activity and full physical bay mapping remain unconfirmed."
+    },
+    {
+      "id": "idx6011",
+      "name": "iDX6012 / iDX6011 Pro",
+      "series": "iDX",
+      "dmiPattern": "^iDX601(1 Pro|2)",
       "fixtureDmi": "iDX6011 Pro",
       "cpu": "Intel Core Ultra 5 125H (Pro: Core Ultra 7 255H)",
       "bays": 6,

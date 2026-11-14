@@ -105,3 +105,12 @@ test('a partly confirmed capability is its own state, never "users", and keeps i
     expect(d.rows.find(r => r.cap === 'panel')).toEqual({ cap: 'panel', state: 'partial', note: 'Beeper only.' });
     expect(d.rows.filter(r => r.state === 'users')).toHaveLength(0);
 });
+
+test('plain iDX6011 LED confirmation does not upgrade the Pro or iDX6012', () => {
+    const plain = deviceInfo('iDX6011')!;
+    expect(plain.rows.find(r => r.cap === 'leds')?.state).toBe('users');
+    expect(plain.rows.find(r => r.cap === 'fans')?.state).toBe('none');
+    for (const name of ['iDX6011 Pro', 'iDX6012']) {
+        expect(deviceInfo(name)?.rows.find(r => r.cap === 'leds')?.state).toBe('untested');
+    }
+});

@@ -71,7 +71,7 @@ type layout struct {
 
 // layoutFor knows the DXP6800 Pro (ata3..ata6, then ata1, ata2; also for the DXP6800 / Plus / +, whose board is assumed the same), the DXP4800 GT, the DXP4800 / Plus / Pro
 // (ata1..ata4), the DXP2800 / DXP2800S / DXP2800 GT (ata1, ata2), the DXP4800S, DX4600 Pro and DX4700+ (ata1..ata4), the DH2600 (ata1, ata2), the DXP6800S / Ultra (ata3..ata6, then ata1, ata2) and the DXP8800 Plus / Ultra (ata1..ata8), the order UGREEN LED Control uses. Only the
-// DXP6800 Pro / DXP6800, DXP8800 Plus and DXP4800 GT have root-port maps of their M.2 slots; on the others an NVMe is just "m2". The DXP480T Plus has four M.2 slots and no bays; of the iDX6011 / iDX6012 / Pro only the M.2 default is known. Any other model: no bays, every NVMe on the PCIe slot.
+// DXP6800 Pro / DXP6800, DXP8800 Plus, DXP4800 Plus and DXP4800 GT have root-port maps of their M.2 slots; on the others an NVMe is just "m2". The DXP480T Plus has four M.2 slots and no bays; of the iDX6011 / iDX6012 / Pro only the M.2 default is known. Any other model: no bays, every NVMe on the PCIe slot.
 //
 // DXP6800 Pro, from an Unraid box with four NVMe: the CPU's root port 00:06.0 is M.2 slot 1
 // (x4, PCIe 4.0), 00:06.2 the PCIe slot (a card with one SSD, negotiated x1), and the
@@ -85,7 +85,15 @@ func layoutFor(model string) layout {
 		}, ""}
 	case strings.HasPrefix(model, "DXP4800 GT"):
 		return layout{[]int{1, 2, 3, 4}, map[string]string{"0000:00:01.4": "m2-1", "0000:00:01.6": "m2-2"}, ""}
-	case model == "DXP4800" || model == "DXP4800 Plus" || model == "DXP4800 Pro":
+	case model == "DXP4800 Plus":
+		// Owner's physical placement, models and sysfs paths (issue 297): Patriot P400L on
+		// 00:06.2 is M2-KEYM1 beside the RAM; X16 on 00:06.0 is M2-KEYM3 farther left.
+		// The API's m2-2 is the second user slot; the case view labels it M.2-3.
+		// Other ports (including the unconfirmed internal M2-KEYM2) stay unknown.
+		return layout{[]int{1, 2, 3, 4}, map[string]string{
+			"0000:00:06.2": "m2-1", "0000:00:06.0": "m2-2",
+		}, "m2"}
+	case model == "DXP4800" || model == "DXP4800 Pro":
 		return layout{bayPorts: []int{1, 2, 3, 4}, otherSlot: "m2"}
 	case strings.HasPrefix(model, "DXP480T"):
 		return layout{otherSlot: "m2"} // all flash: four M.2 slots, no bays
