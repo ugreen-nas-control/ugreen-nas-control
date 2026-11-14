@@ -95,6 +95,8 @@ export const CASE_DEFAULT: CaseModel = {
 };
 
 export const CASE_MODELS: [RegExp, CaseModel][] = [
+    // Plain DX4600 and other variants: keep the family front/rear, but no assumed Pro inside layout.
+    [/^DX4600(?! Pro)/, { front: [], strip: true, powerDot: true, rear4600: true, rear: [], noInside: true }],
     // DX4600 Pro and DX4700+: four bays behind a door, a strip of LEDs (power, LAN, DISK1-4) and nothing else at the
     // front, a big fan and the ports in one row at the back; both after the DX4600 Pro's shop renders. The DX4700+
     // is drawn after it (no photos of its own found). Inside: the board is not shown anywhere, drawn like the DXP4800's.

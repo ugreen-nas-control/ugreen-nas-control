@@ -32,10 +32,45 @@
       "note": "Two bays, two M.2 slots, one 2.5G LAN port. Case view after UGREEN's product renders; sensors only, the plugin drives nothing else on it."
     },
     {
+      "id": "dx4600",
+      "name": "DX4600",
+      "series": "DX",
+      "dmiPattern": "^DX4600$",
+      "fixtureDmi": "DX4600",
+      "cpu": "Intel Celeron N5105",
+      "bays": 4,
+      "m2Slots": null,
+      "m2": null,
+      "lan": null,
+      "led": "bays",
+      "caseView": "front-rear",
+      "fan": null,
+      "overall": "community",
+      "verified": {
+        "leds": {
+          "status": "community",
+          "by": "sbbbsbbb",
+          "ref": "https://github.com/miskcoo/ugreen_leds_controller/pull/132",
+          "note": "The upstream CLI was tested on a non-Pro DX4600 with DSM 7.2.1, kernel 5.10.55+: I801 at 00:1f.4 (8086:4da3), MCU at 0x3a, valid power/network/disk1-4 status checksums, and visually confirmed on/off, colour, brightness and blink. Not tested with this plugin. Physical disk-to-bay LED order remains unconfirmed."
+        },
+        "fans": { "status": "unsupported" },
+        "case": {
+          "status": "expected",
+          "note": "Front and rear use the existing DX4600-family drawing, not compared on the non-Pro. No inside view until the RAM and M.2 layout is established. Bay order remains unconfirmed."
+        },
+        "sensors": { "status": "expected" },
+        "panel": {
+          "status": "expected",
+          "note": "Buttons from UGREEN's DX4600-family driver; not checked on the non-Pro. The driver has no beeper for this family."
+        }
+      },
+      "note": "Non-Pro four-bay model with a Celeron N5105. Other specifications remain unconfirmed here. Front and rear case view; no fan control."
+    },
+    {
       "id": "dx4600-pro",
       "name": "DX4600 Pro",
       "series": "DX",
-      "dmiPattern": "^DX4600",
+      "dmiPattern": "^DX4600 Pro",
       "fixtureDmi": "DX4600 Pro",
       "cpu": "Intel Pentium Silver N6005",
       "bays": 4,
@@ -62,6 +97,37 @@
         "panel": { "status": "expected", "note": "Buttons from UGREEN's driver source; the vendor driver has no beeper for this model." }
       },
       "note": "First-generation four-bay model, no longer listed on the UGREEN store. Two 2.5G LAN ports, two M.2 slots, two DDR4 sockets. Case view; no fan control."
+    },
+    {
+      "id": "dx4600-variants",
+      "name": "DX4600 variants",
+      "series": "DX",
+      "dmiPattern": "^DX4600([+]| Plus)",
+      "fixtureDmi": "DX4600+",
+      "cpu": null,
+      "bays": 4,
+      "m2Slots": null,
+      "m2": null,
+      "lan": null,
+      "led": "bays",
+      "caseView": "front-rear",
+      "fan": null,
+      "overall": "expected",
+      "verified": {
+        "leds": {
+          "status": "expected",
+          "ref": "https://github.com/miskcoo/ugreen_leds_controller/pull/126",
+          "note": "Keep recognition of other DX4600-family names, including DX4600+, without assigning the Pro CPU or other specifications to them. Upstream PR 126 includes DX4600+ in its legacy protocol discovery path but reports hardware testing only on the plain DX4600. This variant and its bay order remain unconfirmed with this plugin."
+        },
+        "fans": { "status": "unsupported" },
+        "case": {
+          "status": "expected",
+          "note": "Front and rear use the existing family drawing. No inside view: RAM and M.2 layout are unknown for these variants."
+        },
+        "sensors": { "status": "expected" },
+        "panel": { "status": "expected", "note": "DX4600-family driver data only; not confirmed on these variants." }
+      },
+      "note": "Other DX4600-family variants: specifications and physical layout remain unconfirmed. No fan control."
     },
     {
       "id": "dx4700",
@@ -812,7 +878,7 @@
       "verified": {
         "leds": {
           "status": "expected",
-          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet."
+          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the LED page offers manual control of it; automatic network status still drives netdev only."
         },
         "fans": {
           "status": "expected",

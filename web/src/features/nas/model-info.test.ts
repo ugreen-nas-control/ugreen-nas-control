@@ -4,6 +4,7 @@ import { type Vars } from '../../core/i18n';
 import { en } from './i18n/en';
 import { type FanKind, type LedKind, type ModelFacts, deviceInfo, modelBox, modelFacts, panelEvidence, type ViewKind } from './model-info';
 import type { Key } from './i18n/en';
+import { caseModel } from './components/front';
 
 const t = (key: Key, vars: Vars = {}): string => en[key].replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? `{${name}}`));
 
@@ -104,6 +105,33 @@ test('a partly confirmed capability is its own state, never "users", and keeps i
     const d = deviceInfo('X1', entry({ leds: ok, fans: ok, case: ok, sensors: ok, panel: { status: 'partial', note: 'Beeper only.' } }))!;
     expect(d.rows.find(r => r.cap === 'panel')).toEqual({ cap: 'panel', state: 'partial', note: 'Beeper only.' });
     expect(d.rows.filter(r => r.state === 'users')).toHaveLength(0);
+});
+
+test('plain DX4600 and Pro have separate specifications and evidence', () => {
+    const plain = registry.models.find(m => new RegExp(m.dmiPattern).test('DX4600'));
+    const pro = registry.models.find(m => new RegExp(m.dmiPattern).test('DX4600 Pro'));
+    expect(plain?.id).toBe('dx4600');
+    expect(plain?.cpu).toBe('Intel Celeron N5105');
+    expect(plain?.m2Slots).toBeNull();
+    expect(plain?.verified.leds.note).toContain('Not tested with this plugin');
+    expect(plain?.verified.leds.note).toContain('bay LED order remains unconfirmed');
+    expect(pro?.id).toBe('dx4600-pro');
+    expect(pro?.cpu).toBe('Intel Pentium Silver N6005');
+    expect(registry.models.filter(m => new RegExp(m.dmiPattern).test('DX4600')).length).toBe(1);
+    expect(registry.models.filter(m => new RegExp(m.dmiPattern).test('DX4600 Pro')).length).toBe(1);
+});
+
+test('DX4600 variants keep recognition without inheriting Pro specifications or its inside drawing', () => {
+    for (const name of ['DX4600+', 'DX4600 Plus']) {
+        const variant = registry.models.find(m => new RegExp(m.dmiPattern).test(name));
+        expect(variant?.id).toBe('dx4600-variants');
+        expect(variant?.cpu).toBeNull();
+        expect(modelFacts(name)?.view).toBe('front-rear');
+        expect(caseModel({ model: name }).noInside).toBe(true);
+    }
+    expect(caseModel({ model: 'DX4600' }).noInside).toBe(true);
+    expect(caseModel({ model: 'DX4600 Pro' }).noInside).not.toBe(true);
+    expect(modelFacts('DX4600 Pro rev2')?.view).toBe('full');
 });
 
 test('plain iDX6011 LED confirmation does not upgrade the Pro or iDX6012', () => {
