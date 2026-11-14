@@ -47,7 +47,7 @@ export default {
             version: '5.2.0',
             date: '2026-11-05',
             ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/184',
-            note: "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. RAM numbering and the SSD-to-slot mapping are still assumed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
+            note: "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. The owner confirmed the SSD-to-slot mapping in #297: root port 00:06.2 is M2-KEYM1 beside the RAM, 00:06.0 is M2-KEYM3 farther left (API slots m2-1 and m2-2 respectively). RAM numbering and the internal M2-KEYM2 root port remain unconfirmed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
         },
         sensors: {
             status: 'expected',

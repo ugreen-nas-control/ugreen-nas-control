@@ -133,3 +133,12 @@ test('DX4600 variants keep recognition without inheriting Pro specifications or 
     expect(caseModel({ model: 'DX4600 Pro' }).noInside).not.toBe(true);
     expect(modelFacts('DX4600 Pro rev2')?.view).toBe('full');
 });
+
+test('plain iDX6011 LED confirmation does not upgrade the Pro or iDX6012', () => {
+    const plain = deviceInfo('iDX6011')!;
+    expect(plain.rows.find(r => r.cap === 'leds')?.state).toBe('users');
+    expect(plain.rows.find(r => r.cap === 'fans')?.state).toBe('none');
+    for (const name of ['iDX6011 Pro', 'iDX6012']) {
+        expect(deviceInfo(name)?.rows.find(r => r.cap === 'leds')?.state).toBe('untested');
+    }
+});
