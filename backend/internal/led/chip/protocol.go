@@ -68,7 +68,8 @@ var modeNames = []string{"off", "on", "blink", "breath"}
 
 // layout names a LED controller family that differs from the DX/DXP one: "idx-pro"
 // (UGREEN iDX6011 Pro: two LAN LEDs, so disk1 is register 3) and "idx" (the same
-// frames, disk1 is register 2). Both write SMBus blocks without the LED ID in the
+// frames, disk1 is register 2). "gt" selects the DXP4800 GT frame on native adapters too.
+// Both iDX layouts write SMBus blocks without the LED ID in the
 // payload and with a big-endian checksum, as the vendor driver does (after klein0r's
 // work on miskcoo/ugreen_leds_controller#93; leds-mcu.c:199-219@c75c5ab). "dxp2800" is
 // the DXP2800: legacy frame with the idx frame as fallback, same LED IDs as the DX/DXP
@@ -117,6 +118,9 @@ func detectLayout(product string) string {
 	}
 	if isCS201xProduct(product) {
 		return layoutCS201x
+	}
+	if product == "DXP4800 GT" {
+		return "gt"
 	}
 	// Exact names, as UGREEN's driver compares them: DXP2800, DXP6800 and DXP6800S take the no-ID frame, 4 LEDs for the
 	// DXP2800, 8 for the DXP6800 and DXP6800S (leds-mcu.c:62-63,171-173,558-561,627-629@c75c5ab; names :93-115). "DXP6800 Pro"

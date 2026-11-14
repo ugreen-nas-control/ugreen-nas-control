@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 )
 
@@ -26,9 +27,9 @@ func newAutoBox(t *testing.T, cfg, i801 string, o sysOpts) *autoBox {
 	if err := os.WriteFile(cfgPath, []byte(cfg), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	oldCS, oldSys, oldDev, oldAns, oldState, oldLock := csPaths.config, i2cSysBus, i2cDevDir, i801Answers, lpssState, lockFile
+	oldCS, oldSys, oldDev, oldAns, oldState, oldLock, oldProbe := csPaths.config, i2cSysBus, i2cDevDir, i801Answers, lpssState, lockFile, nativeProbe
 	t.Cleanup(func() {
-		csPaths.config, i2cSysBus, i2cDevDir, i801Answers, lpssState, lockFile = oldCS, oldSys, oldDev, oldAns, oldState, oldLock
+		csPaths.config, i2cSysBus, i2cDevDir, i801Answers, lpssState, lockFile, nativeProbe = oldCS, oldSys, oldDev, oldAns, oldState, oldLock, oldProbe
 		lpssRefusedMem.Store(false)
 	})
 	csPaths.config = cfgPath
@@ -49,6 +50,12 @@ func newAutoBox(t *testing.T, cfg, i801 string, o sysOpts) *autoBox {
 		}
 	}
 	i801Answers = func(string) bool { b.asked++; return i801 == "ack" }
+	nativeProbe = func(string) error {
+		if i801 == "ack" {
+			return nil
+		}
+		return syscall.ENXIO
+	}
 
 	fakeSys(t, o)
 	fakePM(t, true)
@@ -90,9 +97,9 @@ func TestLPSSDefaultOn(t *testing.T) {
 }
 
 func TestLPSSOptOut(t *testing.T) {
-	// With an I801: the SMBus path, LPSS never touched.
+	// With an empty I801: report the failed native probe, LPSS never touched.
 	b := newAutoBox(t, "lpss_leds=\"0\"\n", "nak", sysOpts{})
-	if path, err := findBus(); err != nil || path != i2cDevDir+"/i2c-0" {
+	if path, err := findBus(); err == nil || path != "" {
 		t.Fatalf("findBus = %q, %v", path, err)
 	}
 	if !b.untouched() {
@@ -117,7 +124,7 @@ func TestLPSSNotUsedWhenI801Answers(t *testing.T) {
 	if path, err := findBus(); err != nil || path != i2cDevDir+"/i2c-0" {
 		t.Fatalf("findBus = %q, %v", path, err)
 	}
-	if b.asked != 1 {
+	if b.asked != 0 {
 		t.Errorf("I801 asked %d times", b.asked)
 	}
 	if !b.untouched() || sysLine(filepath.Join(lpssSys, "bus/pci/devices/0000:00:15.0/power/control")) != "auto" {
@@ -127,7 +134,7 @@ func TestLPSSNotUsedWhenI801Answers(t *testing.T) {
 
 func TestLPSSNoHT32(t *testing.T) {
 	newAutoBox(t, "", "nak", sysOpts{noMCU: true})
-	if path, err := findBus(); err != nil || path != i2cDevDir+"/i2c-0" {
+	if path, err := findBus(); err == nil || path != "" {
 		t.Fatalf("with I801: findBus = %q, %v", path, err)
 	}
 	b := newAutoBox(t, "", "", sysOpts{noMCU: true})
@@ -158,7 +165,7 @@ func TestLPSSBoundChildRefused(t *testing.T) {
 	}
 }
 
-// Not an HT32 board is not a refusal worth caching, and a bound child on a box with an I801 falls back to it.
+// A refusal is cached; later native probe failures must not touch LPSS again.
 func TestLPSSNegativeCache(t *testing.T) {
 	// Passes every read check, bring-up runs, chip id is wrong: refused once, never again this boot.
 	o := bound()
@@ -182,7 +189,7 @@ func TestLPSSNegativeCache(t *testing.T) {
 	}
 
 	for range 3 {
-		if path, err := findBus(); err != nil || path != i2cDevDir+"/i2c-0" {
+		if path, err := findBus(); err == nil || path != "" {
 			t.Fatalf("findBus after the refusal = %q, %v", path, err)
 		}
 		_, _ = openBusAt("", controllerAddr, false)
@@ -193,7 +200,7 @@ func TestLPSSNegativeCache(t *testing.T) {
 
 	// The memory copy alone holds when the state file cannot be written.
 	lpssState = filepath.Join(t.TempDir(), "no/such/dir/state")
-	if path, _ := findBus(); path != i2cDevDir+"/i2c-0" {
+	if path, err := findBus(); err == nil || path != "" {
 		t.Errorf("findBus without a state file = %q", path)
 	}
 }

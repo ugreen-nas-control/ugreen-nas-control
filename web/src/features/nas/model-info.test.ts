@@ -105,3 +105,17 @@ test('a partly confirmed capability is its own state, never "users", and keeps i
     expect(d.rows.find(r => r.cap === 'panel')).toEqual({ cap: 'panel', state: 'partial', note: 'Beeper only.' });
     expect(d.rows.filter(r => r.state === 'users')).toHaveLength(0);
 });
+
+test('plain DX4600 and Pro have separate specifications and evidence', () => {
+    const plain = registry.models.find(m => new RegExp(m.dmiPattern).test('DX4600'));
+    const pro = registry.models.find(m => new RegExp(m.dmiPattern).test('DX4600 Pro'));
+    expect(plain?.id).toBe('dx4600');
+    expect(plain?.cpu).toBe('Intel Celeron N5105');
+    expect(plain?.m2Slots).toBeNull();
+    expect(plain?.verified.leds.note).toContain('Not tested with this plugin');
+    expect(plain?.verified.leds.note).toContain('bay LED order remains unconfirmed');
+    expect(pro?.id).toBe('dx4600-pro');
+    expect(pro?.cpu).toBe('Intel Pentium Silver N6005');
+    expect(registry.models.filter(m => new RegExp(m.dmiPattern).test('DX4600')).length).toBe(1);
+    expect(registry.models.filter(m => new RegExp(m.dmiPattern).test('DX4600 Pro')).length).toBe(1);
+});

@@ -125,7 +125,7 @@ func run(args ...string) (int, string, string) {
 }
 
 func TestCS201xLayoutFromProduct(t *testing.T) {
-	for product, want := range map[string]string{"DXP2800 GT": layoutCS201x, "DXP2800": layoutDXP2800, "DXP4800 GT": "", "DXP2800S": ""} {
+	for product, want := range map[string]string{"DXP2800 GT": layoutCS201x, "DXP2800": layoutDXP2800, "DXP4800 GT": "gt", "DXP2800S": ""} {
 		if got := detectLayout(product); got != want {
 			t.Errorf("%q: %q, want %q", product, got, want)
 		}
