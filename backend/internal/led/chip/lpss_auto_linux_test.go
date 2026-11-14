@@ -50,7 +50,7 @@ func newAutoBox(t *testing.T, cfg, i801 string, o sysOpts) *autoBox {
 		}
 	}
 	i801Answers = func(string) bool { b.asked++; return i801 == "ack" }
-	nativeProbe = func(string) error {
+	nativeProbe = func(string, bool) error {
 		if i801 == "ack" {
 			return nil
 		}
@@ -124,7 +124,7 @@ func TestLPSSNotUsedWhenI801Answers(t *testing.T) {
 	if path, err := findBus(); err != nil || path != i2cDevDir+"/i2c-0" {
 		t.Fatalf("findBus = %q, %v", path, err)
 	}
-	if b.asked != 0 {
+	if b.asked != 1 {
 		t.Errorf("I801 asked %d times", b.asked)
 	}
 	if !b.untouched() || sysLine(filepath.Join(lpssSys, "bus/pci/devices/0000:00:15.0/power/control")) != "auto" {

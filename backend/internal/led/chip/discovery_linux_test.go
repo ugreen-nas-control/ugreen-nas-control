@@ -10,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"testing"
+
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/hw"
 )
 
 func addNativeAdapter(t *testing.T, n, name string) string {
@@ -36,7 +38,7 @@ func TestDiscoveryTriesNativeAdaptersBeforeLPSS(t *testing.T) {
 	addNativeAdapter(t, "3", "i915 gmbus dpa")
 	addNativeAdapter(t, "4", "AMDGPU DM i2c hw bus 0")
 	var asked []string
-	nativeProbe = func(path string) error {
+	nativeProbe = func(path string, _ bool) error {
 		asked = append(asked, path)
 		if path == ten {
 			return nil
@@ -44,12 +46,12 @@ func TestDiscoveryTriesNativeAdaptersBeforeLPSS(t *testing.T) {
 		return syscall.ENXIO
 	}
 	got, err := findBus()
-	want := []string{filepath.Join(i2cDevDir, "i2c-0"), one, two, ten}
+	want := []string{one, two, ten}
 	if err != nil || got != ten || !reflect.DeepEqual(asked, want) {
 		t.Fatalf("findBus = %q, %v; asked %v, want %v", got, err, asked, want)
 	}
-	if box.asked != 0 || !box.untouched() {
-		t.Fatal("native success must not probe or map LPSS")
+	if box.asked != 1 || !box.untouched() {
+		t.Fatal("native success must only perform the fast I801 check, never map LPSS")
 	}
 }
 
@@ -65,7 +67,7 @@ func TestDiscoveryPrefersHT32Adapter(t *testing.T) {
 		t.Fatal(err)
 	}
 	var asked []string
-	nativeProbe = func(path string) error { asked = append(asked, path); return nil }
+	nativeProbe = func(path string, _ bool) error { asked = append(asked, path); return nil }
 	got, err := findBus()
 	want := filepath.Join(i2cDevDir, "i2c-2")
 	if err != nil || got != want || !reflect.DeepEqual(asked, []string{want}) {
@@ -81,7 +83,7 @@ func TestDiscoveryContinuesAfterMissingNodeOrBusyBus(t *testing.T) {
 	if err := os.Remove(zero); err != nil {
 		t.Fatal(err)
 	}
-	nativeProbe = func(path string) error {
+	nativeProbe = func(path string, _ bool) error {
 		if path == one {
 			return syscall.EBUSY
 		}
@@ -95,11 +97,11 @@ func TestDiscoveryContinuesAfterMissingNodeOrBusyBus(t *testing.T) {
 func TestDiscoveryDoesNotSelectAnUnverifiedAdapter(t *testing.T) {
 	newAutoBox(t, "", "", sysOpts{noMCU: true})
 	addNativeAdapter(t, "1", dwAdapter)
-	nativeProbe = func(string) error { return errBadStatus }
+	nativeProbe = func(string, bool) error { return errBadStatus }
 	if got, err := findBus(); got != "" || !errors.Is(err, errBadStatus) {
 		t.Fatalf("findBus = %q, %v", got, err)
 	}
-	nativeProbe = func(string) error { return ErrRejected }
+	nativeProbe = func(string, bool) error { return ErrRejected }
 	if _, err := findBus(); !errors.Is(err, ErrRejected) {
 		t.Fatalf("lost rejected-controller error: %v", err)
 	}
@@ -117,8 +119,8 @@ func TestDiscoveryMissingNodeHasActionableError(t *testing.T) {
 
 func TestPowerOnlyMCUDoesNotProbeAt3a(t *testing.T) {
 	newAutoBox(t, "", "ack", sysOpts{noMCU: true})
-	nativeProbe = func(string) error { t.Fatal("probed 0x3a for the power-only MCU"); return syscall.ENXIO }
-	if path, err := findBusAt(dxp480tAddr); err != nil || path != filepath.Join(i2cDevDir, "i2c-0") {
+	nativeProbe = func(string, bool) error { t.Fatal("probed 0x3a for the power-only MCU"); return syscall.ENXIO }
+	if path, err := findBusAt(dxp480tAddr, false); err != nil || path != filepath.Join(i2cDevDir, "i2c-0") {
 		t.Fatalf("findBusAt = %q, %v", path, err)
 	}
 }
@@ -129,6 +131,7 @@ func TestNativeTransportDoesNotChooseTheWriteFrame(t *testing.T) {
 	for _, tc := range []struct{ product, frame string }{
 		{"DX4600", "legacy"}, {"DX4600 Pro", "legacy"}, {"DXP4800 Plus", "legacy"},
 		{"iDX6011", "idx"}, {"iDX6011 Pro", "idx"}, {"DXP4800 GT", "gt"},
+		{"DXP4800 GT rev2", "gt"}, {"DXP4800GT", "gt"}, {"DXP4800 Pro", "legacy"},
 	} {
 		UseProduct(tc.product)
 		if got := framesFor(false)[0].name; got != tc.frame {
@@ -184,12 +187,66 @@ func TestNativeMCUIdentityIsReadOnlyAndRetries(t *testing.T) {
 func TestLPSSFallbackNeedsEveryI801ToNAK(t *testing.T) {
 	box := newAutoBox(t, "", "nak", sysOpts{})
 	busy := addNativeAdapter(t, "1", "SMBus I801 adapter")
-	nativeProbe = func(string) error { return syscall.ENXIO }
+	nativeProbe = func(string, bool) error { return syscall.ENXIO }
 	i801Answers = func(path string) bool { return path == busy }
 	if got, err := findBus(); got != "" || err == nil {
 		t.Fatalf("findBus = %q, %v", got, err)
 	}
 	if !box.untouched() {
 		t.Fatal("mapped LPSS with an uncertain I801")
+	}
+}
+
+func TestAutomaticDiscoveryPreservesForce(t *testing.T) {
+	newAutoBox(t, "", "ack", sysOpts{noMCU: true})
+	var forced []bool
+	nativeProbe = func(_ string, force bool) error {
+		forced = append(forced, force)
+		if !force {
+			return syscall.EBUSY
+		}
+		return nil
+	}
+	if _, err := findBusAt(controllerAddr, false); !errors.Is(err, syscall.EBUSY) {
+		t.Fatalf("unforced: %v", err)
+	}
+	if got, err := findBusAt(controllerAddr, true); err != nil || got != filepath.Join(i2cDevDir, "i2c-0") {
+		t.Fatalf("forced: %q, %v", got, err)
+	}
+	if !reflect.DeepEqual(forced, []bool{false, true}) {
+		t.Fatalf("force flags: %v", forced)
+	}
+}
+
+func TestAddressScanDoesNotRequireLEDIdentity(t *testing.T) {
+	newAutoBox(t, "", "nak", sysOpts{})
+	nativeProbe = func(string, bool) error { t.Fatal("address scan tried to validate the 0x3a MCU"); return syscall.ENXIO }
+	paths, err := scanBuses("", false)
+	if err != nil || !reflect.DeepEqual(paths, []string{filepath.Join(i2cDevDir, "i2c-0")}) {
+		t.Fatalf("scanBuses: %v, %v", paths, err)
+	}
+}
+
+func TestDiscoveryDoesNotRepeatSharedLockTimeout(t *testing.T) {
+	newAutoBox(t, "", "ack", sysOpts{noMCU: true})
+	addNativeAdapter(t, "1", dwAdapter)
+	calls := 0
+	nativeProbe = func(string, bool) error { calls++; return hw.ErrLockTimeout }
+	if _, err := findBus(); !errors.Is(err, hw.ErrLockTimeout) || calls != 1 {
+		t.Fatalf("findBus: %v, %d lock waits", err, calls)
+	}
+}
+
+func TestLPSSKeepsFastNAKPath(t *testing.T) {
+	box := newAutoBox(t, "", "nak", sysOpts{})
+	nativeProbe = func(string, bool) error {
+		t.Fatal("empty I801 entered slow status/identity retries")
+		return syscall.ENXIO
+	}
+	if got, err := findBus(); err != nil || got != lpssPath {
+		t.Fatalf("findBus: %q, %v", got, err)
+	}
+	if box.asked != 1 || !box.untouched() {
+		t.Fatalf("I801 checks %d; memory untouched %v", box.asked, box.untouched())
 	}
 }

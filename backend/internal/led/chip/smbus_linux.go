@@ -58,17 +58,19 @@ func ioctl(fd, request, arg uintptr) error {
 	return nil
 }
 
-// nativeProbe is read-only and replaced in tests. Never force an address owned by another driver.
+// nativeProbe is read-only and replaced in tests. Only an explicit --force permits an address owned by another driver.
 var nativeProbe = probeNativeMCU
 
 // findBus validates all native candidates before considering a /dev/mem fallback.
 // DXP480T's separate power MCU uses findBusAt with its own address and no 0x3a probe.
-func findBus() (string, error) { return findBusAt(controllerAddr) }
+func findBus() (string, error) { return findBusAt(controllerAddr, false) }
 
-func findBusAt(addr uintptr) (string, error) {
+func findBusAt(addr uintptr, force bool) (string, error) {
 	paths := nativeCandidates()
 	var failures []error
 	var i801 []string
+	canLPSS := addr == controllerAddr && lpssAuto()
+	i801NAK := map[string]bool{}
 	for _, path := range paths {
 		if _, err := os.Stat(path); err != nil {
 			failures = append(failures, fmt.Errorf("%s is missing; load the i2c-dev module (modprobe i2c-dev): %w", path, err))
@@ -77,15 +79,25 @@ func findBusAt(addr uintptr) (string, error) {
 		if addr != controllerAddr {
 			return path, nil
 		}
-		err := nativeProbe(path)
-		if err == nil {
-			return path, nil
-		}
-		failures = append(failures, fmt.Errorf("%s: %w", path, err))
 		name, _ := os.ReadFile(filepath.Join(i2cSysBus, filepath.Base(path), "name"))
 		if strings.HasPrefix(string(name), "SMBus I801 adapter") {
 			i801 = append(i801, path)
+			// Preserve the existing fast NAK check on LPSS boards. Register retries on an
+			// empty I801 would otherwise add hundreds of milliseconds to every LED write.
+			if canLPSS && !i801Answers(path) {
+				i801NAK[path] = true
+				failures = append(failures, fmt.Errorf("%s: %w", path, syscall.ENXIO))
+				continue
+			}
 		}
+		err := nativeProbe(path, force)
+		if err == nil {
+			return path, nil
+		}
+		if errors.Is(err, hw.ErrLockTimeout) {
+			return "", err // the lock is shared by every adapter; another probe would wait again
+		}
+		failures = append(failures, fmt.Errorf("%s: %w", path, err))
 	}
 
 	// A native adapter means the kernel owns that controller: don't bypass it through /dev/mem.
@@ -95,10 +107,10 @@ func findBusAt(addr uintptr) (string, error) {
 			return dwPath, nil
 		}
 	}
-	if lpssAuto() {
+	if canLPSS {
 		allNAK := len(i801) > 0
 		for _, path := range i801 {
-			if i801Answers(path) {
+			if !i801NAK[path] {
 				allNAK = false // busy, timed out or responding: never bypass it on a doubt
 			}
 		}
@@ -156,12 +168,12 @@ func adapterNumber(name string) int {
 	return n
 }
 
-func probeNativeMCU(path string) error {
+func probeNativeMCU(path string, force bool) error {
 	lock, err := acquireLock()
 	if err != nil {
 		return err
 	}
-	b, err := openNativeBus(path, controllerAddr, false, lock)
+	b, err := openNativeBus(path, controllerAddr, force, lock)
 	if err != nil {
 		return err
 	}
@@ -220,7 +232,7 @@ func openBus(path string, force bool) (*bus, error) {
 func openBusAt(path string, addr uintptr, force bool) (*bus, error) {
 	auto := path == ""
 	if auto {
-		found, err := findBusAt(addr)
+		found, err := findBusAt(addr, force)
 		if err != nil {
 			return nil, err
 		}
@@ -398,7 +410,9 @@ func scanBuses(path string, all bool) ([]string, error) {
 		return paths, nil
 	}
 	if path == "" {
-		found, err := findBus()
+		// A scan discovers addresses, including power-only MCUs at 0x26; it must not
+		// require a working LED controller at 0x3a before it can list them.
+		found, err := findBusAt(0, false)
 		if err != nil {
 			return nil, err
 		}

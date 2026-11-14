@@ -119,7 +119,8 @@ func detectLayout(product string) string {
 	if isCS201xProduct(product) {
 		return layoutCS201x
 	}
-	if product == "DXP4800 GT" {
+	// Match the existing AMD memory transport and registry, including DMI revision suffixes.
+	if strings.HasPrefix(product, "DXP4800") && strings.Contains(product, "GT") {
 		return "gt"
 	}
 	// Exact names, as UGREEN's driver compares them: DXP2800, DXP6800 and DXP6800S take the no-ID frame, 4 LEDs for the
