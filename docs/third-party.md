@@ -7,6 +7,8 @@ Maintainers: [Jens Thomas](https://github.com/j3n57h0m45) and [Alexander Schuber
 Prior work this project builds on; licenses and what is used follow below.
 
 - [miskcoo/ugreen_leds_controller](https://github.com/miskcoo/ugreen_leds_controller): LED protocol and bay mapping.
+- [klein0r/ugreen_leds_controller](https://github.com/klein0r/ugreen_leds_controller): the iDX6011 Pro protocol analysis discussed in [upstream #93](https://github.com/miskcoo/ugreen_leds_controller/issues/93).
+- [Reevoy24/ugreen-idx6011-panel](https://github.com/Reevoy24/ugreen-idx6011-panel): the shared EC transaction-lock convention used by ug-fand and ug-paneld; this plugin now cooperates through the same lock. Facts only, no source code copied.
 - [noodlemctwoodle/unraid-ugreen-idx6011-pro](https://github.com/noodlemctwoodle/unraid-ugreen-idx6011-pro) and [omgapuppy/unraid-ugreen-idx6011-led-fan](https://github.com/omgapuppy/unraid-ugreen-idx6011-led-fan): iDX6011 bay order, EC registers, LED frames.
 - [flybrys/UGREEN-DXP4800GT-LED-Driver](https://github.com/flybrys/UGREEN-DXP4800GT-LED-Driver) and [EllipticSet/UGREEN-DXP4800Pro-LEDs](https://github.com/EllipticSet/UGREEN-DXP4800Pro-LEDs): LED controller buses.
 - [IT-Kuny/UGREEN-DXP-FAN-NAS-Driver](https://github.com/IT-Kuny/UGREEN-DXP-FAN-NAS-Driver) and [smashah/ugreen-dxp-fan-cli](https://github.com/smashah/ugreen-dxp-fan-cli): fan chips and PWM channels.

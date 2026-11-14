@@ -1,6 +1,6 @@
 import type { Model } from './schema';
 
-const BY = 'alexanderschubert (maintainer, issue 302)';
+const BY = 'manilx (issue 302)';
 const REF = 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302';
 
 export default {
@@ -28,30 +28,30 @@ export default {
     },
     verified: {
         leds: {
-            status: 'verified',
+            status: 'community',
             by: BY,
             ref: REF,
             version: '5.6.0',
             date: '2026-11-12',
-            note: 'LED control confirmed on 5.6.0 by the maintainer on the development box.'
+            note: 'LED control confirmed by manilx on 5.6.0 (#302). Earlier development and maintainer checks established the protocol on this reference model.'
         },
         fans: {
-            status: 'verified',
+            status: 'community',
             by: BY,
             ref: REF,
             version: '5.6.0',
             date: '2026-11-12',
-            note: 'Fan control confirmed on 5.6.0; fan2, fan3 and fan4 follow their targets.'
+            note: 'Fan control reported working by manilx on 5.6.0 (#302); the diagnostics show the expected fan headers and spinning fans.'
         },
         case: {
-            status: 'verified',
+            status: 'community',
             by: BY,
             ref: REF,
             version: '5.6.0',
             date: '2026-11-12',
-            note: 'Inside view (M.2 slots on CPU and chipset, system slot, PCIe slot) and the rear drawn after the device.'
+            note: 'Case view reported working by manilx on 5.6.0 (#302). The inside and rear drawing and root-port map were established on the maintainer device.'
         },
-        sensors: { status: 'verified', by: BY, ref: REF, version: '5.6.0', date: '2026-11-12' },
+        sensors: { status: 'community', by: BY, ref: REF, version: '5.6.0', date: '2026-11-12' },
         panel: {
             status: 'expected',
             by: BY,
