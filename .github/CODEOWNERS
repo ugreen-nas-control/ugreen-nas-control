@@ -1,5 +1,5 @@
-# Review by a maintainer is required where a change can reach CI secrets, release assets, the published site or code that runs as root on the NAS.
-# Everything else needs no code-owner approval (ruleset: next and main).
+# On main, maintainer approval is required where a change can reach CI secrets, release assets, the published site or code that runs as root on the NAS.
+# On next, these owners are requested for review but approval is optional.
 /.github/ @ugreen-nas-control/maintainers
 /plugin/ @ugreen-nas-control/maintainers
 /web/plugin/ @ugreen-nas-control/maintainers
