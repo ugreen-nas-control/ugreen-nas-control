@@ -34,7 +34,7 @@ Feature PRs target `next`; `main` holds releases only. Branch roles: [docs/relea
 ## Rules
 
 - Never edit `plugin/ugreen-nas-control.plg`, `CHANGELOG.md` or a version number. The release workflow writes them; CI rejects PRs that touch them.
-- Credit reporters and testers in the fragment as `[login](https://github.com/login)`, never `@login` (it notifies them), and add them to `docs/tools/testers.ts`; `just docs-check` enforces it.
+- Follow the [contributor-credit rules](#contributor-credit), including fragment acknowledgements and the shared credits registry.
 - Never commit generated files (JS bundles, PNG icons, `.build/`, the models tables by hand): [docs/development.md](../docs/development.md#generated-files).
 - New texts need keys in every language: [docs/translations.md](../docs/translations.md).
 - Scripts are TypeScript on Bun. No Python, no Node.
@@ -61,6 +61,19 @@ Everything `just check` runs (format, PHP syntax, XML, docs links, models, gener
 | Bug                              | [Bug form](https://github.com/ugreen-nas-control/ugreen-nas-control/issues/new?template=bug.yml)                                                                                                                                                        |
 | New model or what works on yours | [Model report](../docs/cli.md#report-a-model)                                                                                                                                                                                                           |
 | Security problem                 | [SECURITY.md](SECURITY.md)                                                                                                                                                                                                                              |
+
+## Maintainer follow-ups
+
+- Keep public replies short, clear and friendly: acknowledge the result, state what changed and give the next action only if needed. Link technical details instead of repeating them; include commands when they are needed to answer the question.
+- Read new issue and PR comments, reviews, and discussion replies, including updates on closed threads. Check pagination and earlier promises against the code and published builds. Track unfinished work in the existing issue or linked follow-ups.
+- Distinguish a proposed fix, a merge into `next`, a published next build and a published stable release. Use the [status labels](#labels) for partial fixes and outstanding hardware confirmation; do not ask reporters to repeat evidence already supplied.
+
+## Contributor credit
+
+- Credit code, translations, research, reviews, bug reports and hardware testing. Describe each person's actual contribution and link the source PR or report; do not infer authorship from the PR opener alone.
+- Preserve original authors and `Co-authored-by` trailers when taking over, cherry-picking or squashing work. Check incorporated commits and PR discussions for contributors whose work would otherwise disappear from the final commit history.
+- Before merging, include acknowledgements in the change fragment as `[login](https://github.com/login)`, never `@login` (it notifies them), and add or update their role in `docs/tools/testers.ts`. This registry feeds README and website credits; `just docs-check` checks registered identities. Use only verified identities and contributions.
+- Before publication, compare the draft changelog and release acknowledgements with the original contributions, including work without commits. Follow the [release review](../docs/releasing.md#release); generated author lists alone cannot establish every contributor's role.
 
 ## Labels
 

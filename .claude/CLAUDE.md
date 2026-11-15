@@ -13,6 +13,11 @@
 - Stack: TypeScript on Bun, Go. No Python, no Node. No new dependency, tool, top-level file/folder or workflow without need.
 - Docs: look up via docs/README.md (one line per file). One topic per file, one home per fact, links elsewhere: versions → docs/releasing.md#versions, languages → docs/translations.md, model reporting → docs/cli.md#report-a-model, watchdog → docs/watchdog.md. New doc = a line in docs/README.md (`just docs-check` fails otherwise); current facts only, no dates or history.
 - Comments: only facts the code cannot show. → .github/CONTRIBUTING.md
+- Public replies: short, clear and friendly; audit promises across issues, PRs and discussions before replying. → .github/CONTRIBUTING.md#maintainer-follow-ups
+- Fan diagnosis: check the driver's safety floor before suggesting lower settings. → docs/fan.md#fan-probe-for-unknown-wiring
+- Hardware evidence: test sequentially, verify restoration, name the model and tested artifact, and distinguish readback from visual confirmation. → docs/development.md#testing-on-a-real-nas
+- Contributor credit: acknowledge code, translations, research, reviews, reports and testing; preserve original authors and co-authors when taking over or squashing work. → .github/CONTRIBUTING.md#contributor-credit
+- Release review: verify contributor acknowledgements, actual approval requirements and publication before announcing availability or closing reports. → docs/releasing.md#release
 - PR labels: one type (matches the fragment type) + areas, `needs hardware test` when registers are written. → .github/CONTRIBUTING.md
 - Outside PRs: never push to a contributor's fork, not even via "Allow edits by maintainers". If it needs formatting or a fragment, first comment on the PR what you add and where; then take their commits unchanged onto a branch in this repo, add yours on top, open a PR that supersedes theirs and merge it with a merge commit (their PR shows as merged). Pure translation PRs get `no-changelog`; the credit goes into the follow-up PR's fragment.
 

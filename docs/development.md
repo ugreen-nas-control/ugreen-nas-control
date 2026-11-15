@@ -81,6 +81,8 @@ Generated files (`.gitattributes`) are not formatted by hand: their generators c
 
 The LED controller integration tests run `ledctl` through the real chip command layer against a stateful GT MCU model: blink resets brightness, off clears it, and acknowledged writes can remain unapplied. They check exact Identify round trips across modes and brightness levels, including the captured expiry token and failed-restoration retry. The UI harness and shell parity fixtures do not model those MCU effects; passing them alone does not establish hardware behaviour. Identify parity still checks output, final state and command counts, while allowing the changed restoration order.
 
+Tests of advertised limits, effective targets and calibration must include the driver's clamping behaviour. A fake that simply echoes the requested duty cannot expose a disagreement between those layers.
+
 Test fixtures redirect hardware/status paths into their temporary root. The parity harness uses the real process table only to validate child-process ownership. Sandbox scripts retain the production empty environment; tests that need external utilities resolve their absolute paths before starting the script.
 
 ## Add a model
@@ -100,6 +102,10 @@ Status words: [hardware.md](hardware.md#how-verification-works). Users report mo
 - After an incident, add the gotcha to the doc of the matching topic.
 
 ## Testing on a real NAS
+
+- Run tests that change fan or LED settings sequentially. Save the starting configuration, restore it after each test and verify both saved settings and live state before starting another test.
+- Record the exact model, plugin build and installed binary checksum. Identify the tested artifact when applying results to a release, and keep diagnostics containing device identifiers private.
+- Report software checks, controller readback and physical observation separately. Remote readback does not confirm visible colours or bay/socket labels, and a result on one model does not verify another.
 
 `just plg-serve [X.Y.Z] [host]` (on the dev machine) builds the Go binary and the web files, packs the archive, renders a test plg and serves `.build/plg-test` with `Bun.serve` on `0.0.0.0:8790` (`--port`, `--host IP` on `bun plugin/tools/plg.ts serve`). It prints the command to run in the NAS terminal (as root):
 
