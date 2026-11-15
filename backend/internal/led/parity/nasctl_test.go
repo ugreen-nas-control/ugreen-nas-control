@@ -21,6 +21,24 @@ type nasScenario struct {
 	intended string // reason the Go port differs from the shell on purpose; the scenario must differ
 	setup    func(n *nrig)
 	run      func(n *nrig)
+	expected func(*golden)
+}
+
+func firstUseLEDDefaults(g *golden) {
+	g.State["boot/leds.cfg"] = "mode=\"status\"\npower_color=\"255 255 255\"\npower_brightness=\"255\"\npower_effect=\"none\"\n"
+	for i := range g.Commands {
+		if len(g.Commands[i].Args) > 0 && g.Commands[i].Args[0] == "led-enable" {
+			g.Commands[i].Stdout = strings.Replace(g.Commands[i].Stdout, "ctl-out apply\n", "ctl-out apply\nctl-out daemon restart\n", 1)
+		}
+	}
+	var calls []string
+	for _, call := range g.Calls {
+		calls = append(calls, call)
+		if call == "ctl apply" {
+			calls = append(calls, "ctl daemon restart")
+		}
+	}
+	g.Calls = calls
 }
 
 type nrig struct {
@@ -343,14 +361,14 @@ func nasScenarios() []nasScenario {
 			n.write("proc/modules", "led_ugreen 1 0 - Live 0x0\n")
 			n.runs("led-enable")
 		}},
-		{name: "led-enable", run: func(n *nrig) { n.runs("led-boot", "led-enable", "led-status", "led-enable") }},
+		{name: "led-enable", expected: firstUseLEDDefaults, run: func(n *nrig) { n.runs("led-boot", "led-enable", "led-status", "led-enable") }},
 		{name: "led-enable-takes-over", run: func(n *nrig) {
 			n.write("old/leds.cfg", "mode=\"status\"\nfx_name=\"rainbow\"\n")
 			n.runs("led-enable", "led-status")
 			n.write("boot/leds.cfg", "mode=\"manual\"\n")
 			n.runs("led-disable", "led-enable")
 		}},
-		{name: "led-enable-standalone", run: func(n *nrig) {
+		{name: "led-enable-standalone", expected: firstUseLEDDefaults, run: func(n *nrig) {
 			n.write("boot/ugreen-led-control.plg", "")
 			n.runs("led-enable", "led-status", "led-disable")
 		}},
@@ -407,7 +425,7 @@ func nasScenarios() []nasScenario {
 			n.remove("old/leds.cfg")
 			n.runs("led-import", "led-status")
 		}},
-		{name: "led-disable", run: func(n *nrig) { n.runs("led-enable", "led-disable", "led-disable") }},
+		{name: "led-disable", expected: firstUseLEDDefaults, run: func(n *nrig) { n.runs("led-enable", "led-disable", "led-disable") }},
 		{name: "led-stop", run: func(n *nrig) { n.runs("led-stop") }},
 		{name: "led-stop-no-tools", run: func(n *nrig) {
 			n.remove("led/ugreen-led-ctl")
@@ -446,7 +464,11 @@ func TestNasCtl(t *testing.T) {
 			}
 			s.run(n)
 			got := n.snapshot().text()
-			want := loadGolden(t, name).text()
+			recorded := loadGolden(t, name)
+			if s.expected != nil {
+				s.expected(&recorded)
+			}
+			want := recorded.text()
 			total.Add(1)
 			if s.intended != "" {
 				if want == got {

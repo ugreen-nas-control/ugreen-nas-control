@@ -125,6 +125,20 @@ func TestPowerBootSkipsOtherModels(t *testing.T) {
 	}
 }
 
+func TestIdxPowerBootCompletesZeroTimingResetAndHonorsNight(t *testing.T) {
+	for _, action := range []string{"dim", "off"} {
+		r := newRig(t, "iDX6011")
+		r.config("mode=\"status\"\npower_effect=\"none\"\nnight_enabled=\"1\"\nnight_start=\"00:00\"\nnight_end=\"23:59\"\nnight_brightness=\"20\"\nnight_action=\"" + action + "\"\n")
+		r.c.cfgLoad()
+		r.chip.set("power", [7]string{"blink", "255", "255", "255", "255", "0", "0"})
+		r.c.powerBoot()
+		state := r.chip.get("power")
+		if action == "dim" && (state[0] != "on" || state[1] != "20") || action == "off" && state[0] != "off" {
+			t.Fatalf("night %s left power in %v", action, state)
+		}
+	}
+}
+
 // netdev2 (second LAN LED) exists on exactly the iDX6011 Pro.
 func TestNetdev2OnlyOnIdxPro(t *testing.T) {
 	for product, want := range map[string]bool{"iDX6011 Pro": true, "iDX6011": false, "iDX6012": false, "DXP6800 Pro": false, "DXP2800 GT": false} {

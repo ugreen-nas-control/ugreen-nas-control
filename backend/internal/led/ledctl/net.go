@@ -23,17 +23,27 @@ func (c *Ctl) ipRouteDefault() []string {
 	return strings.Split(strings.TrimSuffix(s, "\n"), "\n")
 }
 
-// uplinkRoute is the default route the NAS traffic uses: the first one `ip route show default` lists (lowest
-// metric), without Unraid's second route over shim-br0 (a macvlan for Docker). Device and gateway both come from
-// that one route, so the probe looks where the LED device's traffic goes.
+// Neighbours belong to the route interface, including Unraid's shim macvlan when host access to custom networks is on.
 func (c *Ctl) uplinkRoute() (dev, gateway string) {
+	var best int64
 	for _, line := range c.ipRouteDefault() {
-		if m := routeDevRe.FindStringSubmatch(line); m != nil && !strings.HasPrefix(m[1], "shim-") {
+		if m := routeDevRe.FindStringSubmatch(line); m != nil {
+			metric := int64(0)
+			fields := strings.Fields(line)
+			for i := 0; i+1 < len(fields); i++ {
+				if fields[i] == "metric" {
+					metric = atoiOr(fields[i+1], 0)
+					break
+				}
+			}
+			if dev != "" && metric >= best {
+				continue
+			}
+			best, gateway = metric, ""
 			dev = m[1]
 			if v := routeViaRe.FindStringSubmatch(line); v != nil {
 				gateway = v[1]
 			}
-			break
 		}
 	}
 	return dev, gateway
@@ -43,15 +53,27 @@ func (c *Ctl) uplinkRoute() (dev, gateway string) {
 // (e.g. br0 -> bond0).
 func (c *Ctl) networkDevice() string {
 	dev, _ := c.uplinkRoute()
-
-	if dev != "" && isDir(c.Env.SysNet+"/"+dev+"/brif") {
-		for _, port := range listDir(c.Env.SysNet + "/" + dev + "/brif") {
-			if globAny(port, "veth*", "vnet*", "tap*", "docker*", "virbr*") {
-				continue
+	for depth := 0; dev != "" && depth < 5; depth++ {
+		next := ""
+		if isDir(c.Env.SysNet + "/" + dev + "/brif") {
+			for _, port := range listDir(c.Env.SysNet + "/" + dev + "/brif") {
+				if !globAny(port, "veth*", "vnet*", "tap*", "docker*", "virbr*") {
+					next = port
+					break
+				}
 			}
-			dev = port
+		} else if strings.HasPrefix(dev, "shim-") {
+			for _, name := range listDir(c.Env.SysNet + "/" + dev) {
+				if member, ok := strings.CutPrefix(name, "lower_"); ok && exists(c.Env.SysNet+"/"+dev+"/"+name) {
+					next = member
+					break
+				}
+			}
+		}
+		if next == "" || next == dev {
 			break
 		}
+		dev = next
 	}
 	return dev
 }

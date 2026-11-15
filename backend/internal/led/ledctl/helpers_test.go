@@ -81,6 +81,8 @@ func (m *memChip) Exec(args []string, stdout, _ io.Writer) int {
 			s[0] = "on"
 		case "off":
 			s[0] = "off"
+		case "reset":
+			s[0], s[5], s[6] = "blink", "0", "0"
 		case "blink", "breath":
 			s[0], s[5], s[6] = args[2], args[3], args[4]
 		}

@@ -275,6 +275,19 @@ func TestCLIBeepRefusesUnknownModel(t *testing.T) {
 	}
 }
 
+func TestCLIBeepRootHintOnlyForPermissionErrors(t *testing.T) {
+	for _, cause := range []error{os.ErrPermission, os.ErrNotExist} {
+		c := newCLI(t, "DXP4800")
+		c.OpenPorts = func() (hw.Ports, error) {
+			return nil, &os.PathError{Op: "open", Path: "/dev/port", Err: cause}
+		}
+		rc, out := c.run("beep")
+		if rc != 1 || strings.Contains(out, "needs root") != errors.Is(cause, os.ErrPermission) || len(c.ports.writes) != 0 {
+			t.Fatalf("%v: rc %d output %q", cause, rc, out)
+		}
+	}
+}
+
 func TestCLIBeepBounds(t *testing.T) {
 	c := newCLI(t, "DXP4800")
 	for _, args := range [][]string{{"--ms", "2001"}, {"--ms", "0"}, {"--ms", "19"}, {"--freq", "99"}, {"--freq", "8001"}, {"--bogus"}, {"x"}} {
@@ -401,7 +414,7 @@ func TestECBeeperGuards(t *testing.T) {
 	// a rival fan writer
 	c := newCLI(t, "iDX6011 Pro")
 	c.rivals = []conflict.Conflict{{Kind: conflict.KindDaemon, Name: "Rival", Controls: []string{conflict.Fan}, Severity: conflict.SeverityBlock}}
-	if rc, out := c.run("beep"); rc != 1 || !strings.Contains(out, "Rival") || len(c.ec.writes) != 0 || c.locks != 0 {
+	if rc, out := c.run("beep"); rc != 1 || !strings.Contains(out, "Rival") || strings.Contains(out, "needs root") || len(c.ec.writes) != 0 || c.locks != 0 {
 		t.Errorf("rival: rc %d %q", rc, out)
 	}
 	// a warn-only finding does not block
@@ -419,7 +432,7 @@ func TestECBeeperGuards(t *testing.T) {
 	if err := os.Symlink("/nonexistent", filepath.Join(dev, "driver")); err != nil {
 		t.Fatal(err)
 	}
-	if rc, out := c.run("beep"); rc != 1 || !strings.Contains(out, "ACPI embedded controller driver is bound") || len(c.ec.writes) != 0 {
+	if rc, out := c.run("beep"); rc != 1 || !strings.Contains(out, "ACPI embedded controller driver is bound") || strings.Contains(out, "needs root") || len(c.ec.writes) != 0 {
 		t.Errorf("bound: rc %d %q", rc, out)
 	}
 	// unbound device directory is fine
