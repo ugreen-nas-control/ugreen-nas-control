@@ -62,6 +62,13 @@ Everything `just check` runs (format, PHP syntax, XML, docs links, models, gener
 | New model or what works on yours | [Model report](../docs/cli.md#report-a-model)                                                                                                                                                                                                           |
 | Security problem                 | [SECURITY.md](SECURITY.md)                                                                                                                                                                                                                              |
 
+## Maintainer follow-ups
+
+- Keep public replies short, clear and friendly: acknowledge the result, state what changed and give the next action only if needed. Link technical details instead of repeating them; include commands when they are needed to answer the question.
+- Read new issue and PR comments, reviews, and discussion replies, including updates on closed threads. Check pagination and earlier promises against the code and published builds. Track unfinished work in the existing issue or linked follow-ups.
+- Distinguish a proposed fix, a merge into `next`, a published next build and a published stable release. Use the [status labels](#labels) for partial fixes and outstanding hardware confirmation; do not ask reporters to repeat evidence already supplied.
+- Preserve author and co-author attribution when incorporating contributions, and review testing/review acknowledgements in the [release notes](../docs/releasing.md#release).
+
 ## Labels
 
 - Type, matching the `.changes` fragment type: `bug` = fix, `enhancement` = feat, `model` = model, `documentation` = docs, `chore` = chore. `no-changelog`: the CI guard skips the fragment check. The guard reads the labels when it runs: after adding the label later, re-run the failed `guard` job.
