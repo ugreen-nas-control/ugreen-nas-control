@@ -214,7 +214,10 @@ func runBeep(ctx context.Context, env Env, args []string, stderr io.Writer) erro
 	}
 	b, closeFn, err := spec.open(openers{ports: env.OpenPorts, mem: env.OpenMem, lock: env.Lock, acpiDir: env.ACPIDir, conflicts: env.Conflicts})
 	if err != nil {
-		return fmt.Errorf("open the %s: %w (needs root)", spec.Kind, err)
+		if errors.Is(err, os.ErrPermission) {
+			return fmt.Errorf("open the %s: %w (needs root)", spec.Kind, err)
+		}
+		return fmt.Errorf("open the %s: %w", spec.Kind, err)
 	}
 	defer closeFn()
 	return Sound(ctx, b, *freq, *ms, env.Wait)

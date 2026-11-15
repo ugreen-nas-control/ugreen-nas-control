@@ -600,17 +600,36 @@ func (c *Ctl) ledEnable() int {
 		c.errf("ERROR: The LEDs cannot be switched on: %v\n", err)
 		return 1
 	}
+	if err := c.initializeLEDCfg(); err != nil {
+		c.errf("ERROR: The LED settings could not be initialized: %v\n", err)
+		return 1
+	}
 	if err := fsx.WriteFile(c.Env.LEDFlag, nil, 0o644); err != nil {
 		c.errf("ERROR: The LEDs cannot be switched on: %v\n", err)
 		return 1
 	}
+	return c.ledBoot()
+}
 
-	// First use with an installed UGREEN LED Control: start with its settings instead of the defaults.
-	if _, err := os.Stat(c.Env.LEDCfg); err != nil && nonEmpty(c.Env.LEDImportSrc) {
-		copyFile(c.Env.LEDImportSrc, c.Env.LEDCfg)
+func (c *Ctl) initializeLEDCfg() error {
+	data, err := os.ReadFile(c.Env.LEDCfg)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	if os.IsNotExist(err) && nonEmpty(c.Env.LEDImportSrc) {
+		data, err = os.ReadFile(c.Env.LEDImportSrc)
+		if err != nil {
+			return err
+		}
+		if err := fsx.WriteFile(c.Env.LEDCfg, data, 0o644); err != nil {
+			return err
+		}
 		c.out("Took over the settings of UGREEN LED Control.\n")
 	}
-	return c.ledBoot()
+	if len(strings.TrimSpace(string(data))) != 0 {
+		return nil
+	}
+	return fsx.WriteFile(c.Env.LEDCfg, []byte("mode=\"status\"\npower_color=\"255 255 255\"\npower_brightness=\"255\"\npower_effect=\"none\"\n"), 0o644)
 }
 
 // ledImport takes over the settings of UGREEN LED Control (colours, effects, status mode, night mode, ...). What

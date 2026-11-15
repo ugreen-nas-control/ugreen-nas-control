@@ -496,6 +496,7 @@ func TestDaemonHandsOffToForeignMonitor(t *testing.T) {
 func TestNetworkDeviceResolvesBridge(t *testing.T) {
 	r := newRig(t, "DXP2800")
 	r.run.outputs["ip route show default"] = "default via 1.1.1.1 dev shim-br0\ndefault via 1.1.1.1 dev br0\n"
+	r.write("sys/net/shim-br0/lower_br0/x", "")
 	for _, p := range []string{"veth1", "docker0", "eth1"} {
 		r.write("sys/net/br0/brif/"+p+"/x", "")
 	}

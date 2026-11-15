@@ -2,6 +2,8 @@
 
 How the plugin drives the LEDs of DX, DXP and iDX models. Off until the user switches them on in the plugin.
 
+First-time enabling with absent or empty settings initializes status mode and a steady white power LED. Existing settings, including manual mode, an intentionally off LED and night settings, are preserved; an available configuration from UGREEN LED Control is imported before defaults are considered.
+
 ## LED controller
 
 All DX, DXP and iDX models share the same LED controller protocol, after [miskcoo/ugreen_leds_controller](https://github.com/miskcoo/ugreen_leds_controller) (credits: [third-party.md](third-party.md)). Bays map to LEDs by SATA port.

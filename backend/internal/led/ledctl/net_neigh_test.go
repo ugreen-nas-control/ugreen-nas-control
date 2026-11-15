@@ -40,6 +40,43 @@ func TestGatewayNeighbourStates(t *testing.T) {
 	}
 }
 
+func TestGatewayNeighbourOnShimUsesRouteWhileActivityUsesBond(t *testing.T) {
+	r := neighRig(t, "default via 10.0.0.1 dev shim-br0 metric 1\ndefault via 10.0.1.1 dev br0 metric 2\n")
+	r.write("sys/net/shim-br0/lower_br0/x", "")
+	r.write("sys/net/br0/brif/bond0/x", "")
+	r.write("sys/net/bond0/operstate", "up\n")
+	r.run.outputs["ip -j neigh show 10.0.0.1 dev shim-br0"] = `[{"dst":"10.0.0.1","state":["REACHABLE"]}]`
+	if got := r.c.networkDevice(); got != "bond0" {
+		t.Fatalf("activity interface %q", got)
+	}
+	fails := 0
+	for range 4 {
+		if ok, why := r.c.networkCheck("bond0", &fails); !ok || fails != 0 {
+			t.Fatalf("healthy shim route is red: %s", why)
+		}
+	}
+	r.run.outputs["ip -j neigh show 10.0.0.1 dev shim-br0"] = `[{"dst":"10.0.0.1","state":["FAILED"]}]`
+	r.run.outputs["ip -j neigh show 10.0.1.1 dev br0"] = `[{"dst":"10.0.1.1","state":["REACHABLE"]}]`
+	for i := 1; i <= 3; i++ {
+		if ok, _ := r.c.networkCheck("bond0", &fails); ok != (i < 3) {
+			t.Fatal("another route hid the selected route's failure")
+		}
+	}
+}
+
+func TestGatewayRouteHonorsMetricsAndKeepsFirstEqualRoute(t *testing.T) {
+	for _, tc := range []struct{ routes, dev, gateway string }{
+		{"default via 10.0.0.1 dev shim-br0 metric 2\ndefault via 10.0.1.1 dev br0 metric 1\n", "br0", "10.0.1.1"},
+		{"default via 10.0.0.1 dev shim-br0\ndefault via 10.0.1.1 dev br0\n", "shim-br0", "10.0.0.1"},
+		{"default via 10.0.0.1 dev shim-br0\n", "shim-br0", "10.0.0.1"},
+	} {
+		r := neighRig(t, tc.routes)
+		if dev, gateway := r.c.uplinkRoute(); dev != tc.dev || gateway != tc.gateway {
+			t.Fatalf("route = %s/%s, want %s/%s", dev, gateway, tc.dev, tc.gateway)
+		}
+	}
+}
+
 func TestGatewayNeighbourRedAfterThree(t *testing.T) {
 	for state, want := range map[string]string{"FAILED": "gateway neighbour FAILED", "": "no neighbour entry for the gateway"} {
 		r := neighRig(t, "default via 10.0.0.1 dev eth0\n")
