@@ -121,9 +121,9 @@ jobs:
           git commit -q -m "release: version ${VERSION}"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "release/${VERSION}"
           # A draft has no tag and no public URL; the tag is created when it is published.
+          nix develop .#release -c bun plugin/tools/release-notes.ts "$VERSION" "$GITHUB_SHA" > .build/release-notes.md
           gh release create "v${VERSION}" .build/assets/* --draft --target "$GITHUB_SHA" \
-            --title "UGREEN NAS Control ${VERSION}" --generate-notes \
-            --notes "Install: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/plugin/ugreen-nas-control.plg"
+            --title "UGREEN NAS Control ${VERSION}" --notes-file .build/release-notes.md
       - name: Open the release PR
         env:
           GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || github.token }}

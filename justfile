@@ -147,6 +147,7 @@ plg-serve version='' host='': go-build web-build
 [group('plugin')]
 plg-check: _deps
     bun plugin/tools/plg.ts check
+    bun test plugin/tools/release-notes.test.ts
 
 [group('plugin')]
 changes-check:
