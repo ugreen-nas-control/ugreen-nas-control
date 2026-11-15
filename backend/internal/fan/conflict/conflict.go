@@ -132,6 +132,7 @@ type daemon struct {
 
 // Processes that write the chips, matched by the program they run, never by a later argument.
 var daemons = []daemon{
+	{"ug-fand", "ugreen-idx6011-panel", "ug-fand", []string{Fan}},
 	{"fanctrlplus2_loop.sh", "fanctrlplus2", "FanCtrl Plus 2", []string{Fan}},
 	{"fanctrlplus_loop.sh", "fanctrlplus", "FanCtrl Plus", []string{Fan}},
 	{"autofan", "dynamix.system.autofan", "Dynamix Auto Fan Control", []string{Fan}},

@@ -7,7 +7,7 @@
 // Emergencies shade all rows red. Drawn 1:1 at the card's width so the text keeps its size.
 import { MOD, type FanHistoryRange, type FanHistoryResponse } from '../../../core/contract-fan-history';
 import { escapeHtml } from '../../../core/html';
-import { berlinOffset, clock, domain, lines, maskRuns, runs, sourceKind, tempRange, timeTicks, type FanTrack, type Pt } from './history-model';
+import { zoneOffset, clock, domain, lines, maskRuns, runs, sourceKind, tempRange, timeTicks, type FanTrack, type Pt } from './history-model';
 
 export interface Geometry {
     W: number;
@@ -90,7 +90,7 @@ export function fanChart(track: FanTrack, h: FanHistoryResponse, range: FanHisto
     let out = '';
 
     // Time grid and labels
-    const ticks = timeTicks(from, to, range, berlinOffset(to));
+    const ticks = timeTicks(from, to, range, zoneOffset(to));
     for (const tick of ticks) {
         const x = g.x(tick);
         out += `<line class="vgrid" x1="${num(x)}" x2="${num(x)}" y1="${g.rows.speed[0]}" y2="${bottom}"/>`;

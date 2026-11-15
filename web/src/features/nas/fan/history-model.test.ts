@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { MOD } from '../../../core/contract-fan-history';
 import {
-    berlinOffset,
+    zoneOffset,
     clock,
     dayClock,
     lines,
@@ -64,22 +64,33 @@ test('nearest picks the closest point', () => {
     expect(nearest([], 1)).toBe(-1);
 });
 
-test('clock is 24 h Europe/Berlin, with the daylight saving offset of the day', () => {
-    const summer = Date.UTC(2026, 6, 1, 10, 5, 9) / 1000; // CEST, +2
-    const winter = Date.UTC(2026, 0, 1, 10, 5, 9) / 1000; // CET, +1
-    expect(clock(summer)).toBe('12:05');
-    expect(clock(winter, true)).toBe('11:05:09');
-    expect(dayClock(summer)).toBe('01.07. 12:05');
-    expect(berlinOffset(summer)).toBe(7200);
-    expect(berlinOffset(winter)).toBe(3600);
+test('clock is 24 h in the given zone, with the daylight saving offset of the day', () => {
+    const summer = Date.UTC(2026, 6, 1, 10, 5, 9) / 1000;
+    const winter = Date.UTC(2026, 0, 1, 10, 5, 9) / 1000;
+    const berlin = 'Europe/Berlin';
+    expect(clock(summer, false, berlin)).toBe('12:05'); // CEST, +2
+    expect(clock(winter, true, berlin)).toBe('11:05:09'); // CET, +1
+    expect(dayClock(summer, false, berlin)).toBe('01.07. 12:05');
+    expect(zoneOffset(summer, berlin)).toBe(7200);
+    expect(zoneOffset(winter, berlin)).toBe(3600);
+    expect(clock(summer, false, 'Europe/Lisbon')).toBe('11:05'); // WEST, +1
+    expect(zoneOffset(winter, 'Europe/Lisbon')).toBe(0);
+    expect(clock(summer, false, 'Asia/Kolkata')).toBe('15:35');
+    expect(zoneOffset(summer, 'Asia/Kolkata')).toBe(19800);
 });
 
-test('timeTicks sit on round Berlin times', () => {
-    const to = Date.UTC(2026, 9, 30, 12, 34, 0) / 1000; // 13:34 CET... CEST until 25.10., CET after
-    const ticks = timeTicks(to - 3600, to, '1h', berlinOffset(to));
-    expect(ticks.map(t => clock(t))).toEqual(['12:40', '12:50', '13:00', '13:10', '13:20', '13:30']);
-    const day = timeTicks(to - 86400, to, '24h', berlinOffset(to));
-    expect(day.map(t => clock(t))).toEqual(['16:00', '20:00', '00:00', '04:00', '08:00', '12:00']);
+test('timeTicks sit on round local times in any zone, also with half hour offsets', () => {
+    const to = Date.UTC(2026, 9, 30, 12, 34, 0) / 1000;
+    const cases: [string, string[], string[]][] = [
+        ['Europe/Berlin', ['12:40', '12:50', '13:00', '13:10', '13:20', '13:30'], ['16:00', '20:00', '00:00', '04:00', '08:00', '12:00']],
+        ['Europe/Lisbon', ['11:40', '11:50', '12:00', '12:10', '12:20', '12:30'], ['16:00', '20:00', '00:00', '04:00', '08:00', '12:00']],
+        ['Asia/Kolkata', ['17:10', '17:20', '17:30', '17:40', '17:50', '18:00'], ['20:00', '00:00', '04:00', '08:00', '12:00', '16:00']]
+    ];
+    for (const [zone, hour, day] of cases) {
+        const offset = zoneOffset(to, zone);
+        expect(timeTicks(to - 3600, to, '1h', offset).map(t => clock(t, false, zone))).toEqual(hour);
+        expect(timeTicks(to - 86400, to, '24h', offset).map(t => clock(t, false, zone))).toEqual(day);
+    }
 });
 
 test('tempRange pads to whole 10 degrees and keeps at least 20 degrees', () => {

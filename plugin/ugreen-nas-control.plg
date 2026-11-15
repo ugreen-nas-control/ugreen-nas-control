@@ -3,9 +3,9 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ugreen-nas-control">
 <!ENTITY author    "Alexander Schubert, Jens Thomas">
-<!ENTITY version   "5.6.0">
+<!ENTITY version   "5.7.0">
 <!ENTITY launch    "Settings/UGREENNASControl">
-<!ENTITY releaseURL "https://github.com/ugreen-nas-control/ugreen-nas-control/releases/download/v5.6.0">
+<!ENTITY releaseURL "https://github.com/ugreen-nas-control/ugreen-nas-control/releases/download/v5.7.0">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/ugreen-nas-control/ugreen-nas-control/main/plugin/ugreen-nas-control.plg">
 <!ENTITY bootDIR   "/boot/config/plugins/&name;">
 <!ENTITY srcDIR    "&bootDIR;/&version;">
@@ -23,6 +23,32 @@
 >
 
 <CHANGES>
+
+### 5.7.0
+- MQTT: a card on the Settings page sets the broker, login, topic name and interval and what a display may control, shows whether the publisher is connected and tests a connection.
+- Case view: after a reboot the Inside view showed the RAM slots as empty (and no maximum LAN speed) until something else had read the memory; the plugin page started its tools without a search path, so dmidecode and ethtool were not found.
+- Fans: a single hot CPU reading no longer triggers the CPU emergency (all fans at 100 %); the curve and the emergency use the median of the last three readings (6 s), only a reading 10 °C over the limit counts at once. Refs [#306](https://github.com/ugreen-nas-control/ugreen-nas-control/issues/306). Reported and measured by [snipah](https://github.com/snipah).
+- Diag and the boot start ask the LED controller up to three times before they call the probe failed, and diag shows the tool's real reason instead of "failed: -" (DXP8800 Ultra report). The LED page no longer greys out its controls after one missed answer. Thanks to [halloleo](https://github.com/halloleo).
+- Diagnostics: the drive serial in the `smart_ack_` keys of the LED settings is hidden, and a host name that equals the model (DXP6800) no longer wipes the model name from the report (#302, #306). Reported by [manilx](https://github.com/manilx) and [snipah](https://github.com/snipah).
+- Case: the DXP2800 GT now reports its two drive bays and treats its NVMe drives as M.2 drives so they appear in the inside view. Bay order and M.2 numbering remain unconfirmed. Refs #95.
+- DXP4800: the Inside view now shows what the box has, two M.2 slots at the left and a single RAM slot, instead of the layout of the Plus. Thanks to [rogvalinger-ops](https://github.com/rogvalinger-ops).
+- Case view: draw the DXP4800 Plus with overlapping RAM sockets at the right and M.2-1 / M.2-3 at the left, following the photos from [ivolution](https://github.com/ivolution) (#297). SSDs follow the confirmed PCI root ports, so they stay in the correct slots after a reboot. RAM numbering remains unconfirmed.
+- Case view: place a detected DXP4800 Plus 2.5G interface on its physical socket even when the 10G interface is missing. Thanks to [bram-van](https://github.com/bram-van) (#323). Clarify the confirmed physical DIMM1/DIMM2 labels versus the unconfirmed software-to-socket mapping from [ivolution](https://github.com/ivolution) (#297). LEDs: check brightness, colour and timing when reconciling activity blinks, so an incorrect blink no longer bypasses correction. Investigated after [Killerkomando](https://github.com/Killerkomando)'s iDX6011 Pro night-mode report (#324); the cause of brightness changing on the hardware still needs confirmation.
+- Times, including the fan history axis, follow the browser's time zone instead of Europe/Berlin ([#305](https://github.com/ugreen-nas-control/ugreen-nas-control/issues/305)). Reported by [manilx](https://github.com/manilx) (#305).
+- EC reads and beeper transactions share ug-fand's /run/ug-ec.lock, and ug-fand is recognized as a competing fan controller while LED control remains available. Install and update honor fan control being off before probing. Reported by [deiviest](https://github.com/deiviest) (#318); hardware confirmation of coexistence is still needed.
+- LEDs: preserve brightness when blinking starts on the DXP4800 GT, and restore Identify mode, colour and brightness before handing the bay back to the status daemon. A failed restoration keeps its saved state for retry.
+- LED discovery checks native I801 and DesignWare adapters for a valid MCU response, preferring the HT32 ACPI adapter, before considering the existing memory fallbacks. An empty first adapter no longer hides a working one, and an Intel DesignWare adapter keeps its model's write protocol. Address scans and --force still work, and LPSS boards keep the fast check of an empty I801 adapter.
+- LEDs: drives outside the array and pools now follow Unraid's standby state, including dim, off and pulse, without querying the drive. Suggested by NotRetarded on the Unraid forum; refs discussion #146.
+- MQTT: the IP address of a port is found when the port belongs to a bond that belongs to a bridge (eth0, bond0, br0, the usual Unraid layout); before, only the first step up was tried and `ip` stayed empty.
+- Fans: history keeps the measured CPU temperatures while the fan curve and emergency check use the spike filter. Refs #306.
+- The non-Pro DX4600 has its own Celeron N5105 model entry instead of inheriting the DX4600 Pro's specifications. Upstream CLI LED control was confirmed on DSM by [sbbbsbbb](https://github.com/sbbbsbbb); this plugin and the physical bay order remain unconfirmed. Other DX4600 variants stay recognized with unknown specifications; the plain model and those variants show front and rear only until their inside layout is established.
+- DXP4800: LEDs, fan control (header 3 drives the case fan, no cpu fan output), case view and sensors confirmed by a user; the model has two 2.5G LAN ports, and the rear view now shows two 2.5G ports. Thanks to [rogvalinger-ops](https://github.com/rogvalinger-ops).
+- DXP4800 Plus: the reset button is seen by the front panel test, the power button is not (it still starts the box); the power button is a standard ACPI button that Unraid handles under Settings &gt; Power Options. Thanks to [ivolution](https://github.com/ivolution).
+- Models: record [manilx](https://github.com/manilx)'s DXP6800 Pro community confirmation of LEDs, fans, case view and sensors on 5.6.0 from #302. The front-panel report is noted, but held power-button detection and the watchdog remain unconfirmed.
+- DXP8800 Plus: the reset button is seen by the front panel test, the power button only as one short pulse after holding it for about 10 s, so the shutdown on a held power button is not offered on this model; the power button is a standard ACPI button that Unraid handles under Settings &gt; Power Options. Thanks to [Chiconydu69](https://github.com/Chiconydu69).
+- LED control on the plain iDX6011 is confirmed with 5.6.0 by [deiviest](https://github.com/deiviest): Identify, power colour and brightness, and status mode with sleeping drives staying asleep. Activity and the full physical bay map remain untested; the Pro and iDX6012 remain unconfirmed. EC coexistence with ug-fand is tracked separately (#318).
+- Credits: add recent issue reporters, expand hardware-testing and photo/map acknowledgements, and credit the iDX protocol and cooperative EC-lock research. Correct the DXP6800 Pro 5.6.0 report attribution to [manilx](https://github.com/manilx); that report is community confirmation, not a maintainer test.
+- Release workflow: comment and close resolved issues after stable publication, keeping issues with unanswered questions, partial fixes, hardware tests or holds open.
 
 ### 5.6.0
 - Front panel: optional clean shutdown when the power button is held for 1 to 3 seconds (off by default, only on models where users confirmed the buttons), idea from [Chiconydu69](https://github.com/Chiconydu69).
@@ -188,19 +214,16 @@
 - DXP4800 GT: the rear view is the chassis of the DXP4800 Plus (mesh with the fan behind it, the ports in one row, two 10G LAN ports)
 - Case view of the DXP4800 family, DXP4800 GT, DXP2800 and DXP8800 Plus: the LEDs sit below the bays as on the DXP6800 Pro (no separate LED strip next to the LAN LED any more)
 
-### 3.3
-- Overview: a "Night mode" badge next to "Online" while the night mode has the LEDs dimmed or off (the badge is back); the night-mode hint in the LEDs card now follows changes of the schedule without a reload
-
 </CHANGES>
 
 <!-- All plugin files in one archive (web files, the one Go binary and the links to it at their install-relative paths), cached on
      the boot device (/boot: USB flash drive or SSD) per version so a reboot needs no network.
      The plugin manager checks the SHA256 of the download (MD5 is kept for Community Applications). -->
 
-<FILE Name="&srcDIR;/ugreen-nas-control-5.6.0.tar.xz">
-<URL>&releaseURL;/ugreen-nas-control-5.6.0.tar.xz</URL>
-<SHA256>aeb335a5eacfecbc32b2ebb3d490abe4650194bb0cdd3d3da6c0bbef17fecca7</SHA256>
-<MD5>c47c97c66adfecb513e96db3f43f68f4</MD5>
+<FILE Name="&srcDIR;/ugreen-nas-control-5.7.0.tar.xz">
+<URL>&releaseURL;/ugreen-nas-control-5.7.0.tar.xz</URL>
+<SHA256>4b2628ac635a4bd6c0d48c1aa24554f150264da2a3c1f22a5e4ffdb4c36b7b2e</SHA256>
+<MD5>9b50d895a37b59f030247ad71d3117d2</MD5>
 </FILE>
 
 <!-- ========================================================= -->
@@ -213,9 +236,9 @@
 NAME="&name;"
 VERSION="&version;"
 BOOT_DIR="&bootDIR;"
-ARCHIVE="&srcDIR;/ugreen-nas-control-5.6.0.tar.xz"
+ARCHIVE="&srcDIR;/ugreen-nas-control-5.7.0.tar.xz"
 EXEC_FILES="backend/ugreen-nas event/stopping"
-DATA_FILES="api.php UGREENNASControl.page UGREENNASDashboard.page images/ugreen-nas-control.png icons/ugreen-nas-control.png README.md LICENSE third-party.md include/diag.php include/lang.php include/fan_v2.php include/fan_schedule.php include/fan_history.php include/fan_inputs.php include/fan_profile.php include/fan_probe.php include/fan_backlight.php include/panel.php include/power_ac.php css/app.css css/fan-inputs.css css/fan-schedule.css css/fan-history.css css/fan-tools.css js/i18n.js js/app.js js/ledfx.js js/dash.js led/api.php led/css/app.css led/js/app.js led/js/i18n.js led/include/views.php css/led-embed.css led/images/ugreen-led-control.png"
+DATA_FILES="api.php UGREENNASControl.page UGREENNASDashboard.page images/ugreen-nas-control.png icons/ugreen-nas-control.png README.md LICENSE third-party.md include/diag.php include/lang.php include/fan_v2.php include/fan_schedule.php include/fan_history.php include/fan_inputs.php include/fan_profile.php include/fan_probe.php include/fan_backlight.php include/panel.php include/power_ac.php include/mqtt.php css/app.css css/fan-inputs.css css/fan-schedule.css css/fan-history.css css/fan-tools.css js/i18n.js js/app.js js/ledfx.js js/dash.js led/api.php led/css/app.css led/js/app.js led/js/i18n.js led/include/views.php css/led-embed.css led/images/ugreen-led-control.png"
 # Symbolic links, "path=target": the tool names are links to the one binary backend/ugreen-nas.
 LINKS="backend/ugreen-nas-ctl=ugreen-nas backend/ugreen-nas-fan=ugreen-nas led/backend/ugreen-led-ctl=../../backend/ugreen-nas led/backend/ugreen-led-i2c=../../backend/ugreen-nas"
 <![CDATA[
@@ -240,11 +263,8 @@ stop_daemons() {
 # Fan control: the IT8613E (DXP6800 Pro) or the IT5571 EC (DXP4800 GT) is reached through /dev/port, no kernel module.
 # LEDs only if they were switched on. Both also run at boot. Neither is an install failure.
 start_daemons() {
-    if "${PLUGIN_DIR}/backend/ugreen-nas-fan" probe >/dev/null 2>&1; then
-        "${PLUGIN_DIR}/backend/ugreen-nas-ctl" start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
-    else
-        log "WARNING: No supported fan controller found; only system info and temperatures are available."
-    fi
+    # start honours fan_control="0" before probing the chip; LEDs-only installs must not probe it here.
+    "${PLUGIN_DIR}/backend/ugreen-nas-ctl" start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
     # The shutdown on a held power button (off unless switched on in the settings) needs no fan controller.
     "${PLUGIN_DIR}/backend/ugreen-nas-ctl" power-start 2>&1 | sed 's/^/[UGREEN NAS Control] /'
     if [ -f "${BOOT_DIR}/led.enabled" ]; then

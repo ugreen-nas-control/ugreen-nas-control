@@ -17,6 +17,7 @@ type Env struct {
 	ToolArgs       []string // the same for Tool (the multicall binary: "led-i2c")
 	Config         string
 	DisksINI       string
+	DevsINI        string
 	VarINI         string
 	SmartDir       string
 	SysBlock       string
@@ -61,6 +62,7 @@ func EnvFromGetenv(get func(string) string, self string) Env {
 		Self:           self,
 		Config:         orDefault(get, "UGREEN_LED_CONFIG", "/boot/config/plugins/ugreen-nas-control/leds.cfg"),
 		DisksINI:       orDefault(get, "UGREEN_DISKS_INI", "/var/local/emhttp/disks.ini"),
+		DevsINI:        orDefault(get, "UGREEN_DEVS_INI", "/var/local/emhttp/devs.ini"),
 		VarINI:         orDefault(get, "UGREEN_VAR_INI", "/var/local/emhttp/var.ini"),
 		SmartDir:       orDefault(get, "UGREEN_SMART_DIR", "/var/local/emhttp/smart"),
 		SysBlock:       orDefault(get, "UGREEN_SYS_BLOCK", "/sys/block"),

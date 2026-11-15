@@ -52,6 +52,11 @@
   - changed-files:
       - any-glob-to-any-file:
           - backend/internal/mqtt/**
+          - web/plugin/include/mqtt.php
+          - web/src/features/nas/fan/mqtt*
+          - web/src/features/nas/i18n/parts/mqtt.*.ts
+          - web/src/core/mqtt*
+          - web/src/core/contract-mqtt.ts
           - docs/mqtt.md
 'area: install':
   - changed-files:
@@ -74,6 +79,7 @@
           - '!web/plugin/include/fan_*.php'
           - '!web/plugin/include/panel.php'
           - '!web/plugin/include/power_ac.php'
+          - '!web/plugin/include/mqtt.php'
       - all-globs-to-any-file:
           - web/src/**
           - '!web/src/dash/**'
@@ -81,10 +87,12 @@
           - '!web/src/core/ledfx/**'
           - '!web/src/features/nas/ledfx.ts'
           - '!web/src/features/nas/fan/**'
-          - '!web/src/features/nas/i18n/parts/{history,inputs,schedule,tools,panel,power}.*.ts'
+          - '!web/src/features/nas/i18n/parts/{history,inputs,schedule,tools,panel,power,mqtt}.*.ts'
           - '!web/src/features/nas/panel-models*'
           - '!web/src/features/nas/power-ac-models*'
           - '!web/src/core/*fan*'
+          - '!web/src/core/mqtt*'
+          - '!web/src/core/contract-mqtt.ts'
           - '!web/src/core/panel-php.test.ts'
 'area: site':
   - changed-files:

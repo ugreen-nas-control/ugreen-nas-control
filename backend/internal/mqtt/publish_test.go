@@ -642,3 +642,16 @@ func TestMQTTClientStopPublishesOfflineBeforeDisconnect(t *testing.T) {
 		t.Fatal("broker saw nothing")
 	}
 }
+
+func TestBuildAlarmsCPUFollowsDaemonDebounce(t *testing.T) {
+	cfg := fan.LoadConfig(filepath.Join(t.TempDir(), "none"))
+	if a := buildAlarms(ip(95), nil, nil, &fan.State{}, cfg); len(a) != 0 {
+		t.Fatalf("a spike while the daemon sees no emergency: %+v", a)
+	}
+	if a := buildAlarms(ip(95), nil, nil, &fan.State{Failsafe: "cpu_hot"}, cfg); len(a) != 1 || a[0].Code != "cpu_hot" {
+		t.Fatalf("emergency: %+v", a)
+	}
+	if a := buildAlarms(ip(95), nil, nil, &fan.State{Unapplied: "cpu_hot"}, cfg); len(a) != 1 || a[0].Code != "cpu_hot" {
+		t.Fatalf("rival: %+v", a)
+	}
+}

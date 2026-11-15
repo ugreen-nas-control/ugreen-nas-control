@@ -8,8 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
+	"strconv"
 	"strings"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/hw"
@@ -25,6 +28,7 @@ const (
 
 	smbusByte     = 1
 	smbusByteData = 2
+	smbusWordData = 3
 	smbusBlockMax = 32
 )
 
@@ -54,38 +58,157 @@ func ioctl(fd, request, arg uintptr) error {
 	return nil
 }
 
-// findBus returns the I801 SMBus or DesignWare adapter (DXP4800 GT) the controller sits on, e.g. /dev/i2c-0.
-// The adapter is listed under /sys/bus/i2c even before i2c-dev creates /dev/i2c-N.
-func findBus() (string, error) {
-	names, _ := filepath.Glob(i2cSysBus + "/i2c-*/name")
+// nativeProbe is read-only and replaced in tests. Only an explicit --force permits an address owned by another driver.
+var nativeProbe = probeNativeMCU
 
-	for _, prefix := range []string{"SMBus I801 adapter", dwAdapter} {
-		for _, name := range names {
-			content, err := os.ReadFile(name)
-			if err != nil || !strings.HasPrefix(string(content), prefix) {
-				continue
-			}
+// findBus validates all native candidates before considering a /dev/mem fallback.
+// DXP480T's separate power MCU uses findBusAt with its own address and no 0x3a probe.
+func findBus() (string, error) { return findBusAt(controllerAddr, false) }
 
-			path := i2cDevDir + "/" + filepath.Base(filepath.Dir(name))
-			if _, err := os.Stat(path); err != nil {
-				return "", fmt.Errorf("%s is missing; load the i2c-dev module (modprobe i2c-dev)", path)
-			}
-			if prefix != dwAdapter && lpssAuto() && !i801Answers(path) {
-				return lpssPath, nil // DXP2800 SUB2: nothing at 0x3a on the SMBus, the MCU is behind the LPSS controller
-			}
+func findBusAt(addr uintptr, force bool) (string, error) {
+	paths := nativeCandidates()
+	var failures []error
+	var i801 []string
+	canLPSS := addr == controllerAddr && lpssAuto()
+	i801NAK := map[string]bool{}
+	for _, path := range paths {
+		if _, err := os.Stat(path); err != nil {
+			failures = append(failures, fmt.Errorf("%s is missing; load the i2c-dev module (modprobe i2c-dev): %w", path, err))
+			continue
+		}
+		if addr != controllerAddr {
 			return path, nil
 		}
+		name, _ := os.ReadFile(filepath.Join(i2cSysBus, filepath.Base(path), "name"))
+		if strings.HasPrefix(string(name), "SMBus I801 adapter") {
+			i801 = append(i801, path)
+			// Preserve the existing fast NAK check on LPSS boards. Register retries on an
+			// empty I801 would otherwise add hundreds of milliseconds to every LED write.
+			if canLPSS && !i801Answers(path) {
+				i801NAK[path] = true
+				failures = append(failures, fmt.Errorf("%s: %w", path, syscall.ENXIO))
+				continue
+			}
+		}
+		err := nativeProbe(path, force)
+		if err == nil {
+			return path, nil
+		}
+		if errors.Is(err, hw.ErrLockTimeout) {
+			return "", err // the lock is shared by every adapter; another probe would wait again
+		}
+		failures = append(failures, fmt.Errorf("%s: %w", path, err))
 	}
 
-	if names, _ := dwControllers(); len(names) > 0 {
-		return dwPath, nil
+	// A native adapter means the kernel owns that controller: don't bypass it through /dev/mem.
+	// The LPSS fallback keeps its existing ACPI/ownership checks and only follows a definite I801 NAK.
+	if len(paths) == 0 {
+		if names, _ := dwControllers(); len(names) > 0 {
+			return dwPath, nil
+		}
 	}
-
-	if lpssAuto() {
-		return lpssPath, nil
+	if canLPSS {
+		allNAK := len(i801) > 0
+		for _, path := range i801 {
+			if !i801NAK[path] {
+				allNAK = false // busy, timed out or responding: never bypass it on a doubt
+			}
+		}
+		if len(paths) == 0 || allNAK {
+			return lpssPath, nil
+		}
 	}
-
+	if len(failures) > 0 {
+		return "", fmt.Errorf("no LED MCU found on native I2C adapters: %w", errors.Join(failures...))
+	}
 	return "", errors.New("no SMBus I801 or DesignWare I2C adapter found; load the i2c_i801 module (modprobe i2c_i801) and check dmesg | grep -i -e i801 -e designware")
+}
+
+// nativeCandidates prefers the HT32 ACPI adapter, then I801, then DesignWare, each in numeric order.
+// Display and unrelated buses are never probed. Evidence: miskcoo PRs #115 and #126.
+func nativeCandidates() []string {
+	names, _ := filepath.Glob(filepath.Join(i2cSysBus, "i2c-*", "name"))
+	sort.Slice(names, func(i, j int) bool {
+		return adapterNumber(names[i]) < adapterNumber(names[j])
+	})
+	acpi := map[string]bool{}
+	devices, _ := filepath.Glob(filepath.Join(i2cSysBus, "i2c-HT32*"))
+	for _, dev := range devices {
+		resolved, err := filepath.EvalSymlinks(dev)
+		if err == nil {
+			acpi[filepath.Base(filepath.Dir(resolved))] = true
+		}
+	}
+	var paths []string
+	for rank := range 3 {
+		for _, name := range names {
+			content, _ := os.ReadFile(name)
+			bus := filepath.Base(filepath.Dir(name))
+			i801 := strings.HasPrefix(string(content), "SMBus I801 adapter")
+			dw := strings.HasPrefix(string(content), dwAdapter)
+			if !i801 && !dw {
+				continue
+			}
+			r := 2
+			if acpi[bus] {
+				r = 0
+			} else if i801 {
+				r = 1
+			}
+			if r == rank {
+				paths = append(paths, filepath.Join(i2cDevDir, bus))
+			}
+		}
+	}
+	return paths
+}
+
+func adapterNumber(name string) int {
+	n, _ := strconv.Atoi(strings.TrimPrefix(filepath.Base(filepath.Dir(name)), "i2c-"))
+	return n
+}
+
+func probeNativeMCU(path string, force bool) error {
+	lock, err := acquireLock()
+	if err != nil {
+		return err
+	}
+	b, err := openNativeBus(path, controllerAddr, force, lock)
+	if err != nil {
+		return err
+	}
+	defer b.close()
+	return verifyNativeMCU(b)
+}
+
+type nativeIdentityReader interface {
+	status(string) (ledStatus, error)
+	readWord(byte) (uint16, error)
+}
+
+// verifyNativeMCU has read operations only; discovery never tests with a LED command.
+func verifyNativeMCU(b nativeIdentityReader) error {
+	_, statusErr := b.status("power") // includes checksum validation and bounded read retries
+	if statusErr == nil {
+		return nil
+	}
+	// Some firmware exposes the identity before it can return a valid status.
+	// The identity validates the MCU, never the write protocol (upstream PR #100).
+	for attempt := range 3 {
+		if attempt > 0 {
+			time.Sleep(100 * time.Millisecond)
+		}
+		if id, err := b.readWord(0x5a); err == nil && id == 0xc5b2 {
+			return nil
+		}
+	}
+	return statusErr
+}
+
+func (b *bus) readWord(register byte) (uint16, error) {
+	var data [smbusBlockMax + 2]byte
+	err := b.smbus(smbusRead, register, smbusWordData, &data)
+	return uint16(data[0]) | uint16(data[1])<<8, err
 }
 
 // acquireLock allows one writer at a time: the web UI and the status daemon share the controller. It waits at most
@@ -109,7 +232,7 @@ func openBus(path string, force bool) (*bus, error) {
 func openBusAt(path string, addr uintptr, force bool) (*bus, error) {
 	auto := path == ""
 	if auto {
-		found, err := findBus()
+		found, err := findBusAt(addr, force)
 		if err != nil {
 			return nil, err
 		}
@@ -147,6 +270,11 @@ func openBusAt(path string, addr uintptr, force bool) (*bus, error) {
 		return &bus{path: path, dw: dw, lock: lock, gt: true}, nil
 	}
 
+	return openNativeBus(path, addr, force, lock)
+}
+
+// openNativeBus takes ownership of lock, including on failure.
+func openNativeBus(path string, addr uintptr, force bool, lock *os.File) (*bus, error) {
 	file, err := os.OpenFile(path, os.O_RDWR, 0)
 	if err != nil {
 		_ = lock.Close()
@@ -167,8 +295,7 @@ func openBusAt(path string, addr uintptr, force bool) (*bus, error) {
 		return nil, err
 	}
 
-	name, _ := os.ReadFile("/sys/bus/i2c/devices/" + filepath.Base(path) + "/name")
-	return &bus{path: path, file: file, lock: lock, gt: strings.HasPrefix(string(name), dwAdapter)}, nil
+	return &bus{path: path, file: file, lock: lock}, nil
 }
 
 func (b *bus) close() {
@@ -283,7 +410,9 @@ func scanBuses(path string, all bool) ([]string, error) {
 		return paths, nil
 	}
 	if path == "" {
-		found, err := findBus()
+		// A scan discovers addresses, including power-only MCUs at 0x26; it must not
+		// require a working LED controller at 0x3a before it can list them.
+		found, err := findBusAt(0, false)
 		if err != nil {
 			return nil, err
 		}

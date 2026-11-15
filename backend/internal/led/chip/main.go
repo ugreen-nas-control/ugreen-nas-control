@@ -41,7 +41,7 @@ lpss-probe DXP2800 SUB2 boards: the LED controller sits behind an Intel LPSS I2C
           (writes controller registers, never an LED frame) and reads the chip id. Needs no opt-in; LED
           control uses this path by default when every check passes (lpss_leds="0" in leds.cfg turns it off)
 
---bus     the SMBus device (default: the "SMBus I801 adapter")
+--bus     the I2C device (default: auto-detect an adapter)
 --debug   print every step of the DXP2800 SUB2 path (power, bring-up, each transfer) to stderr;
           UNC_LPSS_DEBUG=1 does the same
 --force   use the address even while a kernel driver (led_ugreen) holds it
@@ -246,13 +246,69 @@ func (c *cli) run(args []string) int {
 	case "set":
 		for _, name := range leds {
 			id, _ := ledID(name)
-			if err := b.change(id, command, params); err != nil {
+			var brightness byte
+			preserveBrightness := getLayout() == "gt" && command == cmdBlink
+			if preserveBrightness {
+				before, err := b.status(name)
+				if err != nil {
+					return c.failErr(err)
+				}
+				brightness = byte(before.Brightness)
+			}
+			if err := changeVerified(b, name, id, command, params); err != nil {
 				return c.failErr(fmt.Errorf("%s: %w", name, err))
+			}
+			// The DXP4800 GT MCU resets brightness to 180 when blink starts. The open bus holds the hardware lock.
+			if preserveBrightness {
+				if err := changeVerified(b, name, id, cmdBrightness, [4]byte{brightness}); err != nil {
+					return c.failErr(fmt.Errorf("%s: restore blink brightness: %w", name, err))
+				}
 			}
 		}
 	}
 
 	return 0
+}
+
+func changeVerified(b ledBus, name string, id, command byte, params [4]byte) error {
+	verify := getLayout() == "gt"
+	for attempt := range retries {
+		if attempt > 0 {
+			backoff(attempt)
+		}
+		if err := b.change(id, command, params); err != nil {
+			return err
+		}
+		if !verify {
+			return nil
+		}
+		state, err := b.status(name)
+		if err != nil {
+			return err
+		}
+		matched := false
+		switch command {
+		case cmdBrightness:
+			matched = state.Brightness == int(params[0])
+		case cmdColor:
+			matched = state.Color == fmt.Sprintf("%d %d %d", params[0], params[1], params[2])
+		case cmdOnOff:
+			matched = state.Mode == modeNames[params[0]]
+		case cmdBlink:
+			matched = state.Mode == "blink"
+		case cmdBreath:
+			matched = state.Mode == "breath"
+		}
+		if command == cmdBlink || command == cmdBreath {
+			on := int(params[2])<<8 | int(params[3])
+			cycle := int(params[0])<<8 | int(params[1])
+			matched = matched && state.OnMs == on && state.OffMs == cycle-on
+		}
+		if matched {
+			return nil
+		}
+	}
+	return errors.New("controller readback did not match the requested LED state")
 }
 
 // runScan handles "scan [all [--include-display]]". With all, graphics (display) buses are listed as skipped

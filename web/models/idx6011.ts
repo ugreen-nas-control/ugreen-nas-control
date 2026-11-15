@@ -2,9 +2,9 @@ import type { Model } from './schema';
 
 export default {
     id: 'idx6011',
-    name: 'iDX6011 / iDX6012 / Pro',
+    name: 'iDX6012 / iDX6011 Pro',
     series: 'iDX',
-    dmiPattern: '^iDX601[12]',
+    dmiPattern: '^iDX601(1 Pro|2)',
     fixtureDmi: 'iDX6011 Pro',
     cpu: 'Intel Core Ultra 5 125H (Pro: Core Ultra 7 255H)',
     ram: { type: 'LPDDR5X', mt: 8400 },
@@ -26,7 +26,7 @@ export default {
     verified: {
         leds: {
             status: 'expected',
-            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet.'
+            note: 'Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan. A Pro owner reports LEDs working on 5.6.0 (Killerkomando, #324), but individual bay order was not confirmed; use Identify to confirm. That report also describes activity blinks becoming too bright at night. The iDX6012 remains untested. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the LED page offers manual control of it; automatic network status still drives netdev only.'
         },
         fans: {
             status: 'expected',
@@ -34,7 +34,7 @@ export default {
         },
         case: {
             status: 'expected',
-            note: "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. Not compared on a device. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
+            note: "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. A Pro owner reports the case view working on 5.6.0 (#324), with some rear USB ports misaligned; exact placement still needs photos. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
         },
         sensors: { status: 'expected' },
         panel: { status: 'expected' }
@@ -43,7 +43,8 @@ export default {
         'https://ai.ugreen.com/products/ugreen-idx6011-32gb-ai-nas',
         'https://ai.ugreen.com/products/ugreen-idx6011-pro-ai-nas',
         'https://nascompares.com/2026/01/21/ugreen-idx6011-pro-ai-nas-review/',
-        'https://github.com/noodlemctwoodle/unraid-ugreen-idx6011-pro'
+        'https://github.com/noodlemctwoodle/unraid-ugreen-idx6011-pro',
+        'https://github.com/miskcoo/ugreen_leds_controller/issues/93'
     ],
     note: 'Six bays, two M.2 slots, a display at the front (Pro: 3.7 inch LCD), two 10G LAN ports, two Thunderbolt 4 ports, OCuLink. Fan control on the Pro only; the plain iDX6011 and iDX6012 show fan readings only (read-only).',
     shots: true,

@@ -10,3 +10,4 @@ import './history';
 import './cs201x';
 import './power-ac';
 import './panel';
+import './mqtt';

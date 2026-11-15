@@ -28,10 +28,13 @@ func Run() error {
 		updates: func() []Update { return readUpdates(pluginsBoot, pluginsFresh, dockerStatus, unraidCheck) }}
 
 	cl := &client{
-		addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
+		addr: dialAddr(cfg.Host, cfg.Port), useTLS: cfg.TLS, user: cfg.User, pass: cfg.Pass,
 		clientID:  "ugreen-nas-" + cfg.Name,
 		willTopic: prefix + "availability", willPayload: []byte("offline"),
 	}
+	cl.onStatus = func(state, reason string) { writeStatus(StatusPath, Status{State: state, Reason: reason}) }
+	writeStatus(StatusPath, Status{State: "connecting"})
+	defer func() { _ = os.Remove(StatusPath) }()
 	last := map[string][]byte{}
 	send := func(topic string, v any, retain bool) {
 		b, err := json.Marshal(v)

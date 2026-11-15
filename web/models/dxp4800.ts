@@ -47,11 +47,11 @@ export default {
             version: '5.2.0',
             date: '2026-11-05',
             ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/184',
-            note: "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. Inside view otherwise after UGREEN's manual, the Pro was not compared. Works on 5.5.0 too (#266)."
+            note: "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. The owner confirmed the SSD-to-slot mapping in #297: root port 00:06.2 is M2-KEYM1 beside the RAM, 00:06.0 is M2-KEYM3 farther left (API slots m2-1 and m2-2 respectively). The owner also confirmed the physical RAM labels: DIMM1 is the upper socket nearer the service cover, DIMM2 the lower socket nearer the PCB. Matching software memory entries to those sockets and the internal M2-KEYM2 root port remain unconfirmed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
         },
         sensors: {
             status: 'expected',
-            note: 'Not confirmed. A Plus owner reported the ACPI board temperature as a fixed value of about 28 C (5.5.0, #266); the sensors check is being looked at separately.'
+            note: 'Not confirmed. A Plus owner reported the ACPI thermal zone as a fixed value of about 28 C (5.5.0, #266). It is a BIOS constant, not a mainboard reading, and is no longer shown as the mainboard temperature.'
         },
         panel: {
             status: 'partial',
@@ -59,7 +59,7 @@ export default {
             version: '5.5.0',
             date: '2026-11-07',
             ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/266',
-            note: 'Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102) but the buttons did not respond; a panel buttons --watch test is requested and still open.'
+            note: 'Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102). panel buttons --watch saw the reset button (down and up, held 0.60 s) but never the power button. The power button is a standard ACPI power button (/proc/bus/input/devices: Power Button, PNP0C0C/button/input0) that Unraid handles itself: set Settings > Power Options > Power Button there. The panel pad cannot read it, so the plugin’s shutdown on a held power button does not apply on this model. The button also starts the box from off.'
         }
     },
     sources: [

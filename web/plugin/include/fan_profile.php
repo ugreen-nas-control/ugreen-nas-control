@@ -20,7 +20,7 @@ function fan_profile_run(array $args, ?string $stdin = null): array
         [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
         $pipes,
         '/',
-        [],
+        TOOL_ENV,
     );
 
     if (!is_resource($process)) {

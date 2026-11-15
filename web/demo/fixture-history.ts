@@ -5,7 +5,7 @@
 // job floor and boost, quiet cap that a job floor beats. Deterministic: the same time gives the same numbers.
 import { curveAt, parseCurve } from '../src/core/curve';
 import { MOD, type FanHistoryRange, type FanHistoryResponse, type FanHistorySeries } from '../src/core/contract-fan-history';
-import { berlinOffset } from '../src/features/nas/fan/history-model';
+import { zoneOffset } from '../src/features/nas/fan/history-model';
 import { fanConfig, fixtureHasChip } from '../models/fixture';
 import type { Model } from '../models/schema';
 
@@ -18,11 +18,11 @@ const CAP = 40;
 const JOB_FLOOR = 75;
 const JOB_BOOST = 20;
 const offsets = new Map<number, number>();
-/** Europe/Berlin offset, cached per hour (Intl is slow). */
+/** Local zone offset, cached per hour (Intl is slow). */
 const offsetAt = (t: number): number => {
     const hour = Math.floor(t / 3600);
     let v = offsets.get(hour);
-    if (v === undefined) offsets.set(hour, (v = berlinOffset(hour * 3600)));
+    if (v === undefined) offsets.set(hour, (v = zoneOffset(hour * 3600)));
     return v;
 };
 const DRIVERS = ['other', 'cpu', 'disk:disk1', 'disk:disk2'];

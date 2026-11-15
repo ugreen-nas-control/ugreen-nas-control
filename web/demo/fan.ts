@@ -1,6 +1,7 @@
 // The fan actions of api.php (inputs, schedule, profiles, v2 settings, probe, backlight) for the in-browser demo; the
 // answers follow web/tools/harness/api-fixture.php. Their state lives under `nas.fan` of the model's saved state.
 import { fanConfig } from '../models/fixture';
+import { mqttBadKey, mqttTestBadKey } from '../src/core/mqtt';
 import { shape } from './variants';
 import { fanHistory } from './fixture-history';
 import type { Model } from '../models/schema';
@@ -332,6 +333,8 @@ export function createFan(model: Model, host: FanHost) {
                     const ac = powerAc();
                     return 'status' in ac ? ac : ok(powerAcAnswer(ac));
                 }
+                case 'mqtt_get':
+                    return ok(mqttView(fan().mqtt ?? {}));
                 case 'panel_power':
                     return ok({ ...(fan().panelPower ?? { enabled: false, hold: 1.5 }) });
                 case 'panel_buttons':
@@ -463,6 +466,23 @@ export function createFan(model: Model, host: FanHost) {
                     host.persist();
                     return ok({ set: mode, ...powerAcAnswer(ac), verified: ac.readable });
                 }
+                case 'mqtt_set': {
+                    const input = Object.fromEntries(form.entries()) as Record<string, string>;
+                    const bad = mqttBadKey(input as never);
+                    if (bad) return fail(`Invalid value for ${bad}`);
+                    fan().mqtt = mqttApply(fan().mqtt ?? {}, input);
+                    host.persist();
+                    return ok(mqttView(fan().mqtt));
+                }
+                case 'mqtt_test': {
+                    const input = Object.fromEntries(form.entries()) as Record<string, string>;
+                    const bad = mqttTestBadKey(input);
+                    if (bad) return fail(`Invalid value for ${bad}`);
+                    // Hosts ending in .invalid cannot be resolved, as in RFC 6761; every other one takes the connection.
+                    return input.host!.endsWith('.invalid')
+                        ? ok({ connected: false, reason: `dial tcp: lookup ${input.host}: no such host` })
+                        : ok({ connected: true });
+                }
                 case 'panel_power': {
                     const enabled = form.get('enabled');
                     const hold = form.get('hold');
@@ -495,5 +515,42 @@ export function createFan(model: Model, host: FanHost) {
                     return null;
             }
         }
+    };
+}
+
+// MQTT settings (include/mqtt.php): the mqtt_* keys of fan.cfg as the demo keeps them. No publisher runs here; it counts as running while switched on.
+const MQTT_FLAGS = ['enabled', 'tls', 'control', 'control_updates', 'control_containers'];
+const MQTT_TEXTS = ['host', 'port', 'user', 'name', 'interval'];
+
+function mqttApply(config: Record<string, string>, input: Record<string, string>): Record<string, string> {
+    const next = { ...config };
+    for (const field of MQTT_FLAGS) next[`mqtt_${field}`] = input[field]!;
+    for (const field of MQTT_TEXTS) {
+        if (input[field]) next[`mqtt_${field}`] = input[field];
+        else delete next[`mqtt_${field}`];
+    }
+    if (input.pass_clear === '1') delete next.mqtt_pass;
+    else if (input.pass) next.mqtt_pass = input.pass;
+    return next;
+}
+
+function mqttView(config: Record<string, string>): Obj {
+    const port = Number(config.mqtt_port ?? '');
+    const interval = Number(config.mqtt_interval ?? '');
+    return {
+        enabled: config.mqtt_enabled === '1',
+        host: config.mqtt_host ?? '',
+        port: port > 0 && port < 65536 ? port : null,
+        tls: config.mqtt_tls === '1',
+        user: config.mqtt_user ?? '',
+        pass_set: (config.mqtt_pass ?? '') !== '',
+        name: (config.mqtt_name ?? '').replace(/[^a-zA-Z0-9_-]/g, ''),
+        interval: interval >= 2 && interval <= 60 ? interval : null,
+        control: config.mqtt_control === '1',
+        control_updates: config.mqtt_control_updates === '1',
+        control_containers: config.mqtt_control_containers === '1',
+        running: config.mqtt_enabled === '1',
+        connection: config.mqtt_enabled === '1' ? 'connected' : 'off',
+        reason: ''
     };
 }

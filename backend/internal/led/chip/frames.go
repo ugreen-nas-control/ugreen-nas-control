@@ -91,7 +91,7 @@ func seedFrameOrder(layout, product string) {
 // version (idxFirstFor).
 func framesFor(gt bool) []frame {
 	switch {
-	case gt:
+	case gt || getLayout() == "gt":
 		return []frame{frameGT}
 	case idxFrames():
 		return []frame{frameIdx}

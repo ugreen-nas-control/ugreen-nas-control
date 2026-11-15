@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"slices"
 	"time"
+
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/hw"
 )
 
 // ACPI devices in sysfs; tests point this at a fake tree.
@@ -264,22 +266,24 @@ func (c *EC) retry(fn func() error) (err error) {
 }
 
 func (c *EC) read(reg byte) (v byte, err error) {
-	err = c.retry(func() error {
-		// A byte left over from an aborted read would be taken for the answer.
-		if st, err := c.ports.In(ecCmdPort); err == nil && st&ecOBF != 0 {
-			_, _ = c.ports.In(ecDataPort)
-		}
-		if err := c.send(ecCmdPort, ecCmdRead); err != nil {
+	err = hw.WithECLock(func() error {
+		return c.retry(func() error {
+			// A byte left over from an aborted read would be taken for the answer.
+			if st, err := c.ports.In(ecCmdPort); err == nil && st&ecOBF != 0 {
+				_, _ = c.ports.In(ecDataPort)
+			}
+			if err := c.send(ecCmdPort, ecCmdRead); err != nil {
+				return err
+			}
+			if err := c.send(ecDataPort, reg); err != nil {
+				return err
+			}
+			if err := c.wait(ecOBF, true); err != nil {
+				return err
+			}
+			v, err = c.ports.In(ecDataPort)
 			return err
-		}
-		if err := c.send(ecDataPort, reg); err != nil {
-			return err
-		}
-		if err := c.wait(ecOBF, true); err != nil {
-			return err
-		}
-		v, err = c.ports.In(ecDataPort)
-		return err
+		})
 	})
 	return
 }
@@ -294,14 +298,16 @@ func (c *EC) write(reg, value byte) error {
 	if !c.writable(reg) {
 		return fmt.Errorf("%w: 0x%02x", errNotAllowed, reg)
 	}
-	return c.retry(func() error {
-		if err := c.send(ecCmdPort, ecCmdWrite); err != nil {
-			return err
-		}
-		if err := c.send(ecDataPort, reg); err != nil {
-			return err
-		}
-		return c.send(ecDataPort, value)
+	return hw.WithECLock(func() error {
+		return c.retry(func() error {
+			if err := c.send(ecCmdPort, ecCmdWrite); err != nil {
+				return err
+			}
+			if err := c.send(ecDataPort, reg); err != nil {
+				return err
+			}
+			return c.send(ecDataPort, value)
+		})
 	})
 }
 
@@ -316,10 +322,12 @@ func (c *EC) SendCommand(cmd byte) error {
 	if sp.acCmd == nil || (cmd != sp.acCmd.on && cmd != sp.acCmd.off) {
 		return fmt.Errorf("%w: command 0x%02x", errNotAllowed, cmd)
 	}
-	if err := c.send(ecCmdPort, cmd); err != nil {
-		return err
-	}
-	return c.wait(ecIBF, false)
+	return hw.WithECLock(func() error {
+		if err := c.send(ecCmdPort, cmd); err != nil {
+			return err
+		}
+		return c.wait(ecIBF, false)
+	})
 }
 
 func (c *EC) Name() string { return "IT5571" }

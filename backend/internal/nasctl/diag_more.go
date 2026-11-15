@@ -270,6 +270,9 @@ func redactCfg(data []byte, limit int, class keyClass) []string {
 	for _, k := range order {
 		v := last[k]
 		known, private := class(k)
+		if strings.HasPrefix(k, "smart_ack_") {
+			k = "smart_ack_<drive>"
+		}
 		switch {
 		case !known:
 			out = append(out, k+": <hidden>")

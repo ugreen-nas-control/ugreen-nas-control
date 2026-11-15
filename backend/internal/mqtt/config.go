@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"net"
 	"os"
 	"regexp"
 	"strconv"
@@ -63,6 +64,15 @@ func LoadConfig(path string) Config {
 		c.Name = "nas"
 	}
 	return c
+}
+
+// dialAddr is host:port for a dial. An IPv6 address gets its brackets here; a bracketed one from a hand-edited file keeps
+// exactly one pair.
+func dialAddr(host string, port int) string {
+	if len(host) > 1 && host[0] == '[' && host[len(host)-1] == ']' {
+		host = host[1 : len(host)-1]
+	}
+	return net.JoinHostPort(host, strconv.Itoa(port))
 }
 
 // Key is one mqtt_* setting of fan.cfg. Private: the value names the broker, a login or a topic, so a diagnostics

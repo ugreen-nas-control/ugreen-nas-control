@@ -32,10 +32,45 @@
       "note": "Two bays, two M.2 slots, one 2.5G LAN port. Case view after UGREEN's product renders; sensors only, the plugin drives nothing else on it."
     },
     {
+      "id": "dx4600",
+      "name": "DX4600",
+      "series": "DX",
+      "dmiPattern": "^DX4600$",
+      "fixtureDmi": "DX4600",
+      "cpu": "Intel Celeron N5105",
+      "bays": 4,
+      "m2Slots": null,
+      "m2": null,
+      "lan": null,
+      "led": "bays",
+      "caseView": "front-rear",
+      "fan": null,
+      "overall": "community",
+      "verified": {
+        "leds": {
+          "status": "community",
+          "by": "sbbbsbbb",
+          "ref": "https://github.com/miskcoo/ugreen_leds_controller/pull/132",
+          "note": "The upstream CLI was tested on a non-Pro DX4600 with DSM 7.2.1, kernel 5.10.55+: I801 at 00:1f.4 (8086:4da3), MCU at 0x3a, valid power/network/disk1-4 status checksums, and visually confirmed on/off, colour, brightness and blink. Not tested with this plugin. Physical disk-to-bay LED order remains unconfirmed."
+        },
+        "fans": { "status": "unsupported" },
+        "case": {
+          "status": "expected",
+          "note": "Front and rear use the existing DX4600-family drawing, not compared on the non-Pro. No inside view until the RAM and M.2 layout is established. Bay order remains unconfirmed."
+        },
+        "sensors": { "status": "expected" },
+        "panel": {
+          "status": "expected",
+          "note": "Buttons from UGREEN's DX4600-family driver; not checked on the non-Pro. The driver has no beeper for this family."
+        }
+      },
+      "note": "Non-Pro four-bay model with a Celeron N5105. Other specifications remain unconfirmed here. Front and rear case view; no fan control."
+    },
+    {
       "id": "dx4600-pro",
       "name": "DX4600 Pro",
       "series": "DX",
-      "dmiPattern": "^DX4600",
+      "dmiPattern": "^DX4600 Pro",
       "fixtureDmi": "DX4600 Pro",
       "cpu": "Intel Pentium Silver N6005",
       "bays": 4,
@@ -62,6 +97,37 @@
         "panel": { "status": "expected", "note": "Buttons from UGREEN's driver source; the vendor driver has no beeper for this model." }
       },
       "note": "First-generation four-bay model, no longer listed on the UGREEN store. Two 2.5G LAN ports, two M.2 slots, two DDR4 sockets. Case view; no fan control."
+    },
+    {
+      "id": "dx4600-variants",
+      "name": "DX4600 variants",
+      "series": "DX",
+      "dmiPattern": "^DX4600([+]| Plus)",
+      "fixtureDmi": "DX4600+",
+      "cpu": null,
+      "bays": 4,
+      "m2Slots": null,
+      "m2": null,
+      "lan": null,
+      "led": "bays",
+      "caseView": "front-rear",
+      "fan": null,
+      "overall": "expected",
+      "verified": {
+        "leds": {
+          "status": "expected",
+          "ref": "https://github.com/miskcoo/ugreen_leds_controller/pull/126",
+          "note": "Keep recognition of other DX4600-family names, including DX4600+, without assigning the Pro CPU or other specifications to them. Upstream PR 126 includes DX4600+ in its legacy protocol discovery path but reports hardware testing only on the plain DX4600. This variant and its bay order remain unconfirmed with this plugin."
+        },
+        "fans": { "status": "unsupported" },
+        "case": {
+          "status": "expected",
+          "note": "Front and rear use the existing family drawing. No inside view: RAM and M.2 layout are unknown for these variants."
+        },
+        "sensors": { "status": "expected" },
+        "panel": { "status": "expected", "note": "DX4600-family driver data only; not confirmed on these variants." }
+      },
+      "note": "Other DX4600-family variants: specifications and physical layout remain unconfirmed. No fan control."
     },
     {
       "id": "dx4700",
@@ -228,7 +294,7 @@
         },
         "case": {
           "status": "expected",
-          "note": "Inside after UGREEN's manual; slot numbering assumed. Front and rear after the product photos, not compared on a device."
+          "note": "Inside after UGREEN's manual; M.2 numbering and bay order assumed. Front and rear after the product photos, not compared on a device."
         },
         "sensors": { "status": "expected" },
         "panel": { "status": "expected", "note": "Buttons from UGREEN's driver source; the vendor driver has no beeper for this model." }
@@ -272,7 +338,7 @@
       "bays": 4,
       "m2Slots": 2,
       "m2": { "slots": ["m2-1", "m2-2"], "pcieSlot": false },
-      "lan": { "maxMbit": [2500] },
+      "lan": { "maxMbit": [2500, 2500] },
       "led": "bays",
       "caseView": "full",
       "fan": {
@@ -286,19 +352,48 @@
       },
       "overall": "community",
       "verified": {
-        "leds": { "status": "community", "by": "users", "note": "LED support confirmed by users of the DXP4800 family." },
+        "leds": {
+          "status": "community",
+          "by": "rogvalinger-ops (issue 299)",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299",
+          "note": "Reported working on 5.6.0 (#299): LED probe ok at 0x3a, 6 LEDs. Also reported working by users of the DXP4800 family."
+        },
         "fans": {
-          "status": "expected",
-          "note": "Same IT8613E as the DXP6800 Pro, header wiring not known: the fan probe finds which output drives which fan and fan control stays off until you confirm its result. Not run on this model yet. UGREEN's own driver drives only header 3 here, no cpu fan output."
+          "status": "community",
+          "by": "rogvalinger-ops (issue 299)",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299",
+          "note": "Reported working on 5.6.0 (#299): IT8613 found, the fan probe confirmed header 3 as the case fan, which spun at 602 rpm under plugin control. No cpu fan output, as in UGREEN's own driver (header 3 only). Same IT8613E as the DXP6800 Pro."
         },
         "case": {
-          "status": "expected",
-          "note": "The rear is drawn after the Plus and shows two LAN ports; this model has one 2.5G port. Inside after UGREEN's manual; slot numbering assumed."
+          "status": "community",
+          "by": "rogvalinger-ops (issue 299)",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299",
+          "note": "Reported working on 5.6.0 (#299): two 2.5G LAN ports (Intel I226-V), drawn on the rear. Inside view after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket; which SSD sits in which M.2 slot is assumed (the two NVMe drives sit on root ports 00:1d.2 and 00:1d.0)."
         },
-        "sensors": { "status": "expected" },
-        "panel": { "status": "expected" }
+        "sensors": {
+          "status": "community",
+          "by": "rogvalinger-ops (issue 299)",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299",
+          "note": "Reported working on 5.6.0 (#299): cpu temperature ok."
+        },
+        "panel": {
+          "status": "partial",
+          "by": "rogvalinger-ops (issue 299)",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299",
+          "note": "Reported working on 5.6.0 (#299): the panel tables are present and the form says the front panel works. No button test or beeper test was reported, so the buttons stay unconfirmed."
+        }
       },
-      "note": "Four bays, two M.2 slots, one 2.5G LAN port. Fan control after a fan probe."
+      "note": "Four bays, two M.2 slots, two 2.5G LAN ports. Fan control after a fan probe."
     },
     {
       "id": "dxp4800-gt",
@@ -402,11 +497,11 @@
           "version": "5.2.0",
           "date": "2026-11-05",
           "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/184",
-          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. Inside view otherwise after UGREEN's manual, the Pro was not compared. Works on 5.5.0 too (#266)."
+          "note": "Front and rear confirmed by a Plus owner. The two M.2 slots of the underside panel are printed M2-KEYM1 (next to the RAM) and M2-KEYM3 on the board, shown as M.2-1 and M.2-3 (UGREEN's photos agree); the third slot, M2-KEYM2, is inside the case. The Plus inside view follows the owner photo in #297: overlapping RAM sockets at the right, M2-KEYM1 beside the RAM and M2-KEYM3 farther left. The owner confirmed the SSD-to-slot mapping in #297: root port 00:06.2 is M2-KEYM1 beside the RAM, 00:06.0 is M2-KEYM3 farther left (API slots m2-1 and m2-2 respectively). The owner also confirmed the physical RAM labels: DIMM1 is the upper socket nearer the service cover, DIMM2 the lower socket nearer the PCB. Matching software memory entries to those sockets and the internal M2-KEYM2 root port remain unconfirmed; the Pro retains the manual layout and was not compared. Works on 5.5.0 too (#266)."
         },
         "sensors": {
           "status": "expected",
-          "note": "Not confirmed. A Plus owner reported the ACPI board temperature as a fixed value of about 28 C (5.5.0, #266); the sensors check is being looked at separately."
+          "note": "Not confirmed. A Plus owner reported the ACPI thermal zone as a fixed value of about 28 C (5.5.0, #266). It is a BIOS constant, not a mainboard reading, and is no longer shown as the mainboard temperature."
         },
         "panel": {
           "status": "partial",
@@ -414,7 +509,7 @@
           "version": "5.5.0",
           "date": "2026-11-07",
           "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/266",
-          "note": "Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102) but the buttons did not respond; a panel buttons --watch test is requested and still open."
+          "note": "Beeper: confirmed by a Plus owner. Buttons: the pad registers read real values (power 0xFD6A0980 = 0x04000100, reset 0xFD6D0A10 = 0x84000102). panel buttons --watch saw the reset button (down and up, held 0.60 s) but never the power button. The power button is a standard ACPI power button (/proc/bus/input/devices: Power Button, PNP0C0C/button/input0) that Unraid handles itself: set Settings > Power Options > Power Button there. The panel pad cannot read it, so the plugin’s shutdown on a held power button does not apply on this model. The button also starts the box from off."
         }
       },
       "note": "Four bays, two M.2 slots, one 10G and one 2.5G LAN port. Fan control after a fan probe."
@@ -503,31 +598,45 @@
           "note": "Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware."
         }
       },
-      "overall": "verified",
+      "overall": "community",
       "verified": {
         "leds": {
-          "status": "verified",
-          "by": "upstream maintainer (development box)",
-          "version": "0.7.0",
-          "date": "2026-10-24",
-          "note": "LED control shipped in this plugin on 0.7.0, developed on this box; miskcoo verified the protocol on the model too."
+          "status": "community",
+          "by": "manilx (issue 302)",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "note": "LED control confirmed by manilx on 5.6.0 (#302). Earlier development and maintainer checks established the protocol on this reference model."
         },
         "fans": {
-          "status": "verified",
-          "by": "upstream maintainer (development box)",
-          "version": "0.1.0",
-          "date": "2026-10-06",
-          "note": "First version of the plugin: made for this model."
+          "status": "community",
+          "by": "manilx (issue 302)",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "note": "Fan control reported working by manilx on 5.6.0 (#302); the diagnostics show the expected fan headers and spinning fans."
         },
         "case": {
-          "status": "verified",
-          "by": "upstream maintainer (development box)",
-          "version": "0.10.4",
-          "date": "2026-10-24",
-          "note": "Inside view (M.2 slots on CPU and chipset, system slot, PCIe slot) and the rear drawn after the device."
+          "status": "community",
+          "by": "manilx (issue 302)",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302",
+          "version": "5.6.0",
+          "date": "2026-11-12",
+          "note": "Case view reported working by manilx on 5.6.0 (#302). The inside and rear drawing and root-port map were established on the maintainer device."
         },
-        "sensors": { "status": "verified", "by": "upstream maintainer (development box)", "version": "0.1.0", "date": "2026-10-06" },
-        "panel": { "status": "expected" }
+        "sensors": {
+          "status": "community",
+          "by": "manilx (issue 302)",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302",
+          "version": "5.6.0",
+          "date": "2026-11-12"
+        },
+        "panel": {
+          "status": "expected",
+          "by": "manilx (issue 302)",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/302",
+          "note": "Front panel reported working on 5.6.0; held power-button detection has not been confirmed."
+        }
       },
       "note": "Six bays, two M.2 slots plus the internal system slot, a PCIe slot, two 10G LAN ports. Fan control through the IT8613E; the reference model of the plugin."
     },
@@ -670,12 +779,12 @@
           "note": "Temperatures and the dashboard tile confirmed by a user; a one-off -21 °C board reading from the ACPI thermal zone is ignored since 5.1.1."
         },
         "panel": {
-          "status": "community",
+          "status": "partial",
           "by": "Chiconydu69 (issue 165)",
           "version": "5.4.0",
           "date": "2026-11-07",
           "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/165",
-          "note": "Buttons: the pad registers read 0x84000100 (power) and 0x84000102 (reset), and panel buttons --watch showed power down, press and up and reset down and up. Beeper: the beeper test sounded right after the click. On some boots the BIOS hides the pad registers (0xFF)."
+          "note": "Beeper: confirmed, the test sounded right after the click. Reset button: the pad registers read real values (reset 0xFD6D0A10 = 0x84000102) and panel buttons --watch saw it on a normal press (down and up, held 0.40 s). Power button (5.7.0-next.000213, 2026-11-08): panel buttons --watch shows it only after the button has been held for about 10 s, then as one short pulse (down, press, up held 0.20 s); a normal press or hold shows nothing, so the shutdown on a held power button (1.5 s) never fires. The power button is a standard ACPI power button (/proc/bus/input/devices: Power Button, PNP0C0C/button/input0) that Unraid handles itself: set Settings > Power Options > Power Button there. The panel pad cannot read it, so the plugin’s shutdown on a held power button does not apply on this model. On some boots the BIOS hides the pad registers (0xFF)."
         }
       },
       "note": "Eight bays, two M.2 slots, two 10G LAN ports and two Thunderbolt 4 ports. Fan control after a fan probe."
@@ -708,10 +817,47 @@
       "note": "Eight bays, two M.2 slots, two 10G LAN ports and two Thunderbolt 4 ports. LEDs are enabled but nobody has confirmed them."
     },
     {
-      "id": "idx6011",
-      "name": "iDX6011 / iDX6012 / Pro",
+      "id": "idx6011-plain",
+      "name": "iDX6011",
       "series": "iDX",
-      "dmiPattern": "^iDX601[12]",
+      "dmiPattern": "^iDX6011$",
+      "fixtureDmi": "iDX6011",
+      "cpu": "Intel Core Ultra 5 125H",
+      "bays": 6,
+      "m2Slots": 2,
+      "m2": { "slots": ["m2-1", "m2-2"], "pcieSlot": true },
+      "lan": { "maxMbit": [10000, 10000] },
+      "led": "bays",
+      "caseView": "full",
+      "fan": null,
+      "overall": "community",
+      "verified": {
+        "leds": {
+          "status": "community",
+          "by": "deiviest (issue 318)",
+          "version": "5.6.0",
+          "date": "2026-11-14",
+          "ref": "https://github.com/ugreen-nas-control/ugreen-nas-control/issues/318",
+          "note": "Confirmed on the plain iDX6011 with 5.6.0 and Unraid 7.3.4: MCU at 0x3a on I801, Identify lights LAN and disks 1-6 in front-label order, power colour and brightness changes work. Status mode with activity disabled keeps sleeping drives asleep, dims occupied bays and turns empty bays off. Physical SATA-to-bay mapping checked only for occupied bays 1 and 2; activity remains untested. EC coexistence with ug-fand is tracked separately in #318."
+        },
+        "fans": {
+          "status": "unsupported",
+          "note": "Fan control is not offered on the plain model. The backend can read its two system fans (mode 0x9c/0x9e, duty 0x9d/0x9f, tach 0x96-0x99), but never writes fan registers. Shared EC access with ug-fand is tracked in #318."
+        },
+        "case": {
+          "status": "expected",
+          "note": "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. A Pro owner reports the case view working on 5.6.0 (#324), with some rear USB ports misaligned; exact placement still needs photos. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
+        },
+        "sensors": { "status": "expected" },
+        "panel": { "status": "expected" }
+      },
+      "note": "Plain six-bay iDX6011: LED control confirmed with 5.6.0. No fan control; read-only fan backend. Activity and full physical bay mapping remain unconfirmed."
+    },
+    {
+      "id": "idx6011",
+      "name": "iDX6012 / iDX6011 Pro",
+      "series": "iDX",
+      "dmiPattern": "^iDX601(1 Pro|2)",
       "fixtureDmi": "iDX6011 Pro",
       "cpu": "Intel Core Ultra 5 125H (Pro: Core Ultra 7 255H)",
       "bays": 6,
@@ -732,7 +878,7 @@
       "verified": {
         "leds": {
           "status": "expected",
-          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan; not checked on a device with this plugin, use Identify to confirm. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the plugin pages do not show it yet."
+          "note": "Bay order (Pro: bays 3-4 on the Intel controller, plain iDX6011 and iDX6012: bays 5-6) follows the MIT-licensed plugins noodlemctwoodle/unraid-ugreen-idx6011-pro and omgapuppy/unraid-ugreen-idx6011-led-fan. A Pro owner reports LEDs working on 5.6.0 (Killerkomando, #324), but individual bay order was not confirmed; use Identify to confirm. That report also describes activity blinks becoming too bright at night. The iDX6012 remains untested. LED chip 0xc5b2. The Pro has a second LAN LED (register 2, `netdev2` in ugreen-led-i2c, from the driver UGREEN ships); the LED page offers manual control of it; automatic network status still drives netdev only."
         },
         "fans": {
           "status": "expected",
@@ -740,7 +886,7 @@
         },
         "case": {
           "status": "expected",
-          "note": "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. Not compared on a device. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
+          "note": "Drawn after photos, inside after UGREEN's manual; slot numbering assumed. A Pro owner reports the case view working on 5.6.0 (#324), with some rear USB ports misaligned; exact placement still needs photos. The iDX6012 is the pre-launch name of the iDX6011 as far as known."
         },
         "sensors": { "status": "expected" },
         "panel": { "status": "expected" }

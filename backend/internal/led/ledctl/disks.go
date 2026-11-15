@@ -105,6 +105,7 @@ func tempColor(temp, hot, maxT int64) string {
 // section of a device wins.
 func (c *Ctl) disksLoad() {
 	c.disks = map[string]string{}
+	defer c.unassignedStandbyLoad()
 	var name, device, status, spundown, temp, errs, rot, warn, crit, id string
 	flush := func() {
 		if device == "" || name == "" {
@@ -170,6 +171,52 @@ func (c *Ctl) disksLoad() {
 		}
 	}
 	flush()
+}
+
+func (c *Ctl) unassignedStandbyLoad() {
+	c.standby = map[string]bool{}
+	lines, _ := readLines(c.Env.DevsINI)
+	var device, spundown string
+	flush := func() {
+		if device != "" && (spundown == "0" || spundown == "1") {
+			if _, exists := c.standby[device]; !exists {
+				c.standby[device] = spundown == "1"
+			}
+		}
+	}
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "[") {
+			flush()
+			device, spundown = "", ""
+			continue
+		}
+		key, value, ok := strings.Cut(line, "=")
+		if !ok {
+			continue
+		}
+		value = strings.TrimSpace(value)
+		if strings.HasPrefix(value, `"`) {
+			if len(value) < 2 || !strings.HasSuffix(value, `"`) {
+				continue
+			}
+			value = value[1 : len(value)-1]
+		}
+		switch strings.TrimSpace(key) {
+		case "device":
+			device = value
+		case "spundown":
+			spundown = value
+		}
+	}
+	flush()
+}
+
+func (c *Ctl) diskStandby(device string) bool {
+	if disk, exists := c.disks[device]; exists {
+		return field(strings.Fields(disk), 3, "0") == "1"
+	}
+	return c.standby[device]
 }
 
 func orStr(s, def string) string {
@@ -524,7 +571,7 @@ func (c *Ctl) baysJSON() {
 	sb.WriteString("[")
 	for bay := 1; bay <= c.bays; bay++ {
 		dev := c.bayDevice(bay)
-		serial, slot, status, spundown := "", "", "", "0"
+		serial, slot, status := "", "", ""
 		temp, errs := "-", "0"
 		hot, maxT := "45", "55"
 		now, key, warnings := "", "", ""
@@ -534,7 +581,6 @@ func (c *Ctl) baysJSON() {
 			w := strings.Fields(c.disks[dev])
 			slot = field(w, 1, "")
 			status = field(w, 2, "")
-			spundown = field(w, 3, "0")
 			temp = field(w, 4, "-")
 			errs = field(w, 5, "0")
 			hot, maxT = c.tempLimits(field(w, 6, "1"), field(w, 7, "-"), field(w, 8, "-"))
@@ -553,7 +599,7 @@ func (c *Ctl) baysJSON() {
 			sb.WriteString(",")
 		}
 		fmt.Fprintf(&sb, `{"bay":%d,"led":"disk%d","device":"%s","serial":"%s","slot":"%s","status":"%s","error":%t,"standby":%t,"temp":%s,"errors":%s,"temp_hot":%s,"temp_max":%s,"smart_now":"%s","smart_key":"%s","smart_warnings":"%s"}`,
-			bay, bay, dev, serial, slot, status, isErrorStatus(status), spundown == "1", tempJSON, errs, hot, maxT, now, key, warnings)
+			bay, bay, dev, serial, slot, status, isErrorStatus(status), c.diskStandby(dev), tempJSON, errs, hot, maxT, now, key, warnings)
 	}
 	sb.WriteString("]\n")
 	c.out("%s", sb.String())

@@ -233,7 +233,7 @@ func TestLayoutFor(t *testing.T) {
 	if len(l.bayPorts) != 4 || l.bayPorts[3] != 4 || l.slots["0000:00:01.4"] != "m2-1" || l.slots["0000:00:01.6"] != "m2-2" {
 		t.Errorf("DXP4800 GT: %+v", l)
 	}
-	for _, model := range []string{"DXP4800 Plus", "DXP4800", "DXP4800 Pro"} {
+	for _, model := range []string{"DXP4800", "DXP4800 Pro"} {
 		if l := layoutFor(model); len(l.bayPorts) != 4 || l.bayPorts[0] != 1 || l.otherSlot != "m2" || l.slots != nil {
 			t.Errorf("%q: %+v", model, l)
 		}
@@ -288,9 +288,29 @@ func TestReadHardwareDXP4800Plus(t *testing.T) {
 	if len(hw.Bays) != 4 {
 		t.Errorf("bays: %+v", hw.Bays)
 	}
+	// The fake tree includes both reported root ports and two unconfirmed ones.
+	// IDs are intentionally unlike the report: placement must follow the root port.
+	want := map[string]string{"nvme0": "m2-1", "nvme1": "m2", "nvme2": "m2", "nvme3": "m2-2"}
+	if len(hw.NVMe) != len(want) {
+		t.Fatalf("NVMe: %+v", hw.NVMe)
+	}
 	for _, d := range hw.NVMe {
-		if d.Slot != "m2" {
-			t.Errorf("%s in slot %q", d.ID, d.Slot)
+		if d.Slot != want[d.ID] {
+			t.Errorf("%s in slot %q, want %q", d.ID, d.Slot, want[d.ID])
+		}
+	}
+	// A reboot may change controller enumeration, but not the root port wiring.
+	class := filepath.Join(sysDir, "class", "nvme")
+	if err := os.Rename(filepath.Join(class, "nvme0"), filepath.Join(class, "nvme4")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(filepath.Join(class, "nvme3"), filepath.Join(class, "nvme0")); err != nil {
+		t.Fatal(err)
+	}
+	want["nvme0"], want["nvme4"] = "m2-2", "m2-1"
+	for _, d := range ReadHardware().NVMe {
+		if d.Slot != want[d.ID] {
+			t.Errorf("after enumeration change: %s in slot %q, want %q", d.ID, d.Slot, want[d.ID])
 		}
 	}
 }
@@ -400,5 +420,67 @@ func TestMaxLinkSpeedMissIsNotPermanent(t *testing.T) {
 	missTTL = 0
 	if n := maxLinkSpeed("eth9"); n != 2500 {
 		t.Errorf("miss never expires: %d", n)
+	}
+}
+
+// DXP4800 GT: both modules report the locator "DIMM 0", the channel is in the bank locator.
+const dmidecodeGT = `Handle 0x0013, DMI type 17, 40 bytes
+Memory Device
+	Size: 8 GiB
+	Form Factor: SODIMM
+	Locator: DIMM 0
+	Bank Locator: P0 CHANNEL A
+	Type: DDR4
+	Speed: 2667 MT/s
+	Manufacturer: Kingston
+	Configured Memory Speed: 2667 MT/s
+
+Handle 0x0016, DMI type 17, 40 bytes
+Memory Device
+	Size: 8 GiB
+	Form Factor: SODIMM
+	Locator: DIMM 0
+	Bank Locator: P0 CHANNEL B
+	Type: DDR4
+	Speed: 2667 MT/s
+	Manufacturer: Kingston
+	Configured Memory Speed: 2667 MT/s
+`
+
+func TestParseDmidecodeSameLocator(t *testing.T) {
+	dimms := parseDmidecode(dmidecodeGT)
+	if len(dimms) != 2 {
+		t.Fatalf("%d modules", len(dimms))
+	}
+	for i, d := range dimms {
+		if d.Locator != "DIMM 0" || d.SizeMB != 8192 || d.Type != "DDR4" || d.SpeedMT != 2667 || d.ConfiguredMT != 2667 {
+			t.Errorf("module %d: %+v", i, d)
+		}
+	}
+}
+
+func TestReadHardwareDXP2800GT(t *testing.T) {
+	fakeSys(t)
+	for _, model := range []string{"DXP2800 GT", "DXP2800 GT V1"} {
+		if err := os.WriteFile(filepath.Join(dmiDir, "product_name"), []byte(model+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		hw := ReadHardware()
+		if len(hw.Bays) != 2 {
+			t.Fatalf("%s: bays %+v", model, hw.Bays)
+		}
+		for i, dev := range []string{"sda", "sdb"} {
+			if hw.Bays[i].Bay != i+1 || hw.Bays[i].Device != dev || !hw.Bays[i].Present {
+				t.Errorf("%s bay %d: %+v", model, i+1, hw.Bays[i])
+			}
+		}
+		if len(hw.NVMe) == 0 {
+			t.Fatal("no NVMe drives in fixture")
+		}
+		for _, drive := range hw.NVMe {
+			if drive.Slot != "m2" {
+				t.Errorf("%s: %s in %s, want m2", model, drive.ID, drive.Slot)
+			}
+		}
 	}
 }

@@ -3,6 +3,7 @@ import { historyNl } from './parts/history.nl';
 import { scheduleNl } from './parts/schedule.nl';
 import { panelNl } from './parts/panel.nl';
 import { powerNl } from './parts/power.nl';
+import { mqttNl } from './parts/mqtt.nl';
 import { toolsNl } from './parts/tools.nl';
 import type { Key } from './en';
 
@@ -266,6 +267,10 @@ export const nl: Record<Key, string> = {
         'Het serviceluik aan de onderkant volgens de UGREEN-handleiding: twee RAM-sockets, M.2 eronder en ernaast; de PCIe-sleuf zit in het frame. De nummering van RAM 1 / RAM 2 en M.2-1 / M.2-2 is aangenomen; wijkt jouw apparaat af, open dan een issue.',
     'case.inside_hint_like_8800plus':
         'De binnenkant is getekend naar de DXP8800 Plus: het moederbord van dit model is niet bekend. De nummering van RAM en M.2 is aangenomen; open een issue als jouw kast afwijkt.',
+    'case.inside_hint_4800base':
+        'Het serviceluik aan de onderkant naar de handleiding van UGREEN en een foto van het open luik: twee M.2-slots links, rechts daarvan één SO-DIMM-sokkel (af fabriek zit er een module in). Welke SSD in welk M.2-slot zit, is aangenomen; wijkt jouw apparaat af, open dan een issue.',
+    'case.inside_hint_4800plus':
+        'Het onderste servicepaneel, getekend naar een foto van een DXP4800 Plus-eigenaar: overlappende RAM-voeten rechts; M.2-1 (M2-KEYM1) naast het RAM en M.2-3 (M2-KEYM3) verder links. DIMM1 is de bovenste voet dichter bij het deksel; DIMM2 zit eronder dichter bij de printplaat. De SSD-toewijzing is bevestigd; welke geheugenvermelding in de software bij welke voet hoort, is nog onbevestigd. De interne M2-KEYM2-sleuf is niet getekend.',
     'case.inside_hint_4800':
         'Het serviceluik aan de onderkant. De slots heten zoals op het moederbord gedrukt: M.2-1 is M2-KEYM1 (naast het RAM) en M.2-3 is M2-KEYM3; M2-KEYM2 zit in de behuizing, voor de systeemmodule van de fabriek. De nummering van RAM 1 / RAM 2 is aangenomen; wijkt jouw apparaat af, open dan een issue.',
     'in.slot_empty': '{label} · leeg',
@@ -553,5 +558,6 @@ export const nl: Record<Key, string> = {
     'case.inside_hint_dh':
         "Het binnenste naar de productrenders van UGREEN: de twee M.2-slots aan de zijkant van de schijvenkooi, de twee RAM-sockets op het moederbord eronder. De nummering van beide paren is aangenomen; open een issue als jouw kast afwijkt. De tweede RAM-socket komt uit de specificaties van UGREEN; de foto's tonen één SO-DIMM.",
     ...panelNl,
-    ...powerNl
+    ...powerNl,
+    ...mqttNl
 };

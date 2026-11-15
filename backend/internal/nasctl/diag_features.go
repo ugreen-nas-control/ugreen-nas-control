@@ -42,7 +42,8 @@ type FeatureInputs struct {
 	LEDImport     bool // the other LED plugin's leds.cfg is there to import
 	Rivals        RivalDiag
 	MQTTRunning   bool
-	MQTTLog       string // tail of the publisher log
+	MQTTLog       string       // tail of the publisher log
+	MQTTStatus    *mqtt.Status // the publisher's own connection state; nil without one (older publisher)
 	Scripts       []string
 	Dashboard     bool
 }
@@ -656,21 +657,40 @@ func mqttConnection(in FeatureInputs) string {
 	if !in.MQTTRunning {
 		return "publisher stopped"
 	}
+	if s := in.MQTTStatus; s != nil {
+		switch s.State {
+		case "connected", "connecting":
+			return s.State
+		case "failed":
+			return "failing: " + mqttFailure(s.Reason)
+		}
+	}
 	lines := strings.Split(strings.TrimSpace(in.MQTTLog), "\n")
 	last := strings.ToLower(lines[len(lines)-1])
-	switch {
-	case !strings.Contains(last, "retrying"):
+	if !strings.Contains(last, "retrying") {
 		return "no connection error logged"
-	case strings.Contains(last, "refused"):
-		return "failing: connection refused"
-	case strings.Contains(last, "timeout"), strings.Contains(last, "timed out"):
-		return "failing: timeout"
-	case strings.Contains(last, "no such host"), strings.Contains(last, "lookup"):
-		return "failing: host name not found"
-	case strings.Contains(last, "not authorized"), strings.Contains(last, "bad user"), strings.Contains(last, "credentials"):
-		return "failing: login refused"
 	}
-	return "failing: see the Log section of the publisher"
+	return "failing: " + mqttFailure(last)
+}
+
+// mqttFailure names why a connection failed from the publisher's text (a log line or the reason of its status). A refusal
+// by the broker ("connection refused: <reason> (code N)", client.go connackReason) is told from a refused TCP connection
+// ("dial tcp ...: connect: connection refused") by its code.
+func mqttFailure(text string) string {
+	text = strings.ToLower(text)
+	switch {
+	case strings.Contains(text, "not authorized"), strings.Contains(text, "bad user"), strings.Contains(text, "credentials"):
+		return "login refused"
+	case strings.Contains(text, "connection refused: ") && strings.Contains(text, "(code "):
+		return "refused by the broker"
+	case strings.Contains(text, "refused"):
+		return "connection refused"
+	case strings.Contains(text, "timeout"), strings.Contains(text, "timed out"):
+		return "timeout"
+	case strings.Contains(text, "no such host"), strings.Contains(text, "lookup"):
+		return "host name not found"
+	}
+	return "see the Log section of the publisher"
 }
 
 func conflictsLine(in FeatureInputs) string {

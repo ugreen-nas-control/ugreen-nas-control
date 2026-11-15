@@ -11,7 +11,7 @@ export default {
     bays: 4,
     m2Slots: 2,
     m2: { slots: ['m2-1', 'm2-2'], pcieSlot: false },
-    lan: { maxMbit: [2500] },
+    lan: { maxMbit: [2500, 2500] },
     led: 'bays',
     caseView: 'full',
     caseVariant: 'rear4800',
@@ -25,19 +25,48 @@ export default {
         }
     },
     verified: {
-        leds: { status: 'community', by: 'users', note: 'LED support confirmed by users of the DXP4800 family.' },
+        leds: {
+            status: 'community',
+            by: 'rogvalinger-ops (issue 299)',
+            version: '5.6.0',
+            date: '2026-11-12',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
+            note: 'Reported working on 5.6.0 (#299): LED probe ok at 0x3a, 6 LEDs. Also reported working by users of the DXP4800 family.'
+        },
         fans: {
-            status: 'expected',
-            note: "Same IT8613E as the DXP6800 Pro, header wiring not known: the fan probe finds which output drives which fan and fan control stays off until you confirm its result. Not run on this model yet. UGREEN's own driver drives only header 3 here, no cpu fan output."
+            status: 'community',
+            by: 'rogvalinger-ops (issue 299)',
+            version: '5.6.0',
+            date: '2026-11-12',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
+            note: "Reported working on 5.6.0 (#299): IT8613 found, the fan probe confirmed header 3 as the case fan, which spun at 602 rpm under plugin control. No cpu fan output, as in UGREEN's own driver (header 3 only). Same IT8613E as the DXP6800 Pro."
         },
         case: {
-            status: 'expected',
-            note: "The rear is drawn after the Plus and shows two LAN ports; this model has one 2.5G port. Inside after UGREEN's manual; slot numbering assumed."
+            status: 'community',
+            by: 'rogvalinger-ops (issue 299)',
+            version: '5.6.0',
+            date: '2026-11-12',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
+            note: "Reported working on 5.6.0 (#299): two 2.5G LAN ports (Intel I226-V), drawn on the rear. Inside view after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket; which SSD sits in which M.2 slot is assumed (the two NVMe drives sit on root ports 00:1d.2 and 00:1d.0)."
         },
-        sensors: { status: 'expected' },
-        panel: { status: 'expected' }
+        sensors: {
+            status: 'community',
+            by: 'rogvalinger-ops (issue 299)',
+            version: '5.6.0',
+            date: '2026-11-12',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
+            note: 'Reported working on 5.6.0 (#299): cpu temperature ok.'
+        },
+        panel: {
+            status: 'partial',
+            by: 'rogvalinger-ops (issue 299)',
+            version: '5.6.0',
+            date: '2026-11-12',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/299',
+            note: 'Reported working on 5.6.0 (#299): the panel tables are present and the form says the front panel works. No button test or beeper test was reported, so the buttons stay unconfirmed.'
+        }
     },
     sources: ['https://nascompares.com/2025/11/14/new-ugreen-dxp4800-pro-and-dxp4800s-nas-revealed/'],
-    note: 'Four bays, two M.2 slots, one 2.5G LAN port. Fan control after a fan probe.',
+    note: 'Four bays, two M.2 slots, two 2.5G LAN ports. Fan control after a fan probe.',
     shots: false
 } satisfies Model;

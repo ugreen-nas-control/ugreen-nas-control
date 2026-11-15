@@ -81,7 +81,9 @@ func TestParseWantedAndMatches(t *testing.T) {
 	}{
 		{"disk1", "steady|1 2 3|200", false, true}, {"disk1", "steady|1 2 3|100", false, false},
 		{"disk2", "breath|1 2 3|200", false, true}, {"disk2", "pulse|1 2 3|200", false, false},
-		{"disk3", "steady|1 2 3|200", true, true}, {"disk3", "steady|1 2 3|200", false, false},
+		{"disk3", "steady|9 9 9|200", true, true}, {"disk3", "steady|1 2 3|200", false, false},
+		{"disk3", "steady|9 9 9|51", true, false}, {"disk3", "steady|1 2 3|200", true, false},
+		{"disk3", "pulse|9 9 9|200", true, false},
 		{"disk4", "pulse|1 2 3|200", false, true}, {"disk5", "off", false, true}, {"disk1", "off", false, false},
 		{"disk6", "off", false, false},
 	}

@@ -1,6 +1,6 @@
 // What the harness and the demo answer for a model beyond web/models/fixture.ts: the front-panel data of every model,
 // the DXP2800 GT's Chipsea CS201x (confirm, forget, diagnostics) and one pseudo model, `idx6011-plain` (the plain iDX6011
-// with read-only fans; the model registry has one entry for the whole iDX6011/6012/Pro family, and the Pro is the sample there).
+// with read-only fans). Use the real plain-model entry when the registry contains it.
 import { fanSamples, status } from '../models/fixture';
 import type { Model } from '../models/schema';
 import { panelConfirmed } from '../src/features/nas/model-info';
@@ -22,7 +22,7 @@ const plain = (base: Model): Model => ({
 /** The registry plus the pseudo models the harness and the screenshots serve. */
 export const withVariants = (models: Model[]): Model[] => {
     const base = models.find(m => m.id === 'idx6011');
-    return base ? [...models, plain(base)] : models;
+    return base && !models.some(m => m.id === PLAIN_IDX) ? [...models, plain(base)] : models;
 };
 
 export const isReadOnlyFan = (m: Model): boolean => m.id === PLAIN_IDX;
@@ -64,9 +64,14 @@ export interface Shaped {
 export function shape(model: Model): Shaped {
     const dmi = model.fixtureDmi;
     const ac = powerAcFor(dmi);
+    // The registry advertises no fan control for the plain model, but the backend still
+    // supplies read-only EC readings. Keep those sample readings separate from support metadata.
+    const sampleModel = isReadOnlyFan(model)
+        ? { ...model, fan: { chip: 'ITE IT5571 embedded controller', fans: { fan1: 'cpu' as const, fan2: 'case' as const } } }
+        : model;
     const out: Shaped = {
-        status: status(model),
-        fan: fanSamples(model),
+        status: status(sampleModel),
+        fan: fanSamples(sampleModel),
         panel: {
             buttons: hasButtons(dmi),
             beeper: hasBeeper(dmi),

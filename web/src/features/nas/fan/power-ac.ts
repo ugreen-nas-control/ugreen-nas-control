@@ -4,7 +4,7 @@
 import { errorMessage } from '../../../core/api';
 import type { StatusResponse } from '../../../core/contract';
 import type { PowerAcMode, PowerAcResponse } from '../../../core/contract-fan-probe';
-import { berlin } from '../../../core/format';
+import { dateTime } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import type { Key } from '../text';
 import { hasPowerAc } from '../power-ac-models';
@@ -48,7 +48,7 @@ function draw(ctx: FanCtx): void {
           })}</div>`
         : `<p class="unc-muted">${escapeHtml(t('power_ac.unreadable'))}</p>`;
     const unknown = d.readable && d.mode === 'unknown' ? warn(t('power_ac.unknown_note', { raw: rawText(d.raw) })) : '';
-    const last = d.last_set ? t('power_ac.last_set', { mode: t(MODE_KEYS[d.last_set.mode]), time: berlin(d.last_set.time) }) : t('power_ac.never_set');
+    const last = d.last_set ? t('power_ac.last_set', { mode: t(MODE_KEYS[d.last_set.mode]), time: dateTime(d.last_set.time) }) : t('power_ac.never_set');
     // An undecodable value (older BIOS encoding) is not set from the page: the note shows it and points to the CLI.
     const offerSet = !(d.readable && d.mode === 'unknown');
     const buttons = d.settable

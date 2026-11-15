@@ -111,7 +111,7 @@ export function domain(h: FanHistoryResponse, range: FanHistoryRange): [number, 
     return [end - RANGE_SECONDS[range], end];
 }
 
-/** Clock ticks of the x axis, on round times (Europe/Berlin hours and minutes are rounded in UTC offsets of whole hours). */
+/** Clock ticks of the x axis, on round local times: `offsetSeconds` is the zone's UTC offset (any, e.g. +5:30). */
 export function timeTicks(from: number, to: number, range: FanHistoryRange, offsetSeconds = 0): number[] {
     const every = range === '1h' ? 600 : 4 * 3600;
     const out: number[] = [];
@@ -119,10 +119,10 @@ export function timeTicks(from: number, to: number, range: FanHistoryRange, offs
     return out;
 }
 
-/** Offset of Europe/Berlin from UTC at a time, in seconds (the page shows that time zone everywhere). */
-export function berlinOffset(seconds: number): number {
+/** Offset of a time zone from UTC at a time, in seconds; `timeZone` undefined is the browser's own. */
+export function zoneOffset(seconds: number, timeZone?: string): number {
     const parts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Berlin',
+        timeZone,
         hourCycle: 'h23',
         year: 'numeric',
         month: '2-digit',
@@ -136,17 +136,30 @@ export function berlinOffset(seconds: number): number {
     return Math.round(local - Math.floor(seconds));
 }
 
-const BERLIN_CLOCK = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-const BERLIN_DAY = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit' });
+const formats = new Map<string, Intl.DateTimeFormat>();
+/** Formatter per kind and zone, cached (constructing one is slow). */
+function formatter(kind: 'clock' | 'day', timeZone: string | undefined): Intl.DateTimeFormat {
+    const key = `${kind} ${timeZone ?? ''}`;
+    let f = formats.get(key);
+    if (!f) {
+        const options: Intl.DateTimeFormatOptions =
+            kind === 'clock'
+                ? { timeZone, hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' }
+                : { timeZone, day: '2-digit', month: '2-digit' };
+        formats.set(key, (f = new Intl.DateTimeFormat('de-DE', options)));
+    }
+    return f;
+}
 
-/** "14:32" or, with seconds, "14:32:10": 24 h, Europe/Berlin like every time on the page. */
-export function clock(seconds: number, withSeconds = false): string {
-    const text = BERLIN_CLOCK.format(new Date(seconds * 1000));
+/** "14:32" or, with seconds, "14:32:10": 24 h, in the browser's time zone like every time on the page. */
+export function clock(seconds: number, withSeconds = false, timeZone?: string): string {
+    const text = formatter('clock', timeZone).format(new Date(seconds * 1000));
     return withSeconds ? text : text.slice(0, 5);
 }
 
 /** "30.10. 14:32" */
-export const dayClock = (seconds: number, withSeconds = false): string => `${BERLIN_DAY.format(new Date(seconds * 1000))} ${clock(seconds, withSeconds)}`;
+export const dayClock = (seconds: number, withSeconds = false, timeZone?: string): string =>
+    `${formatter('day', timeZone).format(new Date(seconds * 1000))} ${clock(seconds, withSeconds, timeZone)}`;
 
 export interface FanTrack {
     id: string;

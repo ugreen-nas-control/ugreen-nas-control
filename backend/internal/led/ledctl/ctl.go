@@ -149,6 +149,7 @@ type Ctl struct {
 	warned    map[string]bool // rejected settings already logged
 
 	disks     map[string]string // sdX -> "<slot> <status> <spundown> <temp> <errors> <rotational> <warning> <critical> <id>"
+	standby   map[string]bool   // non-array devices from devs.ini
 	devList   []string
 	devPath   map[string]string
 	serials   map[string]string

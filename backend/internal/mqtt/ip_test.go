@@ -34,6 +34,36 @@ func TestIfaceIPv4(t *testing.T) {
 	if got := ifaceIPv4("eth1"); got != "" {
 		t.Fatalf("link-local and loopback are not shown: %q", got)
 	}
+	// eth3 belongs to bond0, bond0 to br0: the address sits two steps up
+	for _, n := range []string{"eth3", "bond0"} {
+		if err := os.MkdirAll(filepath.Join(dir, "class/net", n), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Symlink("../bond0", filepath.Join(dir, "class/net/eth3/master")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../br0", filepath.Join(dir, "class/net/bond0/master")); err != nil {
+		t.Fatal(err)
+	}
+	if got := ifaceIPv4("eth3"); got != "192.168.40.101" {
+		t.Fatalf("a port in a bond in a bridge uses the bridge address: %q", got)
+	}
+	// masters that point at each other must not loop forever
+	for _, n := range []string{"a", "b"} {
+		if err := os.MkdirAll(filepath.Join(dir, "class/net", n), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Symlink("../b", filepath.Join(dir, "class/net/a/master")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../a", filepath.Join(dir, "class/net/b/master")); err != nil {
+		t.Fatal(err)
+	}
+	if got := ifaceIPv4("a"); got != "" {
+		t.Fatalf("a loop of masters has no address: %q", got)
+	}
 	if got := ifaceIPv4("nope"); got != "" {
 		t.Fatalf("unknown port: %q", got)
 	}

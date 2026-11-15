@@ -76,7 +76,7 @@ export const TECH = {
     },
     leds: {
         items: [
-            'Per bay: disk activity, errors, SMART warnings, standby and parity states. The network LED follows link speed, traffic or gateway. Identify a bay from the page.',
+            'Per bay: disk activity, errors, SMART warnings, standby (including drives outside the array) and parity states. The network LED follows link speed, traffic or gateway. Identify a bay from the page.',
             'Night mode dims every LED. Settings from UGREEN LED Control import in one click.',
             `${NO_KERNEL_MODULE}: the ich777 LED driver and the single-model LED projects need one built per Unraid release.`,
             'Off until you switch them on. If a rival LED tool owns the same chip, the plugin steps aside and says so.'
@@ -86,7 +86,7 @@ export const TECH = {
     dashboard: {
         items: [
             'Sensors for CPU, board, iGPU, NVMe and disks, each marked with the fan it steers.',
-            'An optional MQTT publisher feeds displays and Home Assistant. Read only, off until you set a broker in fan.cfg.',
+            'An optional MQTT publisher feeds displays and Home Assistant. Read only, off until you set a broker on the Settings page.',
             `The interface comes in ${LANGUAGES}.`,
             'About switches between stable and next (test builds) through the Unraid install dialog; settings stay.'
         ],

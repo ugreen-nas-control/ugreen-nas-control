@@ -95,6 +95,7 @@ type Inputs struct {
 	LEDProbe []byte // stdout of the LED tool's probe
 	LEDRan   bool
 	LEDOK    bool
+	LEDError string // why the LED probe failed, from the tool's stderr
 	Blocker  string
 	Rivals   []conflict.Conflict
 }
@@ -204,9 +205,13 @@ func Build(in Inputs) Report {
 		if in.LEDOK {
 			r.LED.Probe = "ok"
 		}
+		r.LED.Error = in.LEDError
 		var p map[string]any
 		if json.Unmarshal(in.LEDProbe, &p) == nil {
-			r.LED.Bus, r.LED.Address, r.LED.Error = str(p, "bus"), str(p, "address"), str(p, "error")
+			r.LED.Bus, r.LED.Address = str(p, "bus"), str(p, "address")
+			if e := str(p, "error"); e != "" {
+				r.LED.Error = e
+			}
 			if list, ok := p["leds"].([]any); ok {
 				r.LED.LEDCount = len(list)
 			}
@@ -253,10 +258,9 @@ func (c *Ctl) report() int {
 	in.FanProbe = append([]byte(nil), out.Bytes()...)
 
 	if in.Blocker != "model" {
-		out.Reset()
 		in.LEDRan = true
-		in.LEDOK = run(c.Env.LEDI2C, &out, nil, "probe")
-		in.LEDProbe = append([]byte(nil), out.Bytes()...)
+		probe, ok, reason := c.ledProbe()
+		in.LEDOK, in.LEDProbe, in.LEDError = ok, []byte(probe), reason
 	}
 
 	enc := json.NewEncoder(c.Out)

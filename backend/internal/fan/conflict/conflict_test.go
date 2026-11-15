@@ -227,3 +227,13 @@ func TestUgreenVendorModules(t *testing.T) {
 		t.Errorf("beeper/button modules reported: %+v", got)
 	}
 }
+
+func TestUgFandBlocksFansButNotLEDs(t *testing.T) {
+	r := roots(t)
+	write(t, filepath.Join(r.Proc, "22", "cmdline"), "/usr/local/sbin/ug-fand\x00--config\x00/etc/ug-fand/config\x00")
+	write(t, filepath.Join(r.Proc, "23", "cmdline"), "grep\x00ug-fand\x00")
+	got := r.Detect()
+	if len(got) != 1 || got[0].ID != "ug-fand" || len(Blocking(got, Fan)) != 1 || len(Blocking(got, LED)) != 0 {
+		t.Fatalf("conflicts: %+v", got)
+	}
+}

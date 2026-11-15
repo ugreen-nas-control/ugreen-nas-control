@@ -112,10 +112,19 @@ func splitTerminated(s string) ([]string, bool) {
 
 func (c *Ctl) listJSON() string {
 	var parts []string
-	if _, rc := c.toolOut(false, "--plain", "get", "power"); rc == 0 {
-		for _, led := range c.leds {
-			parts = append(parts, `"`+led+`"`)
+	// The controller answers intermittently; an empty list greys out the LED page.
+	for i := range 3 {
+		_, rc := c.toolOut(false, "--plain", "get", "power")
+		if rc == 0 {
+			for _, led := range c.leds {
+				parts = append(parts, `"`+led+`"`)
+			}
+			break
 		}
+		if rc == chip.ExitRejected || i == 2 {
+			break
+		}
+		c.Sleep(300 * time.Millisecond)
 	}
 	return "[" + strings.Join(parts, ", ") + "]\n"
 }

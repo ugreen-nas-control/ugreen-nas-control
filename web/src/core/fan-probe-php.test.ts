@@ -50,13 +50,16 @@ test.skipIf(!php)('fan_tool_error drops the ERROR prefix', async () => {
 test.skipIf(!php)('run() parses only stdout: stderr noise on success does not break the JSON', async () => {
     const api = join(root, 'web/plugin/api.php');
     const source = await Bun.file(api).text();
+    const env = /^const TOOL_ENV = .*$/m.exec(source)?.[0];
     const fn = /function run\(.*?\n}\n/s.exec(source)?.[0];
     expect(fn).toBeDefined();
+    expect(env).toBeDefined();
     const dir = mkdtempSync(join(tmpdir(), 'unc-php-'));
     const harness = join(dir, 'harness.php');
     writeFileSync(
         harness,
         `<?php
+${env}
 ${fn}
 $ok = run('/bin/sh', ['-c', 'echo warn >&2; echo \\'{"ok":true}\\'']);
 $bad = run('/bin/sh', ['-c', 'echo ERROR: nope >&2; exit 3']);
