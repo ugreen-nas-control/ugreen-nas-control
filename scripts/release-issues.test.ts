@@ -14,9 +14,19 @@ test('only fully resolved open issues qualify', () => {
     }
 });
 
-function api(options: { release?: typeof release; commented?: boolean; blockAfterComment?: boolean; failComment?: boolean; labelledAt?: string } = {}) {
+function api(
+    options: {
+        release?: typeof release;
+        issue?: typeof issue & { state_reason?: string };
+        commented?: boolean;
+        blockAfterComment?: boolean;
+        failComment?: boolean;
+        labelledAt?: string;
+    } = {}
+) {
     const writes: { method: string; path: string; body: unknown }[] = [];
     let commented = options.commented ?? false;
+    const candidate = options.issue ?? issue;
     return {
         writes,
         request: async (method: string, path: string, body?: Record<string, unknown>): Promise<unknown> => {
@@ -27,13 +37,13 @@ function api(options: { release?: typeof release; commented?: boolean; blockAfte
                 return null;
             }
             if (path.startsWith('releases/')) return options.release ?? release;
-            if (path.startsWith('issues?')) return [issue];
+            if (path.startsWith('issues?')) return [candidate];
             if (path.includes('/events?')) {
                 return [{ event: 'labeled', label: { name: 'waiting for release' }, created_at: options.labelledAt ?? '2026-11-13T12:00:00Z' }];
             }
             if (path.includes('/comments?')) return commented ? [{ body: '<!-- stable-release:v5.7.0 -->' }] : [];
             if (path === 'issues/183') {
-                return options.blockAfterComment && commented ? { ...issue, labels: [...issue.labels, { name: 'waiting for reply' }] } : issue;
+                return options.blockAfterComment && commented ? { ...candidate, labels: [...candidate.labels, { name: 'waiting for reply' }] } : candidate;
             }
             throw new Error(`unexpected ${method} ${path}`);
         }
@@ -63,6 +73,36 @@ test('retry after a successful comment does not post a duplicate', async () => {
     const mock = api({ commented: true });
     await closeReleasedIssues('v5.7.0', mock.request);
     expect(mock.writes.map(write => write.method)).toEqual(['PATCH', 'DELETE']);
+});
+
+test('a closing keyword on the release merge does not skip the publication comment or label cleanup', async () => {
+    const mock = api({ issue: { ...issue, state: 'closed', state_reason: 'completed' } });
+    await closeReleasedIssues('v5.7.0', mock.request);
+    expect(mock.writes.map(write => write.method)).toEqual(['POST', 'DELETE']);
+    expect(mock.writes[0]?.body).toEqual({ body: expect.stringContaining(release.html_url) });
+});
+
+test('an already closed issue with a release comment only needs its label removed', async () => {
+    const mock = api({ issue: { ...issue, state: 'closed', state_reason: 'completed' }, commented: true });
+    await closeReleasedIssues('v5.7.0', mock.request);
+    expect(mock.writes.map(write => write.method)).toEqual(['DELETE']);
+});
+
+test('closed issues still respect blockers and do not announce not-planned resolutions', async () => {
+    const candidates = [
+        { ...issue, state: 'closed', state_reason: 'not_planned' },
+        ...['waiting for reply', 'partially fixed in next', 'on hold', 'needs hardware test'].map(name => ({
+            ...issue,
+            state: 'closed',
+            state_reason: 'completed',
+            labels: [...issue.labels, { name }]
+        }))
+    ];
+    for (const candidate of candidates) {
+        const mock = api({ issue: candidate });
+        await closeReleasedIssues('v5.7.0', mock.request);
+        expect(mock.writes).toEqual([]);
+    }
 });
 
 test('new follow-up labels prevent closure even after the release comment', async () => {
@@ -101,7 +141,7 @@ test('paginates issues, label events and comments before deciding whether to clo
         }
         return mock.request(method, path, body);
     });
-    expect(seen).toContain('issues?state=open&labels=waiting%20for%20release&per_page=100&page=2');
+    expect(seen).toContain('issues?state=all&labels=waiting%20for%20release&per_page=100&page=2');
     expect(seen).toContain('issues/183/events?per_page=100&page=2');
     expect(seen).toContain('issues/183/comments?per_page=100&page=2');
     expect(mock.writes.map(write => write.method)).toEqual(['PATCH', 'DELETE']);
