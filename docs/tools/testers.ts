@@ -1,5 +1,7 @@
 /** People credited in the README (rendered by gen-docs.ts). Add the reporter's GitHub login when a model report is recorded (docs/hardware.md). */
 export const TESTERS: { login: string; did: string }[] = [
+    { login: 'bram-van', did: 'DXP4800 Plus LED/fan confirmation and missing-NIC case-view report (#323)' },
+    { login: 'Killerkomando', did: 'iDX6011 Pro model report, night-mode blinking and rear-port feedback (#324)' },
     { login: 'manilx', did: 'DXP6800 Pro confirmation on 5.6.0 (#302), fan-curve feedback (#304), history time-zone report (#305)' },
     { login: 'snipah', did: 'CPU spike measurements, diagnostic serial-scrubbing report and LAN investigation (#306)' },
     { login: 'Waxonwaxoffmyson', did: 'DXP4800 Plus diagnostic and model report (#317)' },

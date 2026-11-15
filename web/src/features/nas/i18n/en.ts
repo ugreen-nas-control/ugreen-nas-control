@@ -266,7 +266,7 @@ export const en = {
     'case.inside_hint_4800base':
         "The underside service panel after UGREEN's manual and a photo of the open panel: two M.2 slots at the left, one SO-DIMM socket to their right (a module is fitted at the factory). Which SSD sits in which M.2 slot is assumed; open an issue if your box differs.",
     'case.inside_hint_4800plus':
-        'The underside service panel, drawn from a DXP4800 Plus owner’s photo: overlapping RAM sockets at the right; M.2-1 (M2-KEYM1) beside the RAM and M.2-3 (M2-KEYM3) farther left. The internal M2-KEYM2 slot is not shown. RAM numbering and which SSD occupies each M.2 slot are still assumed.',
+        'The underside service panel, drawn from a DXP4800 Plus owner’s photo: overlapping RAM sockets at the right; M.2-1 (M2-KEYM1) beside the RAM and M.2-3 (M2-KEYM3) farther left. DIMM1 is the upper socket nearer the service cover; DIMM2 is below it nearer the board. The SSD mapping is owner-confirmed; matching software memory entries to the physical sockets is still unconfirmed. The internal M2-KEYM2 slot is not shown.',
     'case.inside_hint_4800':
         'The underside service panel. The slots are named as printed on the board: M.2-1 is M2-KEYM1 (next to the RAM) and M.2-3 is M2-KEYM3; M2-KEYM2 is inside the case, for the factory system module. RAM 1 / RAM 2 are numbered by assumption; open an issue if your box differs.',
     'in.slot_empty': '{label} · empty',

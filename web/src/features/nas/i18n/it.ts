@@ -269,7 +269,7 @@ export const it: Record<Key, string> = {
     'case.inside_hint_4800base':
         'Il pannello di servizio sul fondo secondo il manuale UGREEN e una foto del pannello aperto: due slot M.2 a sinistra, uno zoccolo SO-DIMM alla loro destra (un modulo è montato di fabbrica). Quale SSD si trova in quale slot M.2 è presunto; se il tuo dispositivo è diverso, apri una issue.',
     'case.inside_hint_4800plus':
-        'Il pannello inferiore, disegnato dalla foto di un proprietario di DXP4800 Plus: socket RAM sovrapposti a destra; M.2-1 (M2-KEYM1) accanto alla RAM e M.2-3 (M2-KEYM3) più a sinistra. Lo slot interno M2-KEYM2 non è mostrato. La numerazione della RAM e la posizione degli SSD negli slot M.2 sono ancora presunte.',
+        'Il pannello inferiore, disegnato dalla foto di un proprietario del DXP4800 Plus: zoccoli RAM sovrapposti a destra; M.2-1 (M2-KEYM1) accanto alla RAM e M.2-3 (M2-KEYM3) più a sinistra. DIMM1 è lo zoccolo superiore vicino al coperchio; DIMM2 è sotto, vicino alla scheda. La mappatura SSD è confermata; la corrispondenza tra le voci di memoria del software e gli zoccoli resta da confermare. Lo slot interno M2-KEYM2 non è mostrato.',
     'case.inside_hint_4800':
         'Il pannello di servizio sul fondo. Gli slot hanno i nomi stampati sulla scheda: M.2-1 è M2-KEYM1 (accanto alla RAM) e M.2-3 è M2-KEYM3; M2-KEYM2 è dentro il case, per il modulo di sistema di fabbrica. La numerazione di RAM 1 / RAM 2 è presunta; se il tuo dispositivo è diverso, apri una issue.',
     'in.slot_empty': '{label} · vuoto',

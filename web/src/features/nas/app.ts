@@ -29,6 +29,7 @@ import type {
     StatusResponse
 } from '../../core/contract';
 import { caseModel, frontHtml, socket, SOCKET, type SocketKind, withM2Bays } from './components/front';
+import { caseNetworkPorts } from './case-network';
 import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
 import { curveAt, curveText, effectivePoints, parseCurve, rpmAt as rpmAtRows, rpmTicks as rpmTicksOf, validCurve, type CurvePoint } from '../../core/curve';
 import { hit, setRangeFill } from '../../core/dom';
@@ -2007,9 +2008,11 @@ function main(root: HTMLElement): void {
     // After a photo of the DXP4800 Plus.
     function rear4800Html(hw: Hardware, lanLabels: string[] = ['LAN 10G', 'LAN 2.5G']): string {
         if (caseModel(hw).lanAuto) lanLabels = hw.net.length > 1 ? ['LAN 2.5G', 'LAN 2.5G'] : ['LAN 2.5G'];
-        // LAN 1 is the 10G port, LAN 2 the 2.5G one; the kernel's eth0 / eth1 can be either way round, so the
-        // port that supports more is LAN 1 (when ethtool didn't tell, they stay in the kernel's order).
-        const ordered = hw.net.slice().sort((a, b) => (b.max_mbit || 0) - (a.max_mbit || 0));
+        // Match sockets even when the OS exposes only the slower NIC (#323).
+        const ordered = caseNetworkPorts(
+            hw.net,
+            lanLabels.map(label => (label === 'LAN 10G' ? 10000 : 2500))
+        );
         const lan = (n: number, x: number, y: number, label: string): string => lanHtml(ordered[n], x, y, label);
         const port = portHtml;
         const screw = screwHtml;

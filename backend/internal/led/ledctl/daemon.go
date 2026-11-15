@@ -82,12 +82,12 @@ func ledMatches(state map[string]string, led, wanted string, isBlinking bool) bo
 	if wanted == "off" {
 		return mode == "off"
 	}
-	if isBlinking && mode == "blink" {
-		return true
-	}
 	kind, wcolor, wbright := parseWanted(wanted)
 	if color != wcolor || brightness != wbright {
 		return false
+	}
+	if isBlinking && mode == "blink" {
+		return kind == "steady" && on == activityOnMS && off == activityOffMS
 	}
 	switch kind {
 	case "steady":
