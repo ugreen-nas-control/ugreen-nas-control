@@ -119,6 +119,7 @@ func more() []scenario {
 			r.runs("schedule", "schedule", "get power")
 		}},
 		scenario{name: "alerts-notify-from-dynamix", setup: func(r *rig) {
+			delete(r.env, "UGREEN_NOTIFY_DIR")
 			r.config("alert_enabled", "1")
 			r.write("dynamix.cfg", "[notify]\nsomething=\"1\"\npath=\""+r.path("alt")+"\"\npath=\"/second\"\n")
 			r.write("alt/unread/q.notify", "importance=\"alert\"\n")
@@ -178,12 +179,13 @@ func more() []scenario {
 			r.write("stubs/fx.fail", "")
 		}, run: func(r *rig) { r.runs("fx start", "fx status") }},
 
-		scenario{name: "identify", run: func(r *rig) {
+		// Restoration now applies mode before colour/brightness. Exact ordering is exercised through the real chip layer.
+		scenario{name: "identify", unordered: true, expected: identifyStopValidation, run: func(r *rig) {
 			r.runs("color disk1 10 20 30", "brightness disk1 99", "blink disk1 600 700")
 			r.runs("identify disk1", "get disk1", "status", "identify disk1 5", "identify-stop disk1 wrongtoken", "get disk1", "identify-stop disk1", "get disk1", "identify-stop disk1", "identify-stop nothing")
 			r.settle(300 * time.Millisecond)
 		}},
-		scenario{name: "identify-off-led", run: func(r *rig) {
+		scenario{name: "identify-off-led", unordered: true, run: func(r *rig) {
 			r.runs("off disk2", "identify disk2 1")
 			r.sleep(2500 * time.Millisecond)
 			r.runs("get disk2", "identify disk2 2", "identify disk2 1")

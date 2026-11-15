@@ -79,6 +79,10 @@ Generated files (`.gitattributes`) are not formatted by hand: their generators c
 | Frontend unit tests, i18n parity, the sources build        | `web/src/**/*.test.ts`, `web/tools/check-i18n.ts`                                                                                  | no             |
 | Fan chip, LED controller, real Unraid                      | by hand                                                                                                                            | yes            |
 
+The LED controller integration tests run `ledctl` through the real chip command layer against a stateful GT MCU model: blink resets brightness, off clears it, and acknowledged writes can remain unapplied. They check exact Identify round trips across modes and brightness levels, including the captured expiry token and failed-restoration retry. The UI harness and shell parity fixtures do not model those MCU effects; passing them alone does not establish hardware behaviour. Identify parity still checks output, final state and command counts, while allowing the changed restoration order.
+
+Test fixtures redirect hardware/status paths into their temporary root. The parity harness uses the real process table only to validate child-process ownership. Sandbox scripts retain the production empty environment; tests that need external utilities resolve their absolute paths before starting the script.
+
 ## Add a model
 
 1. Copy a similar file in `web/models/` to `web/models/<id>.ts` (lowercase, dashes). The schema and field docs are in `web/models/schema.ts`.

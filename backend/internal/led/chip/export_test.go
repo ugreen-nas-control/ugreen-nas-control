@@ -2,6 +2,38 @@ package chip
 
 import "io"
 
+type TestLEDState = ledStatus
+
+type GTTestController struct{ *blinkResetBus }
+
+func UseGTTestController() (*GTTestController, func()) {
+	oldBus, oldLayout := openLedBus, getLayout()
+	SetLayout("gt")
+	c := &GTTestController{&blinkResetBus{
+		brightness: map[byte]int{}, color: map[byte]string{}, mode: map[byte]string{}, timing: map[byte][2]int{},
+	}}
+	openLedBus = func(string, bool) (ledBus, error) { return c, nil }
+	return c, func() { openLedBus = oldBus; SetLayout(oldLayout) }
+}
+
+func (c *GTTestController) Set(s TestLEDState) {
+	id, _ := ledID(s.Name)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.brightness[id], c.color[id], c.mode[id], c.timing[id] = s.Brightness, s.Color, s.Mode, [2]int{s.OnMs, s.OffMs}
+}
+
+func (c *GTTestController) State(name string) TestLEDState {
+	s, _ := c.status(name)
+	return s
+}
+
+func (c *GTTestController) DropWrites(n int) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.dropWrites = n
+}
+
 // FakeBus replaces the SMBus for the external tests: every write is logged as the frame the controller would get.
 type fakeBus struct{ log io.Writer }
 

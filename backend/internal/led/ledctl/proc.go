@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fsx"
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/hw"
 )
 
 func (c *Ctl) daemonRunning() bool { return c.pidAlive(c.Env.PidFile) }
@@ -154,9 +155,10 @@ func (c *Ctl) fxCommand(sub string) int {
 // While "<prefix><led>" exists, the bay blinks white and the status daemon leaves it
 // alone. The file holds a token and the LED's state from before.
 func (c *Ctl) identifyStart(led, seconds string) int {
-	marker := c.Env.IdentifyPrefix + led
-	token := newToken()
+	return c.withIdentifyLock(led, func() int { return c.identifyStartLocked(led, seconds) })
+}
 
+func (c *Ctl) withIdentifyLock(led string, fn func() int) int {
 	if !globMatch("disk[1-8]", led) {
 		c.errf("ERROR: Only bay LEDs (disk1..diskN) can be identified.\n")
 		return 1
@@ -164,6 +166,17 @@ func (c *Ctl) identifyStart(led, seconds string) int {
 	if !c.requireLED(led) {
 		return 1
 	}
+	rc := 0
+	if err := hw.WithLockAt(c.Env.IdentifyPrefix+"lock-"+led, func() error { rc = fn(); return nil }); err != nil {
+		c.errf("ERROR: Could not lock Identify: %v\n", err)
+		return 1
+	}
+	return rc
+}
+
+func (c *Ctl) identifyStartLocked(led, seconds string) int {
+	marker := c.Env.IdentifyPrefix + led
+	token := newToken()
 	if !isDigits(seconds) {
 		c.errf("ERROR: Seconds must be a number.\n")
 		return 1
@@ -184,7 +197,10 @@ func (c *Ctl) identifyStart(led, seconds string) int {
 		}
 		snapshot = line
 	}
-	_ = fsx.WriteFile(marker, []byte(token+"\n"+snapshot+"\n"), 0o644) //nolint:gosec // led is checked against disk[1-8] above
+	if err := fsx.WriteFile(marker, []byte(token+"\n"+snapshot+"\n"), 0o644); err != nil {
+		c.errf("ERROR: Could not save Identify state: %v\n", err)
+		return 1
+	}
 
 	if c.tool("set", led, "color", "255", "255", "255") != 0 ||
 		c.tool("set", led, "brightness", "255") != 0 ||
@@ -204,6 +220,10 @@ func (c *Ctl) identifyStart(led, seconds string) int {
 // identifyStop always stops without a token; the timer passes its token, so an older
 // timer doesn't end a renewed identify early.
 func (c *Ctl) identifyStop(led, token string) int {
+	return c.withIdentifyLock(led, func() int { return c.identifyStopLocked(led, token) })
+}
+
+func (c *Ctl) identifyStopLocked(led, token string) int {
 	marker := c.Env.IdentifyPrefix + led
 	st, err := os.Stat(marker)
 	if err != nil || !st.Mode().IsRegular() {
@@ -220,18 +240,27 @@ func (c *Ctl) identifyStop(led, token string) int {
 	}
 	f := splitRead(snapshot, 8)
 	mode, brightness, r, g, b, on, off := f[1], f[2], f[3], f[4], f[5], f[6], f[7]
-	_ = os.Remove(marker)
-
-	c.quiet(func() {
-		c.tool("set", led, "color", r, g, b)
-		c.tool("set", led, "brightness", brightness)
-		switch mode {
-		case "off", "on":
-			c.tool("set", led, mode)
-		case "blink", "breath":
-			c.tool("set", led, mode, on, off)
+	var commands [][]string
+	switch mode {
+	case "off", "on":
+		commands = append(commands, []string{"set", led, mode})
+	case "blink", "breath":
+		commands = append(commands, []string{"set", led, mode, on, off})
+	default:
+		c.errf("ERROR: Invalid saved Identify state.\n")
+		return 1
+	}
+	commands = append(commands, []string{"set", led, "color", r, g, b}, []string{"set", led, "brightness", brightness})
+	for _, args := range commands {
+		if rc := c.tool(args...); rc != 0 {
+			return rc
 		}
-	})
+	}
+	// The status daemon skips this LED until every part of the saved look is restored.
+	if err := os.Remove(marker); err != nil {
+		c.errf("ERROR: Could not finish Identify: %v\n", err)
+		return 1
+	}
 
 	c.out("Stopped identifying %s.\n", led)
 	return 0
