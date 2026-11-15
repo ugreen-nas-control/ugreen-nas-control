@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
+	"sort"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -26,6 +28,7 @@ type scenario struct {
 	noToolEnv bool     // UGREEN_LED_I2C unset: the SMBus preflight runs
 	setup     func(r *rig)
 	run       func(r *rig)
+	expected  func(*golden) // narrowly specified contract changes since the shell recording
 }
 
 var (
@@ -134,7 +137,15 @@ func TestParity(t *testing.T) {
 			}
 			s.run(r)
 			got := r.snapshot(s.unordered).text()
-			want := loadGolden(t, s.name).text()
+			recorded := loadGolden(t, s.name)
+			if s.expected != nil {
+				s.expected(&recorded)
+			}
+			if s.unordered {
+				sort.Strings(recorded.Calls)
+				sort.Strings(recorded.Stubs)
+			}
+			want := recorded.text()
 
 			total.Add(1)
 			if problem := s.check(got, r); problem != "" {
@@ -163,6 +174,15 @@ func TestParity(t *testing.T) {
 			different.Add(1)
 			t.Errorf("Go differs from the recorded shell (- golden, + go):\n%s", unifiedDiff(want, got))
 		})
+	}
+}
+
+func identifyStopValidation(g *golden) {
+	for i := range g.Commands {
+		if slices.Equal(g.Commands[i].Args, []string{"identify-stop", "nothing"}) {
+			g.Commands[i].RC = 1
+			g.Commands[i].Stderr = "ERROR: Only bay LEDs (disk1..diskN) can be identified.\n"
+		}
 	}
 }
 

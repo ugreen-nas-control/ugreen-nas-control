@@ -69,12 +69,18 @@ func newRig(t *testing.T, impl, product string) *rig {
 	e["UGREEN_OSRELEASE"] = r.path("osrelease")
 	e["UGREEN_LED_CONFIG"] = r.path("boot/leds.cfg")
 	e["UGREEN_DISKS_INI"] = r.path("disks.ini")
+	e["UGREEN_DEVS_INI"] = r.path("devs.ini")
 	e["UGREEN_VAR_INI"] = r.path("var.ini")
 	e["UGREEN_SMART_DIR"] = r.path("smart")
 	e["UGREEN_SYS_BLOCK"] = r.path("sys/block")
 	e["UGREEN_SYS_NET"] = r.path("sys/class/net")
 	e["UGREEN_SYS_ATA"] = r.path("sys/class/ata_port")
 	e["UGREEN_SYS_PCI"] = r.path("sys/bus/pci/devices")
+	e["UGREEN_SYS_I2C"] = r.path("sys/bus/i2c/devices")
+	e["UGREEN_PROC_MODULES"] = r.path("proc/modules")
+	e["UGREEN_PROC_IOMEM"] = r.path("proc/iomem")
+	e["UGREEN_DMI_PRODUCT"] = r.path("sys/class/dmi/id/product_name")
+	e["UGREEN_NOTIFY_DIR"] = r.path("notify")
 	e["UGREEN_UDEV_DATA"] = r.path("udev")
 	e["UGREEN_DYNAMIX_CFG"] = r.path("dynamix.cfg")
 	e["UGREEN_PIDFILE"] = r.path("run/led.pid")
@@ -268,6 +274,9 @@ func (r *rig) happened() string {
 	for _, pattern := range []string{"led/*", "run/*"} {
 		files, _ := filepath.Glob(r.path(pattern))
 		for _, f := range files {
+			if strings.HasPrefix(filepath.Base(f), "identify-lock-") {
+				continue
+			}
 			sb.WriteString(filepath.Base(f))
 		}
 	}
@@ -315,6 +324,9 @@ func (r *rig) snapshot(unordered bool) golden {
 	files, _ := filepath.Glob(r.path("run/*"))
 	for _, f := range files {
 		base := filepath.Base(f)
+		if strings.HasPrefix(base, "identify-lock-") {
+			continue
+		}
 		data, _ := os.ReadFile(f)
 		text := string(data)
 		switch {

@@ -3,11 +3,15 @@ package chip
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"sync"
 	"testing"
 )
 
 type blinkResetBus struct {
+	mu         sync.Mutex
 	brightness map[byte]int
+	color      map[byte]string
 	mode       map[byte]string
 	timing     map[byte][2]int
 	reads      int
@@ -20,14 +24,18 @@ type blinkResetBus struct {
 func (b *blinkResetBus) close()          {}
 func (b *blinkResetBus) busPath() string { return "/dev/fake" }
 func (b *blinkResetBus) status(name string) (ledStatus, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	b.reads++
 	if b.failRead {
 		return ledStatus{}, errors.New("read failed")
 	}
 	id, _ := ledID(name)
-	return ledStatus{Name: name, Brightness: b.brightness[id], Mode: b.mode[id], OnMs: b.timing[id][0], OffMs: b.timing[id][1]}, nil
+	return ledStatus{Name: name, Brightness: b.brightness[id], Color: b.color[id], Mode: b.mode[id], OnMs: b.timing[id][0], OffMs: b.timing[id][1]}, nil
 }
 func (b *blinkResetBus) change(id, command byte, params [4]byte) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	b.writes = append(b.writes, command)
 	if command == b.failWrite {
 		return errors.New("write failed")
@@ -42,10 +50,16 @@ func (b *blinkResetBus) change(id, command byte, params [4]byte) error {
 	if b.timing == nil {
 		b.timing = map[byte][2]int{}
 	}
+	if b.color == nil {
+		b.color = map[byte]string{}
+	}
 	switch command {
-	case cmdBlink:
-		b.mode[id] = "blink"
-		b.brightness[id] = 180
+	case cmdBlink, cmdBreath:
+		b.mode[id] = "breath"
+		if command == cmdBlink {
+			b.mode[id] = "blink"
+			b.brightness[id] = 180
+		}
 		on := int(params[2])<<8 | int(params[3])
 		cycle := int(params[0])<<8 | int(params[1])
 		b.timing[id] = [2]int{on, cycle - on}
@@ -53,6 +67,12 @@ func (b *blinkResetBus) change(id, command byte, params [4]byte) error {
 		b.brightness[id] = int(params[0])
 	case cmdOnOff:
 		b.mode[id] = modeNames[params[0]]
+		b.timing[id] = [2]int{}
+		if params[0] == 0 {
+			b.brightness[id] = 0
+		}
+	case cmdColor:
+		b.color[id] = fmt.Sprintf("%d %d %d", params[0], params[1], params[2])
 	}
 	return nil
 }

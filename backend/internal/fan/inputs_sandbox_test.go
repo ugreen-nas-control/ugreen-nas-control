@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -76,7 +78,8 @@ func TestScriptReadings(t *testing.T) {
 
 func TestScriptFailures(t *testing.T) {
 	dir := useScriptDir(t)
-	huge := "#!/bin/sh\nyes 1 | head -c 100000\n"
+	sleep := sandboxSleep(t)
+	huge := "#!/bin/sh\ni=0; while [ \"$i\" -lt 100 ]; do printf 1234567890; i=$((i + 1)); done\n"
 	for name, c := range map[string]struct {
 		body string
 		mode os.FileMode
@@ -89,7 +92,7 @@ func TestScriptFailures(t *testing.T) {
 		"toocold": {"#!/bin/sh\necho -21\n", 0o755, "outside"},
 		"huge":    {huge, 0o755, "longer than 64"},
 		"exit1":   {"#!/bin/sh\necho 40\nexit 1\n", 0o755, "exit status 1"},
-		"slow":    {"#!/bin/sh\nsleep 5\necho 40\n", 0o755, "timed out"},
+		"slow":    {"#!/bin/sh\n" + sleep + " 5\necho 40\n", 0o755, "timed out"},
 		"nobang":  {"echo 40\n", 0o644, "no shebang"},
 		"badint":  {"#!/usr/bin/python3\nprint(40)\n", 0o644, "not allowed"},
 		"shargs":  {"#!/bin/bash -e\necho 40\n", 0o644, "arguments are not supported"},
@@ -142,7 +145,7 @@ func TestScriptRunsWithAnEmptyEnvironmentAndNoArguments(t *testing.T) {
 func TestTimeoutKillsTheWholeProcessGroup(t *testing.T) {
 	dir := useScriptDir(t)
 	pidFile := filepath.Join(t.TempDir(), "child.pid")
-	writeScript(t, dir, "forker", fmt.Sprintf("#!/bin/sh\nsleep 30 &\necho $! > %s\nwait\n", pidFile), 0o755)
+	writeScript(t, dir, "forker", fmt.Sprintf("#!/bin/sh\n%s 30 &\necho $! > %s\nwait\n", sandboxSleep(t), shellWord(pidFile)), 0o755)
 	start := time.Now()
 	if _, ok, detail := readScriptOnce(t, "forker"); ok || !strings.Contains(detail, "timed out") {
 		t.Fatalf("%v %q", ok, detail)
@@ -160,10 +163,30 @@ func TestTimeoutKillsTheWholeProcessGroup(t *testing.T) {
 		if err := syscall.Kill(pid, 0); err == syscall.ESRCH {
 			return
 		}
+		// Minimal container init processes may leave a terminated orphan as a zombie.
+		if runtime.GOOS == "linux" {
+			stat, _ := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
+			_, state, _ := strings.Cut(string(stat), ") ")
+			if strings.HasPrefix(state, "Z ") {
+				return
+			}
+		}
 		time.Sleep(20 * time.Millisecond)
 	}
 	_ = syscall.Kill(pid, syscall.SIGKILL)
 	t.Fatalf("the child %d of a timed-out script is still running", pid)
+}
+
+func shellWord(s string) string { return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'" }
+
+func sandboxSleep(t *testing.T) string {
+	t.Helper()
+	path, err := exec.LookPath("sleep")
+	if err != nil {
+		t.Fatal("sandbox timeout tests need sleep:", err)
+	}
+	// The script receives no environment; Nix utilities are not on the shell's default PATH.
+	return shellWord(path)
 }
 
 func TestScriptRateLimitCachesSuccessAndFailure(t *testing.T) {
