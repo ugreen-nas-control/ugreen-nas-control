@@ -229,7 +229,10 @@ jobs:
 
   publish:
     needs: [check, verify, pages]
-    if: ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control' && (needs.verify.outputs.state == 'draft') }}
+    if: >-
+      ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control' && always()
+      && needs.verify.result == 'success'
+      && (needs.verify.outputs.state == 'published' || (needs.verify.outputs.state == 'draft' && needs.pages.result == 'success')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -245,11 +248,36 @@ jobs:
         with:
           cache: 'false' # holds a write token
       - name: Tag at the merge commit and publish
+        if: needs.verify.outputs.state == 'draft'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: v${{ needs.check.outputs.version }}
           SHA: ${{ github.sha }}
         run: nix develop .#release -c bun plugin/tools/release.ts publish "$TAG" "$SHA"
+
+  close-issues:
+    needs: [check, publish]
+    if: ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control' && !cancelled() && needs.publish.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+        with:
+          source-tag: v3.24.1
+      - uses: ./.github/actions/prefetch-nix-src # zizmor: ignore[self-repository] actionlint rejects the $/ form
+        with:
+          cache: 'false' # holds a write token
+      - name: Close resolved issues after stable publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.check.outputs.version }}
+        run: nix develop .#release -c bun scripts/release-issues.ts "$TAG"
 
   backmerge:
     if: ${{ github.repository == 'ugreen-nas-control/ugreen-nas-control' }}
