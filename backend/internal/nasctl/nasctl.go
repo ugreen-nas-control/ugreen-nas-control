@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fan"
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fan/conflict"
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/fsx"
 	"github.com/ugreen-nas-control/ugreen-nas-control/internal/panel"
@@ -264,6 +265,10 @@ func (c *Ctl) start() int {
 }
 
 func (c *Ctl) fanStart() int {
+	if !fan.ModelSupported(c.ledModel()) {
+		c.out("Fan control is not supported on this model.\n")
+		return 0
+	}
 	if c.fanOff() {
 		c.out("Fan control is switched off in the settings.\n")
 		return 0

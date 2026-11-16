@@ -262,8 +262,27 @@ func TestMQTTPublisherOnlyRunsWhenSwitchedOn(t *testing.T) {
 	}
 }
 
-// The publisher starts with the fan daemon, also where fan control is off, and a publisher that cannot start leaves
-// the fan daemon's result alone.
+func TestFanStartSkipsUnsupportedModels(t *testing.T) {
+	for _, model := range []string{"DXP8800 Ultra", "DXP480T Plus", "iDX6011", "unknown", "DXP6800 Pro", "DXP4800 Plus"} {
+		t.Run(model, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, filepath.Join(f.c.Env.DMIDir, "product_name"), model+"\n")
+			args := fakePublisher(t, f, "echo probe failed >&2; exit 1")
+			rc := f.c.fanStart()
+			_, err := os.Stat(args)
+			supported := model == "DXP6800 Pro" || model == "DXP4800 Plus"
+			if supported {
+				if rc != 1 || err != nil || !strings.Contains(f.errw.String(), "probe failed") {
+					t.Fatalf("supported model: rc %d, tool call %v, stderr %q", rc, err, f.errw)
+				}
+			} else if rc != 0 || !os.IsNotExist(err) || f.errw.Len() != 0 {
+				t.Fatalf("unsupported model: rc %d, tool call %v, stderr %q", rc, err, f.errw)
+			}
+		})
+	}
+}
+
+// The publisher starts even on models without fan control; its failure leaves the fan startup result alone.
 func TestStartRunsThePublisherNextToTheFans(t *testing.T) {
 	f := newFixture(t)
 	fakePublisher(t, f, "echo no MQTT host in the settings >&2; exit 1")
@@ -275,6 +294,7 @@ func TestStartRunsThePublisherNextToTheFans(t *testing.T) {
 		}
 	}
 	write(t, f.c.Env.FanCfg, "fan_control=\"0\"\nmqtt_enabled=\"1\"\n")
+	write(t, filepath.Join(f.c.Env.DMIDir, "product_name"), "DXP8800 Ultra\n")
 	if rc := f.c.Main([]string{"start"}); rc != 0 {
 		t.Errorf("start: rc %d", rc)
 	}
