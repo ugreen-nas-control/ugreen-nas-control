@@ -21,6 +21,10 @@ const (
 // the first versions were written after.
 const retries = 5
 
+// The acknowledgement may arrive after the first read. Poll without resending, as UGREEN does in
+// leds-mcu.c:233-247@c75c5ab (three reads, 5 ms apart), to allow time for a reply before retransmission.
+const acknowledgementReads = 3
+
 // frame is one way to put a LED command on the wire.
 type frame struct {
 	name  string
@@ -139,8 +143,7 @@ func sendFrames(io frameIO, frames []frame, id, command byte, params [4]byte) er
 	return busFailure{errors.Join(errs...)}
 }
 
-// sendFrame writes one command and waits until the controller confirms it (register 0x80 reads 1), with the same
-// retries as the kernel driver.
+// sendFrame waits for acknowledgement (register 0x80 reads 1) before retrying the write.
 func sendFrame(io frameIO, f frame, id, command byte, params [4]byte) error {
 	packet := f.build(id, command, params)
 	err := errors.New("no attempt made")
@@ -155,13 +158,18 @@ func sendFrame(io frameIO, f frame, id, command byte, params [4]byte) error {
 
 		time.Sleep(2 * time.Millisecond)
 
-		var ok byte
-		if ok, err = io.readByte(regLastCommandOK); err == nil && ok == 1 {
-			return nil
-		}
-		if err == nil {
-			err = errors.New("the controller did not confirm the command")
-			busOnly = false
+		for read := range acknowledgementReads {
+			if read > 0 {
+				time.Sleep(5 * time.Millisecond)
+			}
+			var ok byte
+			if ok, err = io.readByte(regLastCommandOK); err == nil && ok == 1 {
+				return nil
+			}
+			if err == nil {
+				err = fmt.Errorf("the controller did not confirm the command (ack 0x%02x)", ok)
+				busOnly = false
+			}
 		}
 	}
 
