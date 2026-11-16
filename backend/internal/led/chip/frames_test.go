@@ -3,6 +3,7 @@ package chip
 import (
 	"bytes"
 	"errors"
+	"syscall"
 	"testing"
 )
 
@@ -145,6 +146,85 @@ type failingIO struct{}
 
 func (failingIO) writeBlock(byte, uint32, []byte) error { return errors.New("boom") }
 func (failingIO) readByte(byte) (byte, error)           { return 0, errors.New("boom") }
+
+type delayedAckMCU struct {
+	readsPerWrite int
+	readyAfter    int
+	readyOnWrite  int
+	writes, reads int
+	readErr       error
+	lastRegister  byte
+}
+
+func (m *delayedAckMCU) writeBlock(byte, uint32, []byte) error {
+	m.writes++
+	m.readsPerWrite = 0
+	return nil
+}
+
+func (m *delayedAckMCU) readByte(register byte) (byte, error) {
+	m.lastRegister = register
+	m.reads++
+	m.readsPerWrite++
+	if m.readsPerWrite >= m.readyAfter && m.writes >= m.readyOnWrite {
+		return 1, nil
+	}
+	return 0, m.readErr
+}
+
+func TestDelayedAcknowledgementDoesNotResendCommand(t *testing.T) {
+	for _, f := range []frame{frameLegacy, frameGT, frameIdx} {
+		t.Run(f.name, func(t *testing.T) {
+			m := &delayedAckMCU{readyAfter: 3}
+			if err := sendFrame(m, f, 4, cmdBrightness, [4]byte{20}); err != nil {
+				t.Fatal(err)
+			}
+			if m.writes != 1 || m.reads != 3 || m.lastRegister != regLastCommandOK {
+				t.Fatalf("writes=%d reads=%d register=0x%x", m.writes, m.reads, m.lastRegister)
+			}
+		})
+	}
+}
+
+func TestAcknowledgementPollingRecoversReadError(t *testing.T) {
+	m := &delayedAckMCU{readyAfter: 2, readErr: syscall.EIO}
+	if err := sendFrame(m, frameLegacy, 4, cmdOnOff, [4]byte{1}); err != nil {
+		t.Fatal(err)
+	}
+	if m.writes != 1 || m.reads != 2 {
+		t.Fatalf("writes=%d reads=%d", m.writes, m.reads)
+	}
+}
+
+func TestAcknowledgementPollingStillRetriesWrite(t *testing.T) {
+	m := &delayedAckMCU{readyAfter: 1, readyOnWrite: 2}
+	if err := sendFrame(m, frameLegacy, 4, cmdOnOff, [4]byte{1}); err != nil {
+		t.Fatal(err)
+	}
+	if m.writes != 2 || m.reads != acknowledgementReads+1 {
+		t.Fatalf("writes=%d reads=%d", m.writes, m.reads)
+	}
+}
+
+func TestAcknowledgementPollingIsBounded(t *testing.T) {
+	for _, readErr := range []error{nil, syscall.EIO} {
+		m := &delayedAckMCU{readyAfter: 1000, readErr: readErr}
+		err := sendFrame(m, frameLegacy, 4, cmdBrightness, [4]byte{20})
+		if err == nil {
+			t.Fatal("unacknowledged command succeeded")
+		}
+		if m.writes != retries || m.reads != retries*acknowledgementReads {
+			t.Fatalf("writes=%d reads=%d", m.writes, m.reads)
+		}
+		var failure busFailure
+		if errors.As(err, &failure) != (readErr != nil) {
+			t.Fatalf("readErr=%v: incorrect bus failure classification: %v", readErr, err)
+		}
+		if readErr == nil && !bytes.Contains([]byte(err.Error()), []byte("ack 0x00")) {
+			t.Fatalf("missing acknowledgement value: %v", err)
+		}
+	}
+}
 
 func TestIdxFirstFromSystemVersion(t *testing.T) {
 	for _, c := range []struct {
