@@ -17,7 +17,14 @@ export default {
     caseVariant: 'rear8800',
     fan: null,
     verified: {
-        leds: { status: 'expected', note: 'Bay order guessed.' },
+        leds: {
+            status: 'community',
+            by: 'halloleo (issue 293)',
+            version: '5.7.0',
+            date: '2026-11-16',
+            ref: 'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/293',
+            note: 'Power colour and bay 2 colour writes confirmed on 5.6.0; Identify selects the correct LEDs for bays 1, 3 and 8 on 5.7.0, including empty bays. An intermittent read stall and a disk3 command without controller confirmation during update remain unresolved.'
+        },
         fans: { status: 'unsupported' },
         case: {
             status: 'expected',
@@ -28,8 +35,9 @@ export default {
     },
     sources: [
         'https://ai.ugreen.com/products/ugreen-nasync-dxp8800-ultra-nas-storage',
-        'https://nascompares.com/2026/06/22/ugreen-dxp6800-ultra-and-dxp8800-ultra-nas-revealed/'
+        'https://nascompares.com/2026/06/22/ugreen-dxp6800-ultra-and-dxp8800-ultra-nas-revealed/',
+        'https://github.com/ugreen-nas-control/ugreen-nas-control/issues/293'
     ],
-    note: 'Eight bays, two M.2 slots, two 10G LAN ports and two Thunderbolt 4 ports. LEDs are enabled but nobody has confirmed them.',
+    note: 'Eight bays, two M.2 slots, two 10G LAN ports and two Thunderbolt 4 ports. LED colour control and Identify bay order confirmed by an owner; intermittent controller communication errors remain unresolved. No fan control.',
     shots: true
 } satisfies Model;

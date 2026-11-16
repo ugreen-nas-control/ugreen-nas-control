@@ -14,7 +14,7 @@ export const TESTERS: { login: string; did: string }[] = [
     { login: 'ivolution', did: 'Spanish translation, DXP4800 Plus tests, RAM layout and NVMe slot mapping/photos (#297), UI bug reports' },
     { login: 'DanielRuppen', did: 'DXP2800 SUB2: ACPI and PCI data, lpss-probe runs, LED path confirmation' },
     { login: 'jsaltzman', did: 'DXP6800 Pro bug reports, the cause of the failing update check' },
-    { login: 'halloleo', did: 'DXP8800 Ultra: diagnostics, LED read/write tests and probe-message report (#293)' },
+    { login: 'halloleo', did: 'DXP8800 Ultra: diagnostics, LED colour and Identify bay-order confirmation, probe and update error reports (#293)' },
     { login: 'rogvalinger-ops', did: 'DXP4800 testing, dual-LAN and single-RAM-slot corrections with photos (#299)' }
 ];
 
