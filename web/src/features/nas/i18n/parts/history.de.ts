@@ -10,7 +10,7 @@ export const historyDe: Record<keyof typeof historyEn, string> = {
     'hist.range_1h': '1 Stunde',
     'hist.range_24h': '24 Stunden',
     'hist.speed': 'Drehzahl %',
-    'hist.temp': 'Temperatur °C',
+    'hist.temp': 'Temperatur',
     'hist.lane': 'Gesteuert von',
     'hist.limits': 'Grenzen',
     'hist.legend_drive': 'Quelle, die den Lüfter steuert',

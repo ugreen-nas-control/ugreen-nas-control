@@ -5,7 +5,7 @@
 import { createClient } from '../core/api';
 import type { Fan, HardwareResponse, LedState, LedStatus, NasGet, NasPost, Nvme, StatusResponse } from '../core/contract';
 import { fanIcon } from '../core/fanspin';
-import { type TempKind, deg, tempClass } from '../core/format';
+import { type TempKind, deg, setTempUnit, tempClass } from '../core/format';
 import { isStatusResponse } from '../core/guard';
 import { escapeHtml } from '../core/html';
 import { luminance } from '../core/theme';
@@ -233,7 +233,7 @@ function paintHeader(data: StatusResponse | null): void {
     if (failsafe || (data.chip_error && !noFan)) part(` · ${failsafe ? t('warn.failsafe') : t('warn.chip')}`, 'unc-dash-alert');
     else if (stalledNames(data).length) part(` · ${stalledNames(data).join(', ')}: ${t('fan.stopped')}`, 'unc-dash-alert');
     if (rpm.length) part(` · ${rpm.join(' / ')} ${t('fan.rpm')}`, 'unc-dash-sum');
-    if (top) part(` · ${top[0]} ${top[1]} °C`, 'unc-dash-sum');
+    if (top) part(` · ${top[0]} ${deg(top[1])}`, 'unc-dash-sum');
     if (line.firstChild?.textContent?.startsWith(' · ')) line.firstChild.textContent = line.firstChild.textContent.slice(3);
 }
 
@@ -243,6 +243,7 @@ async function load(root: HTMLElement): Promise<void> {
     try {
         const data = await api.get('status');
 
+        setTempUnit(data.settings?.ui_unit);
         last = data;
         paintStatus(root, data);
         paintHeader(data);

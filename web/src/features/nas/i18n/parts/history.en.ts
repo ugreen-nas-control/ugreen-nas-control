@@ -8,7 +8,7 @@ export const historyEn = {
     'hist.range_1h': '1 hour',
     'hist.range_24h': '24 hours',
     'hist.speed': 'Speed %',
-    'hist.temp': 'Temperature °C',
+    'hist.temp': 'Temperature',
     'hist.lane': 'Driven by',
     'hist.limits': 'Limits',
     'hist.legend_drive': 'Input that drives the fan',

@@ -4,6 +4,7 @@
 import { errorMessage } from '../../../core/api';
 import type { StatusResponse } from '../../../core/contract';
 import type { Cs201xReading, FanProbeStatusResponse } from '../../../core/contract-fan-probe';
+import { deg } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { registerFanModule, type FanCtx } from './module';
 
@@ -49,8 +50,8 @@ function diagnostics(ctx: FanCtx): string {
                 t('cs201x.fan_row', { id: f.id, role: t(f.role === 'cpu' ? 'probe.role_cpu' : 'probe.role_case'), rpm: f.rpm, duty: f.duty_pct })
             ]);
         }
-        if (r.temps?.cpu !== undefined) rows.push([t('cs201x.k_cpu'), `${r.temps.cpu} °C`]);
-        if (r.temps?.board !== undefined) rows.push([t('cs201x.k_board'), `${r.temps.board} °C`]);
+        if (r.temps?.cpu !== undefined) rows.push([t('cs201x.k_cpu'), deg(r.temps.cpu)]);
+        if (r.temps?.board !== undefined) rows.push([t('cs201x.k_board'), deg(r.temps.board)]);
         if (r.temp_inputs) rows.push([t('cs201x.k_inputs'), t(r.temp_inputs.configured ? 'cs201x.inputs_on' : 'cs201x.inputs_off')]);
         if (r.watchdog) {
             rows.push([

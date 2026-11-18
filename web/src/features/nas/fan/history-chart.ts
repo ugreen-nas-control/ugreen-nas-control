@@ -6,6 +6,7 @@
 //   temp      the input that drove the fan, plus the CPU and the hottest drive for reference
 // Emergencies shade all rows red. Drawn 1:1 at the card's width so the text keeps its size.
 import { MOD, type FanHistoryRange, type FanHistoryResponse } from '../../../core/contract-fan-history';
+import { tempValue } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { zoneOffset, clock, domain, lines, maskRuns, runs, sourceKind, tempRange, timeTicks, type FanTrack, type Pt } from './history-model';
 
@@ -108,7 +109,7 @@ export function fanChart(track: FanTrack, h: FanHistoryResponse, range: FanHisto
     }
     for (const deg of [tLo, (tLo + tHi) / 2, tHi]) {
         out += `<line class="grid" x1="${L}" x2="${right}" y1="${yTemp(deg)}" y2="${yTemp(deg)}"/>`;
-        out += `<text class="axis" x="${L - 6}" y="${yTemp(deg) + 3.5}" text-anchor="end">${num(deg)}</text>`;
+        out += `<text class="axis" x="${L - 6}" y="${yTemp(deg) + 3.5}" text-anchor="end">${num(tempValue(deg))}</text>`;
     }
     out += `<text class="rowtitle" x="${L}" y="${g.rows.speed[0] - 7}">${escapeHtml(text.speed)}</text>`;
     out += `<text class="rowtitle" x="${L}" y="${g.rows.rpm[0] - 7}">${escapeHtml(text.rpm)}</text>`;

@@ -3,7 +3,7 @@
 import { createClient, errorMessage } from '../../core/api';
 import type { LedBay, LedNetworkPort, LedGet, LedPost, LedSchedule, LedState, LedStatusResponse, LedWriteAction } from '../../core/contract';
 import { hit, setRangeFill } from '../../core/dom';
-import { linkSpeed, speedShort } from '../../core/format';
+import { deg, linkSpeed, speedShort, tempValue } from '../../core/format';
 import { hexToRgb, levelFromPercent, normalizeHex, rgbToHex } from '../../core/color';
 import { isLedAllResponse, isLedStatusResponse } from '../../core/guard';
 import { escapeHtml } from '../../core/html';
@@ -777,7 +777,7 @@ function main(root: HTMLElement): void {
                     text = t('bays.standby');
                     kind = 'standby';
                 } else {
-                    text = bay.temp != null ? `${bay.temp}°` : 'OK';
+                    text = bay.temp != null ? `${tempValue(bay.temp)}°` : 'OK';
                 }
             }
 
@@ -791,7 +791,7 @@ function main(root: HTMLElement): void {
     }
 
     function bayCondition(bay: LedBay): string {
-        const parts = [bay.standby ? t('bays.standby') : bay.temp != null ? `${bay.temp} °C` : ''];
+        const parts = [bay.standby ? t('bays.standby') : bay.temp != null ? deg(bay.temp) : ''];
         if (bay.errors > 0) parts.push(t('bays.errors', { n: bay.errors }));
         return parts.filter(Boolean).join(' · ');
     }

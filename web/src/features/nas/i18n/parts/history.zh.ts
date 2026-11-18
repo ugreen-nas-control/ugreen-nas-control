@@ -10,7 +10,7 @@ export const historyZh: Record<keyof typeof historyEn, string> = {
     'hist.range_1h': '1 小时',
     'hist.range_24h': '24 小时',
     'hist.speed': '转速 %',
-    'hist.temp': '温度 °C',
+    'hist.temp': '温度',
     'hist.lane': '控制来源',
     'hist.limits': '限制',
     'hist.legend_drive': '控制风扇的来源',

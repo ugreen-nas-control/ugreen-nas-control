@@ -11,7 +11,7 @@ export const historyNl: Record<keyof typeof historyEn, string> = {
     'hist.range_1h': '1 uur',
     'hist.range_24h': '24 uur',
     'hist.speed': 'Snelheid %',
-    'hist.temp': 'Temperatuur °C',
+    'hist.temp': 'Temperatuur',
     'hist.lane': 'Aangestuurd door',
     'hist.limits': 'Grenzen',
     'hist.legend_drive': 'Bron die de ventilator aanstuurt',

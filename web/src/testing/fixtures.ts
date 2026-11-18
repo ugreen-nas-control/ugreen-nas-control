@@ -107,6 +107,7 @@ export const status: StatusResponse = {
         ignore_drives: ['nvme1'],
         ui_lang: 'auto',
         ui_theme: 'dark',
+        ui_unit: 'c',
         fan_config: fanConfig()
     }
 };

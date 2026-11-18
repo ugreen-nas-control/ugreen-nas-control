@@ -11,7 +11,7 @@ export const historyEs: Record<keyof typeof historyEn, string> = {
     'hist.range_1h': '1 hora',
     'hist.range_24h': '24 horas',
     'hist.speed': 'Velocidad %',
-    'hist.temp': 'Temperatura °C',
+    'hist.temp': 'Temperatura',
     'hist.lane': 'Controlado por',
     'hist.limits': 'Límites',
     'hist.legend_drive': 'Fuente que controla el ventilador',

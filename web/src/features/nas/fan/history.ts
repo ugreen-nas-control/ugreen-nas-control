@@ -3,6 +3,7 @@
 // Pure shaping: history-model.ts; the SVG: history-chart.ts.
 import { errorMessage } from '../../../core/api';
 import { MOD, type FanHistoryRange, type FanHistoryResponse } from '../../../core/contract-fan-history';
+import { deg as fmtDeg, unitSign } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { fanChart, geometry, type ChartText, type Geometry } from './history-chart';
 import {
@@ -88,7 +89,7 @@ const last = <T>(list: (T | null)[]): T | null => {
     return null;
 };
 
-const deg = (v: number | null | undefined): string => (v == null ? '–' : `${Math.round(v * 10) / 10} °C`);
+const deg = (v: number | null | undefined): string => (v == null ? '–' : fmtDeg(Math.round(v * 10) / 10));
 
 function create(): FanModule {
     let tick: (() => void) | undefined;
@@ -132,7 +133,7 @@ function create(): FanModule {
         const text = (): ChartText => ({
             speed: ctx.t('hist.speed'),
             rpm: ctx.t('fan.rpm'),
-            temp: ctx.t('hist.temp'),
+            temp: `${ctx.t('hist.temp')} ${unitSign()}`,
             short: source => shortText(ctx, source)
         });
 
@@ -161,7 +162,7 @@ function create(): FanModule {
             ];
             const group = (title: string, items: string[]) =>
                 items.length ? `<div class="unc-hist-group"><b>${escapeHtml(title)}</b>${items.join('')}</div>` : '';
-            return group(ctx.t('hist.lane'), lane) + group(ctx.t('hist.limits'), limits) + group(ctx.t('hist.temp'), temps);
+            return group(ctx.t('hist.lane'), lane) + group(ctx.t('hist.limits'), limits) + group(`${ctx.t('hist.temp')} ${unitSign()}`, temps);
         }
 
         function fanHtml(f: FanTrack, name: string, h: FanHistoryResponse): string {

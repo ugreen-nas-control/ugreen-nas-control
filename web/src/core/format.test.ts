@@ -1,5 +1,26 @@
 import { expect, test } from 'bun:test';
-import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, linkSpeed, rangeFill, shortCpu, speedShort, speedText, tempClass } from './format';
+import {
+    dateTime,
+    biosDate,
+    celsiusDeltaWith,
+    celsiusWith,
+    chipName,
+    deg,
+    degDelta,
+    setTempUnit,
+    tempUnit,
+    tempValue,
+    unitSign,
+    fmtRam,
+    fmtSize,
+    friendly,
+    linkSpeed,
+    rangeFill,
+    shortCpu,
+    speedShort,
+    speedText,
+    tempClass
+} from './format';
 
 test('deg', () => {
     expect(deg(51)).toBe('51 °C');
@@ -56,4 +77,27 @@ test('dateTime is day.month.year 24 h in the given zone', () => {
 test('rangeFill', () => {
     expect(rangeFill(25, 10, 60)).toBe('30%');
     expect(rangeFill(10, 10, 60)).toBe('0%');
+});
+
+test('temperatures in °F: whole for a whole °C, one decimal otherwise, the difference without +32', () => {
+    setTempUnit('f');
+    try {
+        expect([tempUnit(), unitSign()]).toEqual(['f', '°F']);
+        expect([deg(0), deg(53), deg(100), deg(-21)]).toEqual(['32 °F', '127 °F', '212 °F', '-6 °F']);
+        expect([deg(41.5), deg(null), deg(undefined)]).toEqual(['106.7 °F', '–', '–']);
+        expect([degDelta(15), degDelta(0), degDelta(2.5)]).toEqual(['27 °F', '0 °F', '4.5 °F']);
+        expect(tempValue(36.6)).toBe(97.9);
+        expect([celsiusWith(90), celsiusWith(null)]).toEqual(['90 °C (194 °F)', '–']);
+        expect(celsiusDeltaWith(15)).toBe('15 °C (27 °F)');
+    } finally {
+        setTempUnit('c');
+    }
+});
+
+test('°C is the default and passes values through unchanged', () => {
+    setTempUnit(undefined);
+    expect(tempUnit()).toBe('c');
+    expect([deg(53), deg(41.5), degDelta(15), celsiusWith(90), tempValue(36.6)]).toEqual(['53 °C', '41.5 °C', '15 °C', '90 °C', 36.6]);
+    setTempUnit('kelvin');
+    expect(tempUnit()).toBe('c');
 });

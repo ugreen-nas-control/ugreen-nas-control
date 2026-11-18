@@ -9,7 +9,50 @@ export const LIMITS = {
 export type TempKind = keyof typeof LIMITS;
 export type TempLevel = 'hot' | 'warm' | 'ok' | '';
 
-export const deg = (value: number | null | undefined): string => (value == null ? '–' : `${value} °C`);
+/**
+ * The unit temperatures are shown in (the setting `ui_unit`, which every status carries). Only the page converts: the
+ * daemon, fan.cfg (curves, limits), the API and MQTT stay in °C, and so do the inputs for curves and limits.
+ */
+export type TempUnit = 'c' | 'f';
+
+// One value for the whole page: the plugin page, the dashboard tile and the LED pages are separate bundles, each with its own
+// copy of this module.
+const shared = globalThis as { UNC_TEMP_UNIT?: TempUnit };
+
+export const setTempUnit = (value: unknown): void => {
+    shared.UNC_TEMP_UNIT = value === 'f' ? 'f' : 'c';
+};
+
+export const tempUnit = (): TempUnit => (shared.UNC_TEMP_UNIT === 'f' ? 'f' : 'c');
+
+/** The sign of the shown unit. */
+export const unitSign = (): string => (tempUnit() === 'f' ? '°F' : '°C');
+
+/** A temperature in °C as shown: whole °F for a whole °C, else one decimal; °C is passed through as it is. */
+export function tempValue(celsius: number): number {
+    if (tempUnit() === 'c') return celsius;
+    const f = (celsius * 9) / 5 + 32;
+    return Number.isInteger(celsius) ? Math.round(f) : Math.round(f * 10) / 10;
+}
+
+/** A difference of temperatures (a margin, an offset): no +32. */
+export function tempDelta(celsius: number): number {
+    if (tempUnit() === 'c') return celsius;
+    const f = (celsius * 9) / 5;
+    return Number.isInteger(celsius) ? Math.round(f) : Math.round(f * 10) / 10;
+}
+
+export const deg = (value: number | null | undefined): string => (value == null ? '–' : `${tempValue(value)} ${unitSign()}`);
+
+/** The same for a difference. */
+export const degDelta = (value: number | null | undefined): string => (value == null ? '–' : `${tempDelta(value)} ${unitSign()}`);
+
+/** The same for a difference: "15 °C (27 °F)". */
+export const celsiusDeltaWith = (celsius: number): string => (tempUnit() === 'f' ? `${celsius} °C (${tempDelta(celsius)} °F)` : `${celsius} °C`);
+
+/** An input that stays in °C next to what it is in the shown unit: "90 °C" or "90 °C (194 °F)". */
+export const celsiusWith = (celsius: number | null | undefined): string =>
+    celsius == null ? '–' : tempUnit() === 'f' ? `${celsius} °C (${tempValue(celsius)} °F)` : `${celsius} °C`;
 
 export function tempClass(temp: number | null | undefined, kind: TempKind): TempLevel {
     if (temp == null) return '';

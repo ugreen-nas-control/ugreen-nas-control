@@ -99,6 +99,26 @@ export const SCENARIOS: Scenario[] = [
         }
     },
     {
+        // The unit of the temperatures is a display setting: the page reloads with it and every page shows it.
+        id: 'unit',
+        applies: always,
+        async run(s) {
+            await s.open();
+            for (const unit of ['f', 'c']) {
+                await s.step(
+                    `unit ${unit}`,
+                    async () => {
+                        await s.go('settings');
+                        await s.settle();
+                        await s.set('#unc-unit', unit);
+                    },
+                    { reload: true }
+                );
+                for (const nav of await s.navs()) await s.step(`${unit} nav ${nav}`, () => s.go(nav));
+            }
+        }
+    },
+    {
         // Unraid's own theme and the plugin's colour scheme are separate settings. Whatever the combination, the history
         // table and the feedback preview must stay readable (WCAG AA 4.5:1), so the host's table/pre colours must not reach them.
         id: 'host-theme-contrast',
