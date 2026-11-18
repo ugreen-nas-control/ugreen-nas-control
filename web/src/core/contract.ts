@@ -51,6 +51,10 @@ export interface Settings {
     ignore_drives: string[];
     ui_lang: string;
     ui_theme: string;
+    /** The unit temperatures are shown in; the page converts, everything stored and sent is °C. Absent counts as `c`. */
+    ui_unit?: 'c' | 'f';
+    /** The other unit is shown beside it, in brackets. Absent counts as off. */
+    ui_unit_both?: boolean;
     /** The effective v2 fan configuration (backend/internal/fan/config_v2.go View); absent until the status reports it. */
     fan_config?: FanConfigV2;
 }
@@ -412,6 +416,8 @@ export interface NasPost {
     safety: { cpu_crit: string; disk_crit: string; nvme_offset: string; stall_notify: Flag; ignore_drives: string };
     lang: { value: string };
     theme: { value: string };
+    unit: { value: 'c' | 'f' };
+    unit_both: { value: '0' | '1' };
     fan_control: { value: 'on' | 'off' };
     led_import: Record<string, never>;
     led: { value: 'on' | 'off' };

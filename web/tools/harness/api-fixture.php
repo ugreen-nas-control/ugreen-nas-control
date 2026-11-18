@@ -572,7 +572,7 @@ function confirmed_status(array $fx, array $state): array
 function build_status(array $fx, array $state): array
 {
     $status = confirmed_status($fx, $state);
-    foreach (['mode', 'min_pct', 'case_follows_cpu', 'cpu_curve', 'case_curve', 'cpu_crit', 'disk_crit', 'nvme_offset', 'stall_notify', 'ignore_drives', 'fan_control', 'ui_lang', 'ui_theme'] as $key) {
+    foreach (['mode', 'min_pct', 'case_follows_cpu', 'cpu_curve', 'case_curve', 'cpu_crit', 'disk_crit', 'nvme_offset', 'stall_notify', 'ignore_drives', 'fan_control', 'ui_lang', 'ui_theme', 'ui_unit', 'ui_unit_both'] as $key) {
         if (array_key_exists($key, $state)) {
             $status['settings'][$key] = $state[$key];
         }
@@ -647,9 +647,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 @unlink($flag);
             }
             break;
+        case 'unit_both':
+            $both = ($_POST['value'] ?? '') === '1';
+            $ini = is_file($cfg) ? (parse_ini_file($cfg) ?: []) : [];
+            $ini['ui_unit_both'] = $both ? '1' : '0';
+            file_put_contents($cfg, implode("\n", array_map(fn($k, $v) => "$k=\"$v\"", array_keys($ini), $ini)) . "\n");
+            $save(['ui_unit_both' => $both]);
+            break;
         case 'lang':
         case 'theme':
-            $key = $action === 'lang' ? 'ui_lang' : 'ui_theme';
+        case 'unit':
+            $key = ['lang' => 'ui_lang', 'theme' => 'ui_theme', 'unit' => 'ui_unit'][$action];
             $value = (string) ($_POST['value'] ?? $_POST[$key] ?? '');
             $ini = is_file($cfg) ? (parse_ini_file($cfg) ?: []) : [];
             $ini[$key] = $value;
@@ -710,7 +718,7 @@ $scenario = (string) getenv('UNC_SCENARIO');
 if ($scenario !== '' && isset($scenarios[$scenario])) {
     $status = array_replace_recursive($status, $scenarios[$scenario]);
 }
-foreach (['mode', 'min_pct', 'case_follows_cpu', 'cpu_curve', 'case_curve', 'cpu_crit', 'disk_crit', 'nvme_offset', 'stall_notify', 'ignore_drives', 'fan_control', 'ui_lang', 'ui_theme'] as $key) {
+foreach (['mode', 'min_pct', 'case_follows_cpu', 'cpu_curve', 'case_curve', 'cpu_crit', 'disk_crit', 'nvme_offset', 'stall_notify', 'ignore_drives', 'fan_control', 'ui_lang', 'ui_theme', 'ui_unit', 'ui_unit_both'] as $key) {
     if (array_key_exists($key, $state)) {
         $status['settings'][$key] = $state[$key];
     }

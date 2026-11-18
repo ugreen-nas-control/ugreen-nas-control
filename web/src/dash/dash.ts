@@ -5,7 +5,7 @@
 import { createClient } from '../core/api';
 import type { Fan, HardwareResponse, LedState, LedStatus, NasGet, NasPost, Nvme, StatusResponse } from '../core/contract';
 import { fanIcon } from '../core/fanspin';
-import { type TempKind, deg, tempClass } from '../core/format';
+import { type TempKind, degCompact, setTempUnit, tempClass } from '../core/format';
 import { isStatusResponse } from '../core/guard';
 import { escapeHtml } from '../core/html';
 import { luminance } from '../core/theme';
@@ -109,7 +109,7 @@ function fanCard(fan: Fan, fans: Fan[], data: StatusResponse): string {
 }
 
 function heatStat(label: string, value: number | null, kind: TempKind, ico: keyof typeof ICONS): string {
-    return `<span class="unc-stat is-stack is-lg"><small class="unc-muted">${glyph(icon(ico))}${escapeHtml(label)}</small><b class="unc-t ${tempClass(value, kind)}">${value == null ? '–' : deg(value)}</b></span>`;
+    return `<span class="unc-stat is-stack is-lg"><small class="unc-muted">${glyph(icon(ico))}${escapeHtml(label)}</small><b class="unc-t ${tempClass(value, kind)}">${value == null ? '–' : degCompact(value)}</b></span>`;
 }
 
 function paintStatus(root: HTMLElement, data: StatusResponse): void {
@@ -149,7 +149,7 @@ function ssdChips(ssds: Nvme[]): string {
         .filter(s => s.temp != null)
         .map(
             s =>
-                `<span class="unc-stat" title="${escapeHtml([s.model, s.id].filter(Boolean).join(' · '))}"><small class="unc-muted">${glyph(s.boot ? UNRAID : icon('m2'))}${escapeHtml(slotName(s))}</small><b class="unc-t ${tempClass(s.temp, 'nvme')}">${deg(s.temp)}</b></span>`
+                `<span class="unc-stat" title="${escapeHtml([s.model, s.id].filter(Boolean).join(' · '))}"><small class="unc-muted">${glyph(s.boot ? UNRAID : icon('m2'))}${escapeHtml(slotName(s))}</small><b class="unc-t ${tempClass(s.temp, 'nvme')}">${degCompact(s.temp)}</b></span>`
         )
         .join('');
 }
@@ -233,7 +233,7 @@ function paintHeader(data: StatusResponse | null): void {
     if (failsafe || (data.chip_error && !noFan)) part(` · ${failsafe ? t('warn.failsafe') : t('warn.chip')}`, 'unc-dash-alert');
     else if (stalledNames(data).length) part(` · ${stalledNames(data).join(', ')}: ${t('fan.stopped')}`, 'unc-dash-alert');
     if (rpm.length) part(` · ${rpm.join(' / ')} ${t('fan.rpm')}`, 'unc-dash-sum');
-    if (top) part(` · ${top[0]} ${top[1]} °C`, 'unc-dash-sum');
+    if (top) part(` · ${top[0]} ${degCompact(top[1])}`, 'unc-dash-sum');
     if (line.firstChild?.textContent?.startsWith(' · ')) line.firstChild.textContent = line.firstChild.textContent.slice(3);
 }
 
@@ -243,6 +243,7 @@ async function load(root: HTMLElement): Promise<void> {
     try {
         const data = await api.get('status');
 
+        setTempUnit(data.settings?.ui_unit, data.settings?.ui_unit_both);
         last = data;
         paintStatus(root, data);
         paintHeader(data);

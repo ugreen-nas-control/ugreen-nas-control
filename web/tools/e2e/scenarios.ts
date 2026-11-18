@@ -99,6 +99,32 @@ export const SCENARIOS: Scenario[] = [
         }
     },
     {
+        // The unit of the temperatures and showing both are display settings: the page reloads with them and every page shows them.
+        id: 'unit',
+        applies: always,
+        async run(s) {
+            await s.open();
+            const change = (name: string, act: () => Promise<void>) =>
+                s.step(
+                    name,
+                    async () => {
+                        await s.go('settings');
+                        await s.settle();
+                        await act();
+                    },
+                    { reload: true }
+                );
+            await change('unit f', () => s.set('#unc-unit', 'f'));
+            for (const nav of await s.navs()) await s.step(`f nav ${nav}`, () => s.go(nav));
+            await change('both units on', () => s.click('#unc-unit-both'));
+            for (const nav of await s.navs()) await s.step(`f and c nav ${nav}`, () => s.go(nav));
+            await change('unit c', () => s.set('#unc-unit', 'c'));
+            await s.step('c and f overview', () => s.go('overview'));
+            await change('both units off', () => s.click('#unc-unit-both'));
+            await s.step('c overview', () => s.go('overview'));
+        }
+    },
+    {
         // Unraid's own theme and the plugin's colour scheme are separate settings. Whatever the combination, the history
         // table and the feedback preview must stay readable (WCAG AA 4.5:1), so the host's table/pre colours must not reach them.
         id: 'host-theme-contrast',

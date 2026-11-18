@@ -382,6 +382,15 @@ window.UGREEN_LED_THEME = <?= json_encode($unc_theme) ?>;
             </select>
         </div>
         <p class="unc-note" data-i18n="theme.hint">„Wie Unraid“ richtet sich nach dem Farbschema deiner Unraid-Oberfläche (hell oder dunkel).</p>
+        <div class="unc-form">
+            <label for="unc-unit" data-i18n="unit.label">Temperatureinheit</label>
+            <select id="unc-unit">
+                <option value="c" data-i18n="unit.c">Celsius (°C)</option>
+                <option value="f" data-i18n="unit.f">Fahrenheit (°F)</option>
+            </select>
+        </div>
+        <span data-unc="switch" data-unc-input="unc-unit-both" data-unc-title="unit.both" data-unc-hint="unit.both_hint"></span>
+        <p class="unc-note" data-i18n="unit.hint">Nur die Anzeige ändert sich. Lüfterkurven und Grenzwerte gibst du weiter in °C ein, gespeichert und über MQTT gesendet wird ebenfalls °C.</p>
     </article>
     <div class="unc-fanslot" data-fan-slot="settings"></div>
 </section>

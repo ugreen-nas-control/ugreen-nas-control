@@ -1070,7 +1070,7 @@
       "settings without led pages": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "cde5e1a3bbb3"
+        "text": "15b7189959e6"
       },
       "led on": {
         "requests": [
@@ -1192,26 +1192,26 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "f11cd985fdd0"
+        "text": "01b3e3e4fa50"
       },
       "mqtt test connection": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"broker.lan\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "8aa8f7f043ae"
+        "text": "c49b27810176"
       },
       "mqtt test with a host that does not resolve": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"nobroker.invalid\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "5cda0d472ea6"
+        "text": "7f58c09f2141"
       },
       "mqtt switched on": {
         "requests": [],
         "events": [],
-        "text": "8babeae9b5c2"
+        "text": "0e8eb5d4f480"
       },
       "mqtt saved": {
         "requests": [
@@ -1219,7 +1219,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved. Changes apply within 2 seconds. [success]"],
-        "text": "89842a0561c4"
+        "text": "8e63d197b6c6"
       }
     },
     "pages": {
@@ -1362,7 +1362,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "01603a2f2faf"
+        "text": "a1dee9cbbc65"
       }
     },
     "theme": {
@@ -1380,7 +1380,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved [success]"],
-        "text": "0e347d6d8812"
+        "text": "73dacddea2b4"
       },
       "overview in light": {
         "requests": [
@@ -1396,7 +1396,7 @@
       "theme auto": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"auto\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "4be3941fdf54"
+        "text": "29981cd516dd"
       },
       "overview in auto": {
         "requests": [
@@ -1412,7 +1412,7 @@
       "theme dark": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"dark\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "01603a2f2faf"
+        "text": "a1dee9cbbc65"
       },
       "overview in dark": {
         "requests": [
@@ -1422,6 +1422,198 @@
           "nas GET {\"action\":\"hardware\"}",
           "nas GET {\"action\":\"status\"}"
         ],
+        "events": [],
+        "text": "03d30d240912"
+      }
+    },
+    "unit": {
+      "unit f": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"f\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "289265a76a6d"
+      },
+      "f nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "289265a76a6d"
+      },
+      "f nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1eca2d484b53"
+      },
+      "f nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "9149c67082a7"
+      },
+      "f nav curves": {
+        "requests": ["nas GET {\"action\":\"fan_probe_status\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6e4d5944aaef"
+      },
+      "f nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "888a2639adf8"
+      },
+      "f nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "71bc5ee235b2"
+      },
+      "f nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "f091f8052ad1"
+      },
+      "f nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "24ae9d974318"
+      },
+      "f nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "5469ddae4372"
+      },
+      "f nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "028952ab984d"
+      },
+      "f nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6084620f5211"
+      },
+      "f nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "50c99beddcdb"
+      },
+      "both units on": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"1\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "ae5978e89cd7"
+      },
+      "f and c nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ae5978e89cd7"
+      },
+      "f and c nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "96d533dc1aa9"
+      },
+      "f and c nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "bf35bcbe451f"
+      },
+      "f and c nav curves": {
+        "requests": ["nas GET {\"action\":\"fan_probe_status\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6e4d5944aaef"
+      },
+      "f and c nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "888a2639adf8"
+      },
+      "f and c nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "71bc5ee235b2"
+      },
+      "f and c nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "f091f8052ad1"
+      },
+      "f and c nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "24ae9d974318"
+      },
+      "f and c nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "5469ddae4372"
+      },
+      "f and c nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "5d9f522bee9b"
+      },
+      "f and c nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6084620f5211"
+      },
+      "f and c nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "50c99beddcdb"
+      },
+      "unit c": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"c\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "563ac0cca4df"
+      },
+      "c and f overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "563ac0cca4df"
+      },
+      "both units off": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"0\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "03d30d240912"
+      },
+      "c overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
         "text": "03d30d240912"
       }
@@ -3009,7 +3201,7 @@
       "settings without led pages": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "49c45af997b2"
+        "text": "37cde4e82b07"
       },
       "led on": {
         "requests": [
@@ -3134,26 +3326,26 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "5ee2c32d8909"
+        "text": "57c5bec13205"
       },
       "mqtt test connection": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"broker.lan\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "caa9b3b9a577"
+        "text": "99606d68c553"
       },
       "mqtt test with a host that does not resolve": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"nobroker.invalid\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "6f68ac6cb3f1"
+        "text": "8196ae914a86"
       },
       "mqtt switched on": {
         "requests": [],
         "events": [],
-        "text": "04049652f0b5"
+        "text": "3413168a8597"
       },
       "mqtt saved": {
         "requests": [
@@ -3161,7 +3353,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved. Changes apply within 2 seconds. [success]"],
-        "text": "3306745ae4d3"
+        "text": "58c245af1d07"
       }
     },
     "pages": {
@@ -3372,17 +3564,17 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "61854e9b1df4"
+        "text": "9b95e4646186"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "a9c97a984d37"
+        "text": "c4eec40f2c4e"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "61854e9b1df4"
+        "text": "9b95e4646186"
       }
     },
     "theme": {
@@ -3401,7 +3593,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved [success]"],
-        "text": "496c749f2f1b"
+        "text": "b3d4095d548d"
       },
       "overview in light": {
         "requests": [
@@ -3417,7 +3609,7 @@
       "theme auto": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"auto\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "86f016056a03"
+        "text": "954b63408acb"
       },
       "overview in auto": {
         "requests": [
@@ -3433,7 +3625,7 @@
       "theme dark": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"dark\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "61854e9b1df4"
+        "text": "9b95e4646186"
       },
       "overview in dark": {
         "requests": [
@@ -3443,6 +3635,222 @@
           "nas GET {\"action\":\"hardware\"}",
           "nas GET {\"action\":\"status\"}"
         ],
+        "events": [],
+        "text": "d672e61064ad"
+      }
+    },
+    "unit": {
+      "unit f": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"f\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "7cc95ab0152e"
+      },
+      "f nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "7cc95ab0152e"
+      },
+      "f nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "33210176d15c"
+      },
+      "f nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6563f87d3d86"
+      },
+      "f nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "8b46c64fb005"
+      },
+      "f nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "71b870019249"
+      },
+      "f nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "77765920053b"
+      },
+      "f nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "e2a343eb1ff7"
+      },
+      "f nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "95c44eaa154b"
+      },
+      "f nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "40e1c2002362"
+      },
+      "f nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b09699d3cbf0"
+      },
+      "f nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "2d7593f9b6e1"
+      },
+      "f nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b0f89cab67d0"
+      },
+      "f nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "61ce417205d3"
+      },
+      "f nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ebf8701ad793"
+      },
+      "both units on": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"1\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "834dbc7e98e6"
+      },
+      "f and c nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "834dbc7e98e6"
+      },
+      "f and c nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "4f408e954039"
+      },
+      "f and c nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "0bd464a65b5e"
+      },
+      "f and c nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1a34bda54ac0"
+      },
+      "f and c nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "fc137c2b7899"
+      },
+      "f and c nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "4486ad956e60"
+      },
+      "f and c nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "e2a343eb1ff7"
+      },
+      "f and c nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "95c44eaa154b"
+      },
+      "f and c nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "40e1c2002362"
+      },
+      "f and c nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b09699d3cbf0"
+      },
+      "f and c nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "2d7593f9b6e1"
+      },
+      "f and c nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "a50e5d78f2a9"
+      },
+      "f and c nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "61ce417205d3"
+      },
+      "f and c nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ebf8701ad793"
+      },
+      "unit c": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"c\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "f688fa33e189"
+      },
+      "c and f overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "f688fa33e189"
+      },
+      "both units off": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"0\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "d672e61064ad"
+      },
+      "c overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
         "text": "d672e61064ad"
       }
@@ -5030,7 +5438,7 @@
       "settings without led pages": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "e512dde260f6"
+        "text": "3d0bb57685aa"
       },
       "led on": {
         "requests": [
@@ -5050,7 +5458,7 @@
       "led pages back": {
         "requests": ["nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "0de7dab63c72"
+        "text": "a26c3360ede5"
       }
     },
     "led-system": {
@@ -5155,26 +5563,26 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "11578066cc7c"
+        "text": "6b7b88cf3659"
       },
       "mqtt test connection": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"broker.lan\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "0b6be4d86da7"
+        "text": "2b817c7c1951"
       },
       "mqtt test with a host that does not resolve": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"nobroker.invalid\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "073002ac6343"
+        "text": "33ba735e540b"
       },
       "mqtt switched on": {
         "requests": [],
         "events": [],
-        "text": "8f59a01ce215"
+        "text": "efc5c3476a73"
       },
       "mqtt saved": {
         "requests": [
@@ -5182,7 +5590,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved. Changes apply within 2 seconds. [success]"],
-        "text": "88281f7234e4"
+        "text": "cef33f535583"
       }
     },
     "pages": {
@@ -5393,17 +5801,17 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "0db495f6f4ee"
+        "text": "685001b9483f"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "1f11c2c43dd3"
+        "text": "158fb4f9b173"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "0db495f6f4ee"
+        "text": "685001b9483f"
       }
     },
     "theme": {
@@ -5422,7 +5830,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved [success]"],
-        "text": "8676bff9bebe"
+        "text": "8314b3f7fddc"
       },
       "overview in light": {
         "requests": [
@@ -5438,7 +5846,7 @@
       "theme auto": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"auto\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "c6314bd44fd9"
+        "text": "994943bf4925"
       },
       "overview in auto": {
         "requests": [
@@ -5454,7 +5862,7 @@
       "theme dark": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"dark\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "0db495f6f4ee"
+        "text": "685001b9483f"
       },
       "overview in dark": {
         "requests": [
@@ -5464,6 +5872,222 @@
           "nas GET {\"action\":\"hardware\"}",
           "nas GET {\"action\":\"status\"}"
         ],
+        "events": [],
+        "text": "2f52aabe2722"
+      }
+    },
+    "unit": {
+      "unit f": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"f\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "4dbf773fe5b3"
+      },
+      "f nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "4dbf773fe5b3"
+      },
+      "f nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "267c36f30b0f"
+      },
+      "f nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "d83192f0cac5"
+      },
+      "f nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "976784443097"
+      },
+      "f nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b0031b80b66c"
+      },
+      "f nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "e5b3f7c25251"
+      },
+      "f nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "be4b53ef48a7"
+      },
+      "f nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1d20607fb88a"
+      },
+      "f nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b3bf0a3e58ef"
+      },
+      "f nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "54e718a90f93"
+      },
+      "f nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "48f02100ff06"
+      },
+      "f nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "d2b89edf58d3"
+      },
+      "f nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "fb3050bd55e9"
+      },
+      "f nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "7b0bb9fe5b3d"
+      },
+      "both units on": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"1\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "6a9703989e8a"
+      },
+      "f and c nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6a9703989e8a"
+      },
+      "f and c nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "11b4da7f550e"
+      },
+      "f and c nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ca84c5090e9b"
+      },
+      "f and c nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "15cc95e1dccc"
+      },
+      "f and c nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "65d30e566bd0"
+      },
+      "f and c nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ffb39352ced4"
+      },
+      "f and c nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "be4b53ef48a7"
+      },
+      "f and c nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1d20607fb88a"
+      },
+      "f and c nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b3bf0a3e58ef"
+      },
+      "f and c nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "54e718a90f93"
+      },
+      "f and c nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "48f02100ff06"
+      },
+      "f and c nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "0adff91ff8ea"
+      },
+      "f and c nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "fb3050bd55e9"
+      },
+      "f and c nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "7b0bb9fe5b3d"
+      },
+      "unit c": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"c\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "014116f7a873"
+      },
+      "c and f overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "014116f7a873"
+      },
+      "both units off": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"0\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "2f52aabe2722"
+      },
+      "c overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
         "text": "2f52aabe2722"
       }
@@ -7073,7 +7697,7 @@
       "settings without led pages": {
         "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
-        "text": "5680d2210d3d"
+        "text": "36e51657db29"
       },
       "led on": {
         "requests": [
@@ -7201,26 +7825,26 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "b5c5f455ffdd"
+        "text": "47261c0a3953"
       },
       "mqtt test connection": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"broker.lan\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "e67df296584b"
+        "text": "b149b1316298"
       },
       "mqtt test with a host that does not resolve": {
         "requests": [
           "nas POST {\"action\":\"mqtt_test\",\"host\":\"nobroker.invalid\",\"pass\":\"\",\"pass_clear\":\"0\",\"port\":\"\",\"tls\":\"0\",\"user\":\"\"}"
         ],
         "events": [],
-        "text": "97ff8e401104"
+        "text": "e242e9d63734"
       },
       "mqtt switched on": {
         "requests": [],
         "events": [],
-        "text": "a94557a44265"
+        "text": "3e2a6839c22c"
       },
       "mqtt saved": {
         "requests": [
@@ -7228,7 +7852,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved. Changes apply within 2 seconds. [success]"],
-        "text": "134b14826e96"
+        "text": "b09f981ad433"
       }
     },
     "pages": {
@@ -7443,27 +8067,27 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": [],
-        "text": "532486bcc665"
+        "text": "3783980119ab"
       },
       "backlight 40 %": {
         "requests": ["nas POST {\"action\":\"fan_backlight\",\"pct\":\"40\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "10c4be87ee59"
+        "text": "b660b77a0334"
       },
       "backlight 100 %": {
         "requests": ["nas POST {\"action\":\"fan_backlight\",\"pct\":\"100\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "57e034e8214f"
+        "text": "5adf00767f47"
       },
       "fan control off": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"off\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "f0dde5e3f24f"
+        "text": "dc71ed596fdd"
       },
       "fan control on": {
         "requests": ["nas POST {\"action\":\"fan_control\",\"value\":\"on\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "57e034e8214f"
+        "text": "5adf00767f47"
       }
     },
     "theme": {
@@ -7483,7 +8107,7 @@
           "nas GET {\"action\":\"status\"}"
         ],
         "events": ["toast: Saved [success]"],
-        "text": "3fe3a58e63cf"
+        "text": "12f3eedb71c9"
       },
       "overview in light": {
         "requests": [
@@ -7499,7 +8123,7 @@
       "theme auto": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"auto\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "6dee10f28c06"
+        "text": "95abbb97f0ab"
       },
       "overview in auto": {
         "requests": [
@@ -7515,7 +8139,7 @@
       "theme dark": {
         "requests": ["nas POST {\"action\":\"theme\",\"value\":\"dark\"}", "nas GET {\"action\":\"status\"}"],
         "events": ["toast: Saved [success]"],
-        "text": "532486bcc665"
+        "text": "3783980119ab"
       },
       "overview in dark": {
         "requests": [
@@ -7525,6 +8149,226 @@
           "nas GET {\"action\":\"hardware\"}",
           "nas GET {\"action\":\"status\"}"
         ],
+        "events": [],
+        "text": "11bdedd0fb0c"
+      }
+    },
+    "unit": {
+      "unit f": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"f\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_backlight\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "675d72fbb50f"
+      },
+      "f nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "675d72fbb50f"
+      },
+      "f nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "c71044a08230"
+      },
+      "f nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "26e2f6ceb189"
+      },
+      "f nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "7476b1706cb2"
+      },
+      "f nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "e885179e0ade"
+      },
+      "f nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "81d4dd906c24"
+      },
+      "f nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1a11c6699f3d"
+      },
+      "f nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1892361c2aa4"
+      },
+      "f nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "80444439143e"
+      },
+      "f nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "a86df666eb94"
+      },
+      "f nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "02a7ae20b3a1"
+      },
+      "f nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "ec0b25f06741"
+      },
+      "f nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "280cc9edc1a7"
+      },
+      "f nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "38e0eda9be91"
+      },
+      "both units on": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"1\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_backlight\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "1671c214e3a7"
+      },
+      "f and c nav overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1671c214e3a7"
+      },
+      "f and c nav case": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "c75041d07ae4"
+      },
+      "f and c nav sensors": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "3b6daacf8333"
+      },
+      "f and c nav curves": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "f32fe5b37c44"
+      },
+      "f and c nav history": {
+        "requests": ["nas GET {\"action\":\"fan_history\",\"range\":\"1h\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "6be00e82e907"
+      },
+      "f and c nav safety": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "b17cc56e9822"
+      },
+      "f and c nav led:overview": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1a11c6699f3d"
+      },
+      "f and c nav led:drives": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "1892361c2aa4"
+      },
+      "f and c nav led:schedules": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "80444439143e"
+      },
+      "f and c nav led:system": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "a86df666eb94"
+      },
+      "f and c nav panel": {
+        "requests": ["nas GET {\"action\":\"panel_buttons\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "02a7ae20b3a1"
+      },
+      "f and c nav settings": {
+        "requests": ["nas GET {\"action\":\"mqtt_get\"}", "nas GET {\"action\":\"power_ac_get\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "4f9fb6bc115c"
+      },
+      "f and c nav feedback": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "280cc9edc1a7"
+      },
+      "f and c nav about": {
+        "requests": ["nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "38e0eda9be91"
+      },
+      "unit c": {
+        "requests": [
+          "nas POST {\"action\":\"unit\",\"value\":\"c\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_backlight\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "610ee62d2001"
+      },
+      "c and f overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
+        "events": [],
+        "text": "610ee62d2001"
+      },
+      "both units off": {
+        "requests": [
+          "nas POST {\"action\":\"unit_both\",\"value\":\"0\"}",
+          "led GET {\"action\":\"all\"}",
+          "led GET {\"action\":\"bays\"}",
+          "led GET {\"action\":\"schedule\"}",
+          "led GET {\"action\":\"status\"}",
+          "nas GET {\"action\":\"fan_backlight\"}",
+          "nas GET {\"action\":\"fan_inputs\"}",
+          "nas GET {\"action\":\"fan_profile_sources\"}",
+          "nas GET {\"action\":\"hardware\"}",
+          "nas GET {\"action\":\"mqtt_get\"}",
+          "nas GET {\"action\":\"power_ac_get\"}",
+          "nas GET {\"action\":\"status\"}"
+        ],
+        "events": ["toast: Saved [success]"],
+        "text": "11bdedd0fb0c"
+      },
+      "c overview": {
+        "requests": ["nas GET {\"action\":\"hardware\"}", "nas GET {\"action\":\"status\"}"],
         "events": [],
         "text": "11bdedd0fb0c"
       }

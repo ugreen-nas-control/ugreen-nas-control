@@ -714,7 +714,7 @@ func uiLine(in FeatureInputs) string {
 		}
 		return "default"
 	}
-	return fmt.Sprintf("language %s, theme %s", v("ui_lang"), v("ui_theme"))
+	return fmt.Sprintf("language %s, theme %s, unit %s", v("ui_lang"), v("ui_theme"), v("ui_unit"))
 }
 
 // scriptInterpreters names the interpreter of each script in dir from its shebang; the file names stay out.

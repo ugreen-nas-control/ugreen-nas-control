@@ -30,7 +30,28 @@ import type {
 } from '../../core/contract';
 import { caseModel, frontHtml, socket, SOCKET, type SocketKind, withM2Bays } from './components/front';
 import { caseNetworkPorts } from './case-network';
-import { dateTime, biosDate, chipName, deg, fmtRam, fmtSize, friendly, LIMITS, shortCpu, speedText, tempClass, type TempKind } from '../../core/format';
+import {
+    dateTime,
+    biosDate,
+    celsiusDeltaWith,
+    celsiusWith,
+    chipName,
+    degCompact,
+    degDeltaCompact,
+    tempBoth,
+    deg,
+    degDelta,
+    setTempUnit,
+    tempUnit,
+    fmtRam,
+    fmtSize,
+    friendly,
+    LIMITS,
+    shortCpu,
+    speedText,
+    tempClass,
+    type TempKind
+} from '../../core/format';
 import { curveAt, curveText, effectivePoints, parseCurve, rpmAt as rpmAtRows, rpmTicks as rpmTicksOf, validCurve, type CurvePoint } from '../../core/curve';
 import { hit, setRangeFill } from '../../core/dom';
 import { fanIcon } from '../../core/fanspin';
@@ -583,7 +604,7 @@ function main(root: HTMLElement): void {
         return [
             item(t('temps.cpu'), s.cpu, 'cpu', 'chip'),
             item(t('temps.gpu'), s.gpu, 'cpu', 'pcie'),
-            item(t('temps.board'), s.board, 'other', 'board', chip == null ? '' : `${t('cc.chip')} ${chip} °C`)
+            item(t('temps.board'), s.board, 'other', 'board', chip == null ? '' : `${t('cc.chip')} ${deg(chip)}`)
         ].join('');
     }
 
@@ -918,7 +939,7 @@ function main(root: HTMLElement): void {
         // Everything in case-fan terms: the CPU temperature is only the reason for the speed.
         line.textContent =
             cpu > curve && cpu >= minPct()
-                ? t('curves.mix_now_cpu', { pct, rpm: rpmNote('case', pct), temp: loaded().sensors.cpu })
+                ? t('curves.mix_now_cpu', { pct, rpm: rpmNote('case', pct), temp: deg(loaded().sensors.cpu) })
                 : t('curves.mix_now', { pct, rpm: rpmNote('case', pct), cpu, cpurpm: rpmNote('case', cpu) });
     }
 
@@ -959,7 +980,7 @@ function main(root: HTMLElement): void {
         else if (idle)
             why = state.data?.calibration?.progress?.state === 'running' ? t('curves.why_calibrating') : daemon?.mode === 'bios' ? t('curves.why_bios') : '';
         else if (slowing) why = t('curves.why_slowing');
-        else if (byCpu) why = t('curves.why_cpu', { temp: cpuNow, cpu: cpuCurve, curve, rpm: rpmNote('case', cpuCurve) });
+        else if (byCpu) why = t('curves.why_cpu', { temp: deg(cpuNow), cpu: cpuCurve, curve, rpm: rpmNote('case', cpuCurve) });
         else if (curve < minPct()) why = t('curves.why_min', { curve });
 
         return { now, byCpu, wanted, target: state.curvesDirty ? wanted : (driven ?? wanted), idle, slowing, why };
@@ -1048,7 +1069,7 @@ function main(root: HTMLElement): void {
             }
             const above = demand < 88;
             cpuLine = `<line class="cpuline" x1="${L}" x2="${W - R}" y1="${y(demand)}" y2="${y(demand)}"/>
-                <text class="cpu-text" x="${W - R - 4}" y="${y(demand) + (above ? -5 : 13)}" text-anchor="end">${escapeHtml(t('curves.cpu_asks', { temp: loaded().sensors.cpu, pct: demand, rpm: rpmNote('case', demand) }))}</text>`;
+                <text class="cpu-text" x="${W - R - 4}" y="${y(demand) + (above ? -5 : 13)}" text-anchor="end">${escapeHtml(t('curves.cpu_asks', { temp: celsiusWith(loaded().sensors.cpu), pct: demand, rpm: rpmNote('case', demand) }))}</text>`;
         }
         const band = `<rect class="minband" x="${L}" y="${y(minimum)}" width="${W - L - R}" height="${H - B - y(minimum)}"/>`;
         const limit = `<line class="minline" x1="${L}" x2="${W - R}" y1="${y(minimum)}" y2="${y(minimum)}"/>`;
@@ -1282,7 +1303,7 @@ function main(root: HTMLElement): void {
                 <li>${escapeHtml(t('calib.gain_rpm'))}</li>
                 <li>${escapeHtml(t('calib.gain_floor'))}</li>
             </ul>
-            <p class="unc-muted">${escapeHtml(t('calib.what'))}</p>
+            <p class="unc-muted">${escapeHtml(t('calib.what', { temp: deg(80) }))}</p>
             <div>${button(t('calib.button'), true)}</div>`,
             { box: true, tag: 'div' }
         );
@@ -1547,7 +1568,7 @@ function main(root: HTMLElement): void {
         paintRpm('cpu');
         paintRpm('case');
         q('#unc-case-title').textContent = caseGroupName();
-        q('#unc-case-src').textContent = t('curves.case_source', { offset: caseSource().offset });
+        q('#unc-case-src').textContent = t('curves.case_source', { offset: degDelta(caseSource().offset) });
         renderNow();
         renderMeasure();
     }
@@ -1555,18 +1576,18 @@ function main(root: HTMLElement): void {
     interface SafetyField {
         id: string;
         key: 'cpu_crit' | 'disk_crit' | 'nvme_offset';
-        unit: string;
     }
     const SAFETY: SafetyField[] = [
-        { id: 'cpu-crit', key: 'cpu_crit', unit: '°C' },
-        { id: 'disk-crit', key: 'disk_crit', unit: '°C' },
-        { id: 'nvme-offset', key: 'nvme_offset', unit: '°C' }
+        { id: 'cpu-crit', key: 'cpu_crit' },
+        { id: 'disk-crit', key: 'disk_crit' },
+        { id: 'nvme-offset', key: 'nvme_offset' }
     ];
 
     function showSafetyValue(field: SafetyField): void {
         const input = q<HTMLInputElement>(`#unc-${field.id}`);
         setRangeFill(input);
-        q(`#unc-${field.id}-value`).textContent = `${input.value} ${field.unit}`;
+        const value = Number(input.value);
+        q(`#unc-${field.id}-value`).textContent = field.key === 'nvme_offset' ? celsiusDeltaWith(value) : celsiusWith(value);
     }
 
     function renderIgnoreList() {
@@ -1640,7 +1661,7 @@ function main(root: HTMLElement): void {
             nvme == null
                 ? emptyText(t('safety.eq_none'))
                 : `
-            ${term(label, deg(nvme))}${op('−')}${term(t('safety.nvme_offset'), deg(offset))}${op('=')}${term(t('safety.eq_case'), deg(eff), 'is-result')}
+            ${term(label, degCompact(nvme))}${op('−')}${term(t('safety.nvme_offset'), degDeltaCompact(offset))}${op('=')}${term(t('safety.eq_case'), degCompact(eff), 'is-result')}
             ${drives ? pill({ tone: 'accent', ico: 'fan', text: t('sensors.drives_case') }) : pill({ text: t('safety.eq_disk') })}`;
     }
 
@@ -1657,14 +1678,14 @@ function main(root: HTMLElement): void {
             ['nvme', nvme, diskCrit + offset, 'safety.now_no_nvme']
         ];
 
-        q('#unc-nvme-crit-value').textContent = `${diskCrit + offset} °C`;
-        q('#unc-nvme-derived').textContent = t('safety.derived', { disk: diskCrit, offset });
+        q('#unc-nvme-crit-value').textContent = degCompact(diskCrit + offset);
+        q('#unc-nvme-derived').textContent = t('safety.derived', { disk: deg(diskCrit), offset: degDelta(offset) });
         rows.forEach(([id, now, limit, none]) => {
             const reached = now != null && now >= limit;
             const near = now != null && limit - now <= 10;
             const live = q(`#unc-live-${id}`);
 
-            live.textContent = now == null ? t(none) : t(reached ? 'safety.reached' : 'safety.headroom', { temp: deg(now), gap: limit - now });
+            live.textContent = now == null ? t(none) : t(reached ? 'safety.reached' : 'safety.headroom', { temp: deg(now), gap: degDelta(limit - now) });
             // An unreadable CPU puts the fans at 100 % too.
             live.classList.toggle('is-warn', reached || (id === 'cpu' && now == null));
             q(`#unc-meter-${id}`).innerHTML = meter(now == null ? 0 : Math.min(100, Math.round((now / limit) * 100)), reached ? 'bad' : near ? 'warn' : '');
@@ -2346,7 +2367,7 @@ function main(root: HTMLElement): void {
     const tempBadge6800 = (x: number, y: number, temp: number | null): string =>
         temp == null
             ? ''
-            : `<rect x="${x}" y="${y}" width="46" height="16" rx="8" fill="${tempColour(temp)}"/><text x="${x + 23}" y="${y + 11.5}" fill="#0b0e12" font-size="10.5" font-weight="800" text-anchor="middle">${temp} °C</text>`;
+            : `<rect x="${x}" y="${y}" width="46" height="16" rx="8" fill="${tempColour(temp)}"/><text x="${x + 23}" y="${y + 11.5}" fill="#0b0e12" font-size="10.5" font-weight="800" text-anchor="middle">${degCompact(temp)}</text>`;
     const boardText = (x: number, y: number, text: string): string =>
         `<text x="${x}" y="${y}" style="fill:var(--bd-text)" font-size="11.5">${escapeHtml(text)}</text>`;
 
@@ -2984,7 +3005,7 @@ function main(root: HTMLElement): void {
             .map(n => {
                 const hot = extras.filter(e => e.name === n.id).filter(hasTemp);
                 const warn = hot.find(e => e.temp >= warm);
-                const hint = [n.model, ...hot.map(e => `${e.label || t('temps.sensor')} ${e.temp} °C`), warn ? t('temps.hint_nvme_extra') : '']
+                const hint = [n.model, ...hot.map(e => `${e.label || t('temps.sensor')} ${deg(e.temp)}`), warn ? t('temps.hint_nvme_extra') : '']
                     .filter(Boolean)
                     .join('\n');
 
@@ -3052,7 +3073,9 @@ function main(root: HTMLElement): void {
                       .map((n, i) => {
                           const chips = nics.filter(c => c.iface === n.name).filter(hasTemp);
                           const temp = chips.length ? Math.max(...chips.map(c => c.temp)) : null;
-                          const hint = [`${t('temps.nic_chip')} · ${n.name}`, chips.map(c => `${c.label} ${c.temp} °C`).join(' / ')].filter(Boolean).join('\n');
+                          const hint = [`${t('temps.nic_chip')} · ${n.name}`, chips.map(c => `${c.label} ${deg(c.temp)}`).join(' / ')]
+                              .filter(Boolean)
+                              .join('\n');
 
                           return `<div>${statChip({ ico: icon('net'), label: ports.length > 1 ? t('case.lan', { n: i + 1 }) : t('case.lan_one'), sub: n.name, text: n.link ? speedText(n.speed_mbit) : t('cc.no_link'), level: n.link ? '' : 'na', hint, cls: 'is-row' })}${n.link && temp != null ? tempOf(temp, 'other') : '<span></span>'}</div>`;
                       })
@@ -3194,7 +3217,7 @@ function main(root: HTMLElement): void {
         const intel = /intel/i.test(info.cpu || '');
         const caseSrc = caseSource();
         const ignored = new Set(settings.ignore_drives || []);
-        const limit = (value: number): string => pill({ text: t('sensors.limit', { temp: value }) });
+        const limit = (value: number): string => pill({ text: t('sensors.limit', { temp: deg(value) }) });
         const driver = (name: string, from: string): string =>
             steering && caseSrc.from === from && caseSrc.drive === name ? pill({ tone: 'accent', ico: 'fan', text: t('sensors.drives_case') }) : '';
         const skipped = (name: string): string => (steering && ignored.has(name) ? pill({ text: t('sensors.ignored') }) : '');
@@ -3236,7 +3259,7 @@ function main(root: HTMLElement): void {
                 sensorRow({
                     ico: icon('board'),
                     name: t('temps.acpi'),
-                    src: `acpitz: ${t('temps.acpi_hint')}`,
+                    src: `acpitz: ${t('temps.acpi_hint', { temp: deg(28) })}`,
                     vals: [{ label: '', text: deg(plausible(s.acpi_zone)), level: 'na' }]
                 })
             );
@@ -3367,6 +3390,11 @@ function main(root: HTMLElement): void {
             data = null;
         }
         if (seq !== loadSeq) return;
+        if (data) {
+            setTempUnit(data.settings?.ui_unit, data.settings?.ui_unit_both);
+            q<HTMLSelectElement>('#unc-unit').value = tempUnit();
+            q<HTMLInputElement>('#unc-unit-both').checked = tempBoth();
+        }
         state.data = data;
         updateNetAct(data?.net_io);
         render();
@@ -3660,6 +3688,26 @@ function main(root: HTMLElement): void {
             try {
                 await api.post('theme', { value: theme.value });
                 saved();
+            } catch (error) {
+                toast(errorMessage(error), 'error');
+            }
+        });
+
+        const unit = q<HTMLSelectElement>('#unc-unit');
+        unit.addEventListener('change', async () => {
+            try {
+                await api.post('unit', { value: unit.value === 'f' ? 'f' : 'c' });
+                reloadSaved();
+            } catch (error) {
+                toast(errorMessage(error), 'error');
+            }
+        });
+
+        const unitBoth = q<HTMLInputElement>('#unc-unit-both');
+        unitBoth.addEventListener('change', async () => {
+            try {
+                await api.post('unit_both', { value: unitBoth.checked ? '1' : '0' });
+                reloadSaved();
             } catch (error) {
                 toast(errorMessage(error), 'error');
             }

@@ -3,6 +3,7 @@
 import { errorMessage } from '../../../core/api';
 import type { FanConfigV2, FanOnMissing, StatusResponse } from '../../../core/contract';
 import type { FanInputDisk, FanInputOptionDetail, FanInputsResponse } from '../../../core/contract-fan-inputs';
+import { deg } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { changes, ON_MISSING, selectHtml, v2Params, validValue, type Choice } from './fields';
 import { registerFanModule, type FanModule } from './module';
@@ -159,7 +160,7 @@ function create(): FanModule {
                       : result.error
                         ? ctx.t('inputs.test_error', { error: result.error })
                         : result.usable && result.reading !== null
-                          ? ctx.t('inputs.test_ok', { temp: result.reading })
+                          ? ctx.t('inputs.test_ok', { temp: deg(result.reading) })
                           : [ctx.t('inputs.test_fail'), result.detail].filter(Boolean).join(': ');
                 return `<div class="unc-fan-inputs-test">
                 ${ctx.ui.btn({ label: ctx.t('inputs.test'), ico: 'gauge', small: true, attrs: `data-fi-test="${escapeHtml(spec)}"${testing.has(spec) ? ' disabled' : ''}` })}
@@ -265,15 +266,15 @@ function create(): FanModule {
                     const reading = readingOf(group, draft[group].input);
                     pill.hidden = reading === undefined;
                     pill.textContent =
-                        reading === undefined ? '' : reading === null ? ctx.t('inputs.no_reading') : ctx.t('inputs.now', { temp: Math.round(reading) });
+                        reading === undefined ? '' : reading === null ? ctx.t('inputs.no_reading') : ctx.t('inputs.now', { temp: deg(Math.round(reading)) });
                 }
                 body.querySelectorAll<HTMLElement>('[data-live-disk]').forEach(el => {
                     const disk = data?.disks.find(d => d.name === el.dataset.liveDisk);
-                    el.textContent = !disk ? '' : disk.standby ? ctx.t('inputs.standby') : disk.temp === null ? '' : `${disk.temp} °C`;
+                    el.textContent = !disk ? '' : disk.standby ? ctx.t('inputs.standby') : disk.temp === null ? '' : deg(disk.temp);
                 });
                 body.querySelectorAll<HTMLElement>('[data-live-part]').forEach(el => {
                     const reading = data?.options.find(o => o.spec === el.dataset.livePart)?.reading;
-                    el.textContent = reading == null ? '' : `${Math.round(reading)} °C`;
+                    el.textContent = reading == null ? '' : deg(Math.round(reading));
                 });
             };
 
