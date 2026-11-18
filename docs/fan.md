@@ -49,7 +49,7 @@ The EC watchdog of the DXP4800 GT and iDX6011 Pro: [watchdog.md](watchdog.md).
 
 ## Temperature unit
 
-`ui_unit` in `fan.cfg` (`c`, the default, or `f`) is set on the Settings page and only changes what the pages show: the plugin page, the dashboard tile and the LED pages read it from the status and convert when they draw (`web/src/core/format.ts`: whole °F for a whole °C, else one decimal; a difference such as `nvme_offset` or a headroom is multiplied by 1.8 without adding 32). Everything stored or sent stays in °C: `fan.cfg` (curves, limits, offset), the status and history of the API, the CLI and MQTT. The inputs for curve points and the emergency limits are in °C in either unit; the limit sliders show the °F value next to it.
+`ui_unit` in `fan.cfg` (`c`, the default, or `f`) is set on the Settings page and only changes what the pages show: the plugin page, the dashboard tile and the LED pages read it from the status and convert when they draw (`web/src/core/format.ts`: whole °F for a whole °C, else one decimal; a difference such as `nvme_offset` or a headroom is multiplied by 1.8 without adding 32). Everything stored or sent stays in °C: `fan.cfg` (curves, limits, offset), the status and history of the API, the CLI and MQTT. The inputs for curve points and the emergency limits are in °C in either unit; the limit sliders show the °F value next to it. `ui_unit_both="1"` (a switch under the unit) adds the other unit in brackets to the readings, for example `53 °C (127 °F)`; drawings (the case view), the dashboard tile and the compact LED texts keep one unit.
 
 ## Memory
 
