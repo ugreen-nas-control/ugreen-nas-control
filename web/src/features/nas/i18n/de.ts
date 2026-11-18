@@ -421,6 +421,8 @@ export const de: Record<Key, string> = {
     'unit.c': 'Celsius (°C)',
     'unit.f': 'Fahrenheit (°F)',
     'unit.hint': 'Nur die Anzeige ändert sich. Lüfterkurven und Grenzwerte gibst du weiter in °C ein, gespeichert und über MQTT gesendet wird ebenfalls °C.',
+    'unit.both': 'Beide Einheiten anzeigen',
+    'unit.both_hint': 'Zeigt die andere Einheit in Klammern dazu, zum Beispiel 53 °C (127 °F). Zeichnungen und die Dashboard-Kachel zeigen nur eine Einheit.',
     'ledfacts.mapping': 'Schacht-Zuordnung',
     'ledfacts.mapping_tested': 'für dieses Modell geprüft',
     'ledfacts.mapping_reported': 'von anderen Nutzern gemeldet',

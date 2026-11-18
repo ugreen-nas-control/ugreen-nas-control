@@ -7,7 +7,10 @@ import {
     chipName,
     deg,
     degDelta,
+    degCompact,
+    degDeltaCompact,
     setTempUnit,
+    tempBoth,
     tempUnit,
     tempValue,
     unitSign,
@@ -100,4 +103,25 @@ test('°C is the default and passes values through unchanged', () => {
     expect([deg(53), deg(41.5), degDelta(15), celsiusWith(90), tempValue(36.6)]).toEqual(['53 °C', '41.5 °C', '15 °C', '90 °C', 36.6]);
     setTempUnit('kelvin');
     expect(tempUnit()).toBe('c');
+});
+
+test('both units: the other one in brackets, the compact form keeps one', () => {
+    setTempUnit('c', true);
+    try {
+        expect(tempBoth()).toBe(true);
+        expect([deg(53), deg(41.5), deg(null)]).toEqual(['53 °C (127 °F)', '41.5 °C (106.7 °F)', '–']);
+        expect(degDelta(15)).toBe('15 °C (27 °F)');
+        expect([degCompact(53), degDeltaCompact(15)]).toEqual(['53 °C', '15 °C']);
+        expect(celsiusWith(90)).toBe('90 °C (194 °F)');
+        expect(celsiusDeltaWith(15)).toBe('15 °C (27 °F)');
+        setTempUnit('f', true);
+        expect([deg(53), deg(0), degDelta(15)]).toEqual(['127 °F (53 °C)', '32 °F (0 °C)', '27 °F (15 °C)']);
+        expect([degCompact(53), degDeltaCompact(15)]).toEqual(['127 °F', '27 °F']);
+        expect(celsiusWith(90)).toBe('90 °C (194 °F)');
+    } finally {
+        setTempUnit('c');
+    }
+    expect([tempBoth(), deg(53)]).toEqual([false, '53 °C']);
+    setTempUnit('c', 'yes');
+    expect(tempBoth()).toBe(false);
 });

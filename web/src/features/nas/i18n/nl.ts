@@ -423,6 +423,8 @@ export const nl: Record<Key, string> = {
     'unit.f': 'Fahrenheit (°F)',
     'unit.hint':
         'Alleen de weergave verandert. Ventilatorcurves en limieten voer je nog steeds in °C in; wat wordt opgeslagen en via MQTT verstuurd blijft ook °C.',
+    'unit.both': 'Beide eenheden tonen',
+    'unit.both_hint': 'Voegt de andere eenheid tussen haakjes toe, bijvoorbeeld 53 °C (127 °F). Tekeningen en de dashboardtegel tonen maar één eenheid.',
     'ledfacts.mapping': 'Bay-indeling',
     'ledfacts.mapping_tested': 'geverifieerd voor dit model',
     'ledfacts.mapping_reported': 'gemeld door andere gebruikers',

@@ -308,6 +308,7 @@ if ($method === 'GET') {
         'ui_lang' => $config['ui_lang'] ?? 'auto',
         'ui_theme' => $config['ui_theme'] ?? 'dark',
         'ui_unit' => ($config['ui_unit'] ?? 'c') === 'f' ? 'f' : 'c',
+        'ui_unit_both' => ($config['ui_unit_both'] ?? '0') === '1',
     ];
     if (isset($data['fan_config'])) {
         $data['settings']['fan_config'] = $data['fan_config'];
@@ -614,6 +615,27 @@ if ($action === 'unit') {
     }
 
     if (!save_settings(['ui_unit' => $unit])) {
+        respond([
+            'ok' => false,
+            'error' => CONFIG_FILE . ' is not writable',
+        ], 500);
+    }
+
+    respond(['ok' => true]);
+}
+
+// Show the other unit beside it too.
+if ($action === 'unit_both') {
+    $both = (string) ($input['value'] ?? '');
+
+    if (!in_array($both, ['0', '1'], true)) {
+        respond([
+            'ok' => false,
+            'error' => 'Invalid value',
+        ], 400);
+    }
+
+    if (!save_settings(['ui_unit_both' => $both])) {
         respond([
             'ok' => false,
             'error' => CONFIG_FILE . ' is not writable',

@@ -417,6 +417,8 @@ export const en = {
     'unit.c': 'Celsius (°C)',
     'unit.f': 'Fahrenheit (°F)',
     'unit.hint': 'Only the display changes. Fan curves and limits are still entered in °C; what is stored and sent over MQTT stays in °C.',
+    'unit.both': 'Show both units',
+    'unit.both_hint': 'Adds the other unit in brackets, for example 53 °C (127 °F). Drawings and the dashboard tile show one unit only.',
     'ledfacts.mapping': 'Bay assignment',
     'ledfacts.mapping_tested': 'verified for this model',
     'ledfacts.mapping_reported': 'reported by other users',

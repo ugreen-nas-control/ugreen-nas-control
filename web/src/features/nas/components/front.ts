@@ -1,7 +1,7 @@
 // The drawn front of a NAS: bays with their drives, the status LEDs and the ports. Pure markup without page state:
 // the plugin (app.ts) puts it into the case view, the Pages site draws the same thing from the models registry.
 import type { Bay, Hardware, Nvme } from '../../../core/contract';
-import { deg, fmtSize, speedText, tempClass } from '../../../core/format';
+import { degCompact, fmtSize, speedText, tempClass } from '../../../core/format';
 import { escapeHtml } from '../../../core/html';
 import { type Key, t } from '../text';
 
@@ -433,7 +433,7 @@ export function bayHtml(bay: Bay, led = false): string {
     }
     const kind = bay.hdd ? 'disk' : 'nvme';
     const state = bay.standby ? 'standby' : tempClass(bay.temp, kind) || 'ok';
-    const info = bay.standby ? t('case.standby') : deg(bay.temp);
+    const info = bay.standby ? t('case.standby') : degCompact(bay.temp);
     return `
         <div class="unc-nbay" title="${escapeHtml([bay.role, bay.id || bay.model].filter(Boolean).join(' · '))}">
             <span class="no">${no}</span>

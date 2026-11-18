@@ -185,13 +185,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -261,13 +262,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -320,10 +322,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"Caf\\u00e9 \\u2615 a/b\",\"temps\":{\"cpu\":41.5,\"case\":33},\"empty_list\":[],\"empty_map\":[],\"big\":10000000000,\"conflicts\":[],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"model\":\"Caf\\u00e9 \\u2615 a/b\",\"temps\":{\"cpu\":41.5,\"case\":33},\"empty_list\":[],\"empty_map\":[],\"big\":10000000000,\"conflicts\":[],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -393,13 +396,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"4.3-next.000005\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"4.3-next.000005\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -469,13 +473,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"dev\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"dev\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -545,13 +550,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"dev\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"dev\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -621,13 +627,14 @@
         "ui_lang": "fr",
         "ui_theme": "light",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"custom\",\"cpu_curve\":\"40:30,60:50\",\"case_curve\":\"40:20,70:60\",\"min_pct\":30,\"cpu_crit\":95,\"disk_crit\":60,\"nvme_offset\":10,\"stall_notify\":false,\"fan_control\":true,\"case_follows_cpu\":true,\"ignore_drives\":[\"sda\",\"sdb\"],\"ui_lang\":\"fr\",\"ui_theme\":\"light\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"custom\",\"cpu_curve\":\"40:30,60:50\",\"case_curve\":\"40:20,70:60\",\"min_pct\":30,\"cpu_crit\":95,\"disk_crit\":60,\"nvme_offset\":10,\"stall_notify\":false,\"fan_control\":true,\"case_follows_cpu\":true,\"ignore_drives\":[\"sda\",\"sdb\"],\"ui_lang\":\"fr\",\"ui_theme\":\"light\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -697,13 +704,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"quiet\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"quiet\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -773,13 +781,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -849,13 +858,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":false,\"case_follows_cpu\":false,\"ignore_drives\":[\"sda\",\"sdb\"],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":false,\"case_follows_cpu\":false,\"ignore_drives\":[\"sda\",\"sdb\"],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -925,13 +935,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":0,\"cpu_crit\":99,\"disk_crit\":0,\"nvme_offset\":-5,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":0,\"cpu_crit\":99,\"disk_crit\":0,\"nvme_offset\":-5,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -1001,13 +1012,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":false,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":false,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -1077,13 +1089,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -1153,13 +1166,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -1229,13 +1243,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -1286,10 +1301,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"unraid-led\",\"severity\":\"block\",\"controls\":[\"led\",\"fan\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":true,\"blocker\":\"rival\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"unraid-led\",\"severity\":\"block\",\"controls\":[\"led\",\"fan\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":true,\"blocker\":\"rival\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1340,10 +1356,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"unraid-led\",\"severity\":\"block\",\"controls\":[\"led\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"unraid-led\",\"severity\":\"block\",\"controls\":[\"led\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1394,10 +1411,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"x\",\"severity\":\"block\",\"controls\":[\"led\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"x\",\"severity\":\"block\",\"controls\":[\"led\"]}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":false,\"blocker\":\"model\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1456,10 +1474,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"a\",\"severity\":\"block\",\"controls\":[\"fan\"]},{\"id\":\"b\",\"severity\":\"warn\",\"controls\":[\"led\"]},{\"id\":\"c\"}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"conflicts\":[{\"id\":\"a\",\"severity\":\"block\",\"controls\":[\"fan\"]},{\"id\":\"b\",\"severity\":\"warn\",\"controls\":[\"led\"]},{\"id\":\"c\"}],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":false,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1504,10 +1523,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"conflicts\":[],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"conflicts\":[],\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1553,10 +1573,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"x\",\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"conflicts\":[],\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"ok\":true,\"model\":\"x\",\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"conflicts\":[],\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -1668,10 +1689,11 @@
         "ignore_drives": [],
         "ui_lang": "auto",
         "ui_theme": "dark",
-        "ui_unit": "c"
+        "ui_unit": "c",
+        "ui_unit_both": false
       }
     },
-    "raw": "{\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"conflicts\":[],\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\"}}",
+    "raw": "{\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"conflicts\":[],\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false}}",
     "calls": [
       {
         "tool": "fan",
@@ -6666,13 +6688,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "f",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"f\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"f\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -6742,13 +6765,14 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",
@@ -6818,13 +6842,272 @@
         "ui_lang": "auto",
         "ui_theme": "dark",
         "ui_unit": "c",
+        "ui_unit_both": false,
         "fan_config": {
           "mode": "standard",
           "version": 2
         }
       }
     },
-    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["status"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["status"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["led-status"]
+      }
+    ]
+  },
+  "nas.unit_both.on": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true
+    },
+    "raw": "{\"ok\":true}",
+    "files": {
+      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "ui_unit=\"f\"\nui_unit_both=\"1\"\n"
+    },
+    "calls": []
+  },
+  "nas.unit_both.off": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true
+    },
+    "raw": "{\"ok\":true}",
+    "files": {
+      "/boot/config/plugins/ugreen-nas-control/fan.cfg": "ui_unit_both=\"0\"\n"
+    },
+    "calls": []
+  },
+  "nas.unit_both.invalid": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value\"}",
+    "calls": []
+  },
+  "nas.unit_both.word": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value\"}",
+    "calls": []
+  },
+  "nas.unit_both.missing": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value\"}",
+    "calls": []
+  },
+  "nas.unit_both.empty": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value\"}",
+    "calls": []
+  },
+  "nas.unit_both.array": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "Invalid value"
+    },
+    "raw": "{\"ok\":false,\"error\":\"Invalid value\"}",
+    "calls": [],
+    "phpErrors": ["Warning:  Array to string conversion in /usr/local/emhttp/plugins/ugreen-nas-control/api.php"]
+  },
+  "nas.unit_both.unwritable-500": {
+    "status": 500,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": false,
+      "error": "/boot/config/plugins/ugreen-nas-control/fan.cfg is not writable"
+    },
+    "raw": "{\"ok\":false,\"error\":\"/boot/config/plugins/ugreen-nas-control/fan.cfg is not writable\"}",
+    "calls": [],
+    "phpErrors": [
+      "Warning:  file_put_contents(/boot/config/plugins/ugreen-nas-control/fan.cfg.<pid>.tmp): Failed to open stream: No such file or directory in /usr/local/emhttp/plugins/ugreen-nas-control/api.php"
+    ]
+  },
+  "nas.status.unit-both": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "model": "DXP6800 Pro",
+      "daemon": {
+        "time": 1759999995,
+        "quiet_active": false,
+        "job": "",
+        "cap": null
+      },
+      "conflicts": [],
+      "fans": [
+        {
+          "id": "fan1",
+          "rpm": 1200,
+          "pct": 35
+        },
+        {
+          "id": "fan2",
+          "rpm": 0,
+          "pct": 0
+        }
+      ],
+      "temps": {
+        "cpu": 41.5,
+        "case": 33
+      },
+      "fan_control": true,
+      "running": true,
+      "version": "2026.10.30",
+      "led": {
+        "enabled": true,
+        "supported": true,
+        "blocker": ""
+      },
+      "settings": {
+        "mode": "standard",
+        "cpu_curve": "",
+        "case_curve": "",
+        "min_pct": 25,
+        "cpu_crit": 90,
+        "disk_crit": 55,
+        "nvme_offset": 15,
+        "stall_notify": true,
+        "fan_control": true,
+        "case_follows_cpu": false,
+        "ignore_drives": [],
+        "ui_lang": "auto",
+        "ui_theme": "dark",
+        "ui_unit": "f",
+        "ui_unit_both": true,
+        "fan_config": {
+          "mode": "standard",
+          "version": 2
+        }
+      }
+    },
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"f\",\"ui_unit_both\":true,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
+    "calls": [
+      {
+        "tool": "fan",
+        "args": ["status"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["status"]
+      },
+      {
+        "tool": "ctl",
+        "args": ["led-status"]
+      }
+    ]
+  },
+  "nas.status.unit-both-garbage": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "ok": true,
+      "model": "DXP6800 Pro",
+      "daemon": {
+        "time": 1759999995,
+        "quiet_active": false,
+        "job": "",
+        "cap": null
+      },
+      "conflicts": [],
+      "fans": [
+        {
+          "id": "fan1",
+          "rpm": 1200,
+          "pct": 35
+        },
+        {
+          "id": "fan2",
+          "rpm": 0,
+          "pct": 0
+        }
+      ],
+      "temps": {
+        "cpu": 41.5,
+        "case": 33
+      },
+      "fan_control": true,
+      "running": true,
+      "version": "2026.10.30",
+      "led": {
+        "enabled": true,
+        "supported": true,
+        "blocker": ""
+      },
+      "settings": {
+        "mode": "standard",
+        "cpu_curve": "",
+        "case_curve": "",
+        "min_pct": 25,
+        "cpu_crit": 90,
+        "disk_crit": 55,
+        "nvme_offset": 15,
+        "stall_notify": true,
+        "fan_control": true,
+        "case_follows_cpu": false,
+        "ignore_drives": [],
+        "ui_lang": "auto",
+        "ui_theme": "dark",
+        "ui_unit": "c",
+        "ui_unit_both": false,
+        "fan_config": {
+          "mode": "standard",
+          "version": 2
+        }
+      }
+    },
+    "raw": "{\"ok\":true,\"model\":\"DXP6800 Pro\",\"daemon\":{\"time\":1759999995,\"quiet_active\":false,\"job\":\"\",\"cap\":null},\"conflicts\":[],\"fans\":[{\"id\":\"fan1\",\"rpm\":1200,\"pct\":35},{\"id\":\"fan2\",\"rpm\":0,\"pct\":0}],\"temps\":{\"cpu\":41.5,\"case\":33},\"fan_control\":true,\"running\":true,\"version\":\"2026.10.30\",\"led\":{\"enabled\":true,\"supported\":true,\"blocker\":\"\"},\"settings\":{\"mode\":\"standard\",\"cpu_curve\":\"\",\"case_curve\":\"\",\"min_pct\":25,\"cpu_crit\":90,\"disk_crit\":55,\"nvme_offset\":15,\"stall_notify\":true,\"fan_control\":true,\"case_follows_cpu\":false,\"ignore_drives\":[],\"ui_lang\":\"auto\",\"ui_theme\":\"dark\",\"ui_unit\":\"c\",\"ui_unit_both\":false,\"fan_config\":{\"mode\":\"standard\",\"version\":2}}}",
     "calls": [
       {
         "tool": "fan",

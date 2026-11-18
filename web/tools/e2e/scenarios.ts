@@ -99,23 +99,29 @@ export const SCENARIOS: Scenario[] = [
         }
     },
     {
-        // The unit of the temperatures is a display setting: the page reloads with it and every page shows it.
+        // The unit of the temperatures and showing both are display settings: the page reloads with them and every page shows them.
         id: 'unit',
         applies: always,
         async run(s) {
             await s.open();
-            for (const unit of ['f', 'c']) {
-                await s.step(
-                    `unit ${unit}`,
+            const change = (name: string, act: () => Promise<void>) =>
+                s.step(
+                    name,
                     async () => {
                         await s.go('settings');
                         await s.settle();
-                        await s.set('#unc-unit', unit);
+                        await act();
                     },
                     { reload: true }
                 );
-                for (const nav of await s.navs()) await s.step(`${unit} nav ${nav}`, () => s.go(nav));
-            }
+            await change('unit f', () => s.set('#unc-unit', 'f'));
+            for (const nav of await s.navs()) await s.step(`f nav ${nav}`, () => s.go(nav));
+            await change('both units on', () => s.click('#unc-unit-both'));
+            for (const nav of await s.navs()) await s.step(`f and c nav ${nav}`, () => s.go(nav));
+            await change('unit c', () => s.set('#unc-unit', 'c'));
+            await s.step('c and f overview', () => s.go('overview'));
+            await change('both units off', () => s.click('#unc-unit-both'));
+            await s.step('c overview', () => s.go('overview'));
         }
     },
     {

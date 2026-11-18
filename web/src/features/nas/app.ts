@@ -36,6 +36,9 @@ import {
     celsiusDeltaWith,
     celsiusWith,
     chipName,
+    degCompact,
+    degDeltaCompact,
+    tempBoth,
     deg,
     degDelta,
     setTempUnit,
@@ -1658,7 +1661,7 @@ function main(root: HTMLElement): void {
             nvme == null
                 ? emptyText(t('safety.eq_none'))
                 : `
-            ${term(label, deg(nvme))}${op('−')}${term(t('safety.nvme_offset'), degDelta(offset))}${op('=')}${term(t('safety.eq_case'), deg(eff), 'is-result')}
+            ${term(label, degCompact(nvme))}${op('−')}${term(t('safety.nvme_offset'), degDeltaCompact(offset))}${op('=')}${term(t('safety.eq_case'), degCompact(eff), 'is-result')}
             ${drives ? pill({ tone: 'accent', ico: 'fan', text: t('sensors.drives_case') }) : pill({ text: t('safety.eq_disk') })}`;
     }
 
@@ -1675,7 +1678,7 @@ function main(root: HTMLElement): void {
             ['nvme', nvme, diskCrit + offset, 'safety.now_no_nvme']
         ];
 
-        q('#unc-nvme-crit-value').textContent = deg(diskCrit + offset);
+        q('#unc-nvme-crit-value').textContent = degCompact(diskCrit + offset);
         q('#unc-nvme-derived').textContent = t('safety.derived', { disk: deg(diskCrit), offset: degDelta(offset) });
         rows.forEach(([id, now, limit, none]) => {
             const reached = now != null && now >= limit;
@@ -2364,7 +2367,7 @@ function main(root: HTMLElement): void {
     const tempBadge6800 = (x: number, y: number, temp: number | null): string =>
         temp == null
             ? ''
-            : `<rect x="${x}" y="${y}" width="46" height="16" rx="8" fill="${tempColour(temp)}"/><text x="${x + 23}" y="${y + 11.5}" fill="#0b0e12" font-size="10.5" font-weight="800" text-anchor="middle">${deg(temp)}</text>`;
+            : `<rect x="${x}" y="${y}" width="46" height="16" rx="8" fill="${tempColour(temp)}"/><text x="${x + 23}" y="${y + 11.5}" fill="#0b0e12" font-size="10.5" font-weight="800" text-anchor="middle">${degCompact(temp)}</text>`;
     const boardText = (x: number, y: number, text: string): string =>
         `<text x="${x}" y="${y}" style="fill:var(--bd-text)" font-size="11.5">${escapeHtml(text)}</text>`;
 
@@ -3388,8 +3391,9 @@ function main(root: HTMLElement): void {
         }
         if (seq !== loadSeq) return;
         if (data) {
-            setTempUnit(data.settings?.ui_unit);
+            setTempUnit(data.settings?.ui_unit, data.settings?.ui_unit_both);
             q<HTMLSelectElement>('#unc-unit').value = tempUnit();
+            q<HTMLInputElement>('#unc-unit-both').checked = tempBoth();
         }
         state.data = data;
         updateNetAct(data?.net_io);
@@ -3693,6 +3697,16 @@ function main(root: HTMLElement): void {
         unit.addEventListener('change', async () => {
             try {
                 await api.post('unit', { value: unit.value === 'f' ? 'f' : 'c' });
+                reloadSaved();
+            } catch (error) {
+                toast(errorMessage(error), 'error');
+            }
+        });
+
+        const unitBoth = q<HTMLInputElement>('#unc-unit-both');
+        unitBoth.addEventListener('change', async () => {
+            try {
+                await api.post('unit_both', { value: unitBoth.checked ? '1' : '0' });
                 reloadSaved();
             } catch (error) {
                 toast(errorMessage(error), 'error');

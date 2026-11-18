@@ -407,6 +407,8 @@ export const zh: Record<Key, string> = {
     'unit.c': '摄氏度（°C）',
     'unit.f': '华氏度（°F）',
     'unit.hint': '只改变显示。风扇曲线和限值仍以 °C 输入；保存的设置和通过 MQTT 发送的数据也仍是 °C。',
+    'unit.both': '同时显示两种单位',
+    'unit.both_hint': '在括号中附上另一种单位，例如 53 °C (127 °F)。示意图和仪表盘卡片只显示一种单位。',
     'ledfacts.mapping': '盘位分配',
     'ledfacts.mapping_tested': '已针对此型号验证',
     'ledfacts.mapping_reported': '其他用户反馈',

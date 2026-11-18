@@ -424,6 +424,9 @@ export const fr: Record<Key, string> = {
     'unit.f': 'Fahrenheit (°F)',
     'unit.hint':
         'Seul l’affichage change. Les courbes des ventilateurs et les limites se saisissent toujours en °C ; ce qui est enregistré et envoyé par MQTT reste en °C.',
+    'unit.both': 'Afficher les deux unités',
+    'unit.both_hint':
+        'Ajoute l’autre unité entre parenthèses, par exemple 53 °C (127 °F). Les dessins et la tuile du tableau de bord n’affichent qu’une unité.',
     'ledfacts.mapping': 'Attribution des baies',
     'ledfacts.mapping_tested': 'vérifiée pour ce modèle',
     'ledfacts.mapping_reported': 'signalée par d’autres utilisateurs',

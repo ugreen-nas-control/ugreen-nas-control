@@ -422,6 +422,8 @@ export const it: Record<Key, string> = {
     'unit.f': 'Fahrenheit (°F)',
     'unit.hint':
         'Cambia solo la visualizzazione. Curve delle ventole e limiti si inseriscono ancora in °C; anche ciò che viene salvato e inviato via MQTT resta in °C.',
+    'unit.both': 'Mostra entrambe le unità',
+    'unit.both_hint': 'Aggiunge l’altra unità tra parentesi, ad esempio 53 °C (127 °F). I disegni e il riquadro della dashboard mostrano una sola unità.',
     'ledfacts.mapping': 'Assegnazione dei vani',
     'ledfacts.mapping_tested': 'verificata per questo modello',
     'ledfacts.mapping_reported': 'segnalata da altri utenti',

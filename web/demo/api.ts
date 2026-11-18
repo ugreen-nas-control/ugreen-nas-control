@@ -174,6 +174,7 @@ export function createDemo(model: Model, store: Store, opts: DemoOptions = {}) {
         if (p.ui_lang) s.settings.ui_lang = p.ui_lang;
         if (p.ui_theme) s.settings.ui_theme = p.ui_theme;
         if (p.ui_unit) s.settings.ui_unit = p.ui_unit;
+        if (p.ui_unit_both !== undefined) s.settings.ui_unit_both = p.ui_unit_both === '1';
         s.led.enabled = state.led && s.led.enabled;
         const secs = Math.floor(now() / 1000);
         for (const [i, nic] of s.net_io.entries()) {
@@ -292,6 +293,11 @@ export function createDemo(model: Model, store: Store, opts: DemoOptions = {}) {
             case 'unit': {
                 const value = form.get('value') ?? form.get('ui_unit') ?? '';
                 if (UNITS.includes(value)) setPref('ui_unit', value);
+                break;
+            }
+            case 'unit_both': {
+                const value = form.get('value') ?? '';
+                if (value === '0' || value === '1') setPref('ui_unit_both', value);
                 break;
             }
             case 'calibrate':
