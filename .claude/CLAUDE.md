@@ -1,5 +1,6 @@
 # Rules for Claude Code sessions
 
+- Repository feedback reviews: follow `AGENTS.md`, including GitHub Discussions and their nested replies.
 - Layout: `backend/` Go daemon, `web/` UI (TypeScript on Bun), `plugin/` packaging, `docs/`, `.changes/`. → docs/architecture.md
 - Branches: `main` released only; `next` development + next channel, every PR targets it, never commit to `main`. Pages: `/` main, `/next/`. → docs/releasing.md#branches
 - One topic per commit/PR. Ask the maintainer before bumping versions or changing CI/release.
