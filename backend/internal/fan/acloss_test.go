@@ -500,7 +500,7 @@ func TestPowerACCommand(t *testing.T) {
 }
 
 func TestPowerACCommandUsageAndRival(t *testing.T) {
-	for _, args := range [][]string{{"on"}, {"set"}, {"set", "sometimes"}, {"set", "on", "x"}, {"get"}} {
+	for _, args := range [][]string{{"on"}, {"set"}, {"set", "sometimes"}, {"set", "on", "x"}, {"get"}, {"--force"}, {"restore", "x"}} {
 		env, f := acRig(t, "DXP4800")
 		if _, err := runPowerAC(args, "DXP4800", env, noRival, time.Now()); !errors.Is(err, errACUsage) {
 			t.Errorf("%v: %v", args, err)
@@ -521,6 +521,77 @@ func TestPowerACCommandUsageAndRival(t *testing.T) {
 	}
 	if _, err := runPowerAC(nil, "DX4600 Pro", env, noRival, time.Now()); !errors.Is(err, errNoACControl) {
 		t.Fatalf("unsupported model: %v", err)
+	}
+}
+
+// The BIOS sets its own default again at every start: `restore` writes the saved choice back, only where the board differs.
+func TestPowerACRestore(t *testing.T) {
+	at := time.Unix(1_700_000_000, 0)
+	save := func(mode string) { writeRecordForTest(t, mode, at.Unix()) }
+
+	env, f := acRig(t, "DXP4800")
+	out, err := runPowerAC([]string{"restore"}, "DXP4800", env, noRival, at)
+	if err != nil || out["restored"] != false || out["reason"] != "no saved choice" || len(f.wlog) != 0 || f.access != 0 {
+		t.Fatalf("no record: %+v %v writes %v", out, err, f.wlog)
+	}
+
+	env, f = acRig(t, "DXP4800")
+	save("last")
+	out, err = runPowerAC([]string{"restore"}, "DXP4800", env, noRival, at)
+	if err != nil || out["restored"] != true || out["set"] != "last" || out["verified"] != true || out["mode"] != acLast || len(f.wlog) == 0 {
+		t.Fatalf("board reset to off: %+v %v", out, err)
+	}
+	if rec := readACRecord(); rec == nil || rec.Mode != "last" || rec.Time != at.Unix() {
+		t.Fatalf("restore changed the record: %+v", rec)
+	}
+
+	out, err = runPowerAC([]string{"restore"}, "DXP4800", env, noRival, at)
+	n := len(f.wlog)
+	if err != nil || out["restored"] != false || out["reason"] != "the board already holds it" || len(f.wlog) != n {
+		t.Fatalf("board already holds it: %+v %v", out, err)
+	}
+
+	env, f = acRig(t, "DXP4800")
+	save("on")
+	f.regs[[2]byte{4, iteRegACF2}], f.regs[[2]byte{4, iteRegACF4}] = 0x00, 0x40
+	out, err = runPowerAC([]string{"restore"}, "DXP4800", env, noRival, at)
+	if err != nil || out["restored"] != false || len(f.wlog) != 0 {
+		t.Fatalf("unknown board value must stay untouched: %+v %v writes %v", out, err, f.wlog)
+	}
+
+	env, f = acRig(t, "DXP4800")
+	save("last")
+	rival := func() error { return errors.New("FanCtrl Plus controls the fans too") }
+	if _, err := runPowerAC([]string{"restore"}, "DXP4800", env, rival, at); err == nil || len(f.wlog) != 0 {
+		t.Fatalf("rival: %v writes %v", err, f.wlog)
+	}
+
+	if _, err := runPowerAC([]string{"restore", "--force"}, "DXP4800", env, noRival, at); !errors.Is(err, errACUsage) {
+		t.Fatalf("restore --force: %v", err)
+	}
+}
+
+// The GT cannot be read back, so a differing value cannot be told: restore sends nothing to the controller.
+func TestPowerACRestoreLeavesUnreadableBoardAlone(t *testing.T) {
+	acRig(t, "DXP4800 GT")
+	writeRecordForTest(t, "on", 1)
+	f := &cmdEC{fakeEC: newFakeEC()}
+	ec, err := DetectEC(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.outs = 0
+	out := map[string]any{}
+	reason, err := restoreAC(ecAC{ec: ec}, noRival, out)
+	if err != nil || reason == "" || f.outs != 0 || len(f.cmds) != 0 {
+		t.Fatalf("reason %q err %v, %d port writes", reason, err, f.outs)
+	}
+}
+
+func writeRecordForTest(t *testing.T, mode string, at int64) {
+	t.Helper()
+	if err := writeJSONAtomic(powerACRecordPath, acRecord{Mode: mode, Time: at}); err != nil {
+		t.Fatal(err)
 	}
 }
 

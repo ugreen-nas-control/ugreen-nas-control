@@ -309,6 +309,33 @@ func TestStartRunsThePublisherNextToTheFans(t *testing.T) {
 	}
 }
 
+// The BIOS sets its own default again at every boot: start asks the fan tool to write the saved choice back, says so only
+// when it did, and reports a failure without failing the start.
+func TestPowerACRestoreAtStart(t *testing.T) {
+	for name, tc := range map[string]struct{ script, out, err string }{
+		"restored":  {`echo '{"ok":true,"restored":true,"set":"last"}'`, `restored "last"`, ""},
+		"unchanged": {`echo '{"ok":true,"restored":false,"reason":"no saved choice"}'`, "", ""},
+		"refused":   {`echo '{"ok":false,"error":"FanCtrl Plus controls the fans too"}'; exit 1`, "", "FanCtrl Plus controls the fans too"},
+		"silent":    {`exit 1`, "", "the fan tool gave no answer"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			args := fakePublisher(t, f, tc.script)
+			f.c.powerACRestore()
+			got, err := os.ReadFile(args)
+			if err != nil || strings.TrimSpace(string(got)) != "power-on-ac restore" {
+				t.Fatalf("tool call %q %v", got, err)
+			}
+			if tc.out == "" && f.out.Len() != 0 || !strings.Contains(f.out.String(), tc.out) {
+				t.Errorf("stdout %q, want %q", f.out, tc.out)
+			}
+			if tc.err == "" && f.errw.Len() != 0 || !strings.Contains(f.errw.String(), tc.err) {
+				t.Errorf("stderr %q, want %q", f.errw, tc.err)
+			}
+		})
+	}
+}
+
 func TestStopKillsADaemonThatIgnoresSIGTERM(t *testing.T) {
 	f := newFixture(t)
 	ready := filepath.Join(f.dir, "ready")
