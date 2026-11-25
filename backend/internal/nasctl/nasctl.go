@@ -4,6 +4,8 @@ package nasctl
 
 import (
 	"bytes"
+	"cmp"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -258,10 +260,30 @@ func probeError(probe string) string {
 
 // start: the failure of the publisher or the power button watcher must not stop the fans from starting, nor the other way round.
 func (c *Ctl) start() int {
+	c.powerACRestore()
 	rc := c.fanStart()
 	c.pubStart()
 	c.powerStart()
 	return rc
+}
+
+// powerACRestore writes the saved "power on after AC loss" choice back: the BIOS sets its own default again at every boot. The fan tool
+// opens nothing when no choice was ever saved, and writes only when the board differs. A failure is reported, never an install failure.
+func (c *Ctl) powerACRestore() {
+	var out bytes.Buffer
+	ok := run(c.Env.FanTool, &out, io.Discard, "power-on-ac", "restore")
+	var r struct {
+		Restored bool   `json:"restored"`
+		Set      string `json:"set"`
+		Error    string `json:"error"`
+	}
+	_ = json.Unmarshal(out.Bytes(), &r)
+	switch {
+	case !ok:
+		c.errf("Power on after AC loss: the saved choice could not be restored: %s\n", cmp.Or(r.Error, "the fan tool gave no answer"))
+	case r.Restored:
+		c.out("Power on after AC loss: restored %q.\n", r.Set)
+	}
 }
 
 func (c *Ctl) fanStart() int {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -258,7 +259,8 @@ func (n *nrig) snapshot() golden {
 			g.State[dir+"/"+filepath.Base(f)] = norm(text)
 		}
 	}
-	g.Calls = lines(norm(n.read("calls.log")))
+	// The Go start also asks the fan tool to restore the saved power-on-after-AC-loss choice (#346; TestPowerACRestoreAtStart); the shell never did.
+	g.Calls = slices.DeleteFunc(lines(norm(n.read("calls.log"))), func(l string) bool { return l == "fan power-on-ac restore" })
 	g.Stubs = lines(norm(n.read("stubs.log")))
 	return g
 }
