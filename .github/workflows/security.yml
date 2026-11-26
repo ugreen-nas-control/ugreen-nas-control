@@ -70,17 +70,18 @@ jobs:
           nix flake update
           if git diff --quiet flake.lock; then echo "flake.lock is current."; exit 0; fi
           branch="chore/flake-update"
-          mkdir -p .changes
-          printf -- '---\ntype: chore\n---\n\nUpdated the pinned development tools (flake.lock).\n' > .changes/flake-update.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
-          git add flake.lock .changes/flake-update.md
+          git add flake.lock
           git commit -q -m "chore: update flake.lock"
           git push --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
-          if [ -z "$(gh pr list --head "$branch" --base next --state open --json number --jq '.[].number')" ]; then
-            gh pr create --base next --head "$branch" --title "chore: update flake.lock" --body "Weekly \`nix flake update\`."
+          pr="$(gh pr list --head "$branch" --base next --state open --json number --jq '.[].number')"
+          if [ -z "$pr" ]; then
+            pr="$(gh pr create --base next --head "$branch" --title "chore: update flake.lock" --body "Weekly \`nix flake update\`." | grep -Eo '[0-9]+$')"
           fi
+          # A lock update shows nothing to users, so it carries no fragment; the label tells the guard.
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${pr}/labels" -f 'labels[]=no-changelog' >/dev/null
           if [ "$HAVE_TOKEN" != true ]; then
             # workflow_dispatch is the one GITHUB_TOKEN event that starts CI; ci-ok has no bypass on next.
             GH_TOKEN="$PUSH_TOKEN" gh workflow run checks.yml --ref "$branch"
