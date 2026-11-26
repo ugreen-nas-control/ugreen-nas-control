@@ -71,7 +71,7 @@ jobs:
           if git diff --quiet flake.lock; then echo "flake.lock is current."; exit 0; fi
           branch="chore/flake-update"
           mkdir -p .changes
-          printf 'Updated the pinned development tools (flake.lock).\n' > .changes/flake-update.md
+          printf -- '---\ntype: chore\n---\n\nUpdated the pinned development tools (flake.lock).\n' > .changes/flake-update.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
