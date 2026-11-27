@@ -68,6 +68,11 @@
             woff2 = pkgs.woff2; # social preview: Archivo woff2 -> ttf for rsvg-convert (fontconfig reads no woff2)
           };
           # e2e and shots: Bun.WebView drives Chromium on Linux (macOS uses the system WebKit); nix has no system fonts
+          # The go package hardcodes a glibc loader for cgo binaries that it does not keep in its closure; on a clean
+          # store such test binaries fail with "no such file or directory". Point them at the shell's own loader.
+          cgoEnv = pkgs.lib.optionalAttrs isLinux {
+            GOFLAGS = "-ldflags=-I=${pkgs.stdenv.cc.bintools.dynamicLinker}";
+          };
           chromeEnv = pkgs.lib.optionalAttrs isLinux {
             BUN_CHROME_PATH = "${pkgs.chromium}/bin/chromium";
             FONTCONFIG_FILE = pkgs.makeFontsConf {
@@ -164,8 +169,8 @@
           e2e = mkDevShell pkgs.mkShellNoCC shells.e2e chromeEnv;
           site = mkDevShell pkgs.mkShellNoCC shells.site chromeEnv;
           # `go test -race` needs cgo, so a C compiler: these shells keep the stdenv toolchain. gotest is `go` without the linters (tests, parity).
-          go = mkDevShell pkgs.mkShell shells.go { };
-          gotest = mkDevShell pkgs.mkShell shells.gotest { };
+          go = mkDevShell pkgs.mkShell shells.go cgoEnv;
+          gotest = mkDevShell pkgs.mkShell shells.gotest cgoEnv;
           default = mkDevShell pkgs.mkShell (
             [
               "go"
@@ -184,7 +189,7 @@
               "xz"
             ]
             ++ pkgs.lib.optional isLinux "chromium"
-          ) chromeEnv;
+          ) (chromeEnv // cgoEnv);
         }
       );
     };
