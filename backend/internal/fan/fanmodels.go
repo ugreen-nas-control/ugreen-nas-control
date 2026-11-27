@@ -110,7 +110,7 @@ func modelLimits(model string) (cpuCrit, diskCrit int, ok bool) {
 }
 
 // ApplyModelLimits lowers the emergency limits of a config to what the model needs; it never raises one. The minimum
-// speed never goes below the duty the hardware applies (DXP2800 GT: csFloorPct), so that the targets the daemon records
+// speed never goes below the duty the hardware applies (probe models: probeFloorPct), so that the targets the daemon records
 // are what runs.
 func ApplyModelLimits(c Config, model string) Config {
 	c.MinPct = max(c.MinPct, minPctFloor(model))
@@ -257,9 +257,10 @@ func allocateIDs(choice map[string]string) ([]FanMapOutput, error) {
 }
 
 // minPctFloor is the lowest speed the hardware of the model runs at; 0 when it has none above the configurable minimum.
+// Every probe model is clamped to probeFloorPct (Chip.SetPWM, the CS201x driver).
 func minPctFloor(model string) int {
-	if isDXP2800GT(model) {
-		return csFloorPct
+	if FanKind(model) == KindProbe {
+		return probeFloorPct
 	}
 	return 0
 }

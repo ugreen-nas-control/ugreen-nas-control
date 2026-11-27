@@ -19,6 +19,7 @@ export default {
         chip: 'ITE IT8613E',
         fans: { fan2: 'cpu', fan3: 'case', fan4: 'case' },
         kind: 'probe',
+        minPctFloor: 25,
         watchdog: {
             status: 'expected',
             note: 'Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware.'

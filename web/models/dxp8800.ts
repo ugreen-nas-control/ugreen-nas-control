@@ -15,7 +15,7 @@ export default {
     led: 'bays',
     caseView: 'full',
     caseVariant: 'rear8800',
-    fan: { chip: 'ITE IT8613E', fans: { fan2: 'cpu', fan3: 'case', fan4: 'case' }, kind: 'probe' },
+    fan: { chip: 'ITE IT8613E', fans: { fan2: 'cpu', fan3: 'case', fan4: 'case' }, kind: 'probe', minPctFloor: 25 },
     verified: {
         leds: { status: 'expected', note: 'Same family as the DXP8800 Plus, which works; bay order guessed. Use Identify to confirm.' },
         fans: {

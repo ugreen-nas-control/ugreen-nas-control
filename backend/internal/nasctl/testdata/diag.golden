@@ -110,7 +110,7 @@ led.shutdown: shutdown_blink true, shutdown_effect blink, shutdown_color 255 140
 led.effects: fx -, fx_leds disk1,disk2, fx_speed 2, fx_reverse false, fx_idle false
 led.identify: identify []
 led.import: leds.cfg of the UGREEN LED Control plugin available to import: false
-fan.control: on true (setting true), kind probe, 0 channels, chip it8613, min speed floor 0%
+fan.control: on true (setting true), kind probe, 0 channels, chip it8613, min speed floor 25%
 fan.daemon: running true, mode auto, job mover, yielding to -
 fan.mode: custom (config version 2), case fans follow the CPU curve too: false, warnings: -
 fan.curves: cpu 40:30,60:50,80:100; case 35:40,55:100

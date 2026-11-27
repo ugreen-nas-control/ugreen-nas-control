@@ -231,6 +231,7 @@
         "chip": "ITE IT8613E",
         "fans": { "fan3": "case" },
         "kind": "probe",
+        "minPctFloor": 25,
         "watchdog": {
           "status": "expected",
           "note": "Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware."
@@ -345,6 +346,7 @@
         "chip": "ITE IT8613E",
         "fans": { "fan3": "case" },
         "kind": "probe",
+        "minPctFloor": 25,
         "watchdog": {
           "status": "expected",
           "note": "Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware."
@@ -468,6 +470,7 @@
         "chip": "ITE IT8613E",
         "fans": { "fan2": "cpu", "fan3": "case" },
         "kind": "probe",
+        "minPctFloor": 25,
         "watchdog": {
           "status": "expected",
           "note": "Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware."
@@ -557,7 +560,7 @@
       "lan": null,
       "led": "bays",
       "caseView": "full",
-      "fan": { "chip": "ITE IT8613E", "fans": { "fan2": "cpu", "fan3": "case", "fan4": "case" }, "kind": "probe" },
+      "fan": { "chip": "ITE IT8613E", "fans": { "fan2": "cpu", "fan3": "case", "fan4": "case" }, "kind": "probe", "minPctFloor": 25 },
       "overall": "expected",
       "verified": {
         "leds": {
@@ -710,7 +713,7 @@
       "lan": null,
       "led": "bays",
       "caseView": "full",
-      "fan": { "chip": "ITE IT8613E", "fans": { "fan2": "cpu", "fan3": "case", "fan4": "case" }, "kind": "probe" },
+      "fan": { "chip": "ITE IT8613E", "fans": { "fan2": "cpu", "fan3": "case", "fan4": "case" }, "kind": "probe", "minPctFloor": 25 },
       "overall": "expected",
       "verified": {
         "leds": { "status": "expected", "note": "Same family as the DXP8800 Plus, which works; bay order guessed. Use Identify to confirm." },
@@ -741,6 +744,7 @@
         "chip": "ITE IT8613E",
         "fans": { "fan2": "cpu", "fan3": "case", "fan4": "case" },
         "kind": "probe",
+        "minPctFloor": 25,
         "watchdog": {
           "status": "expected",
           "note": "Expected, from the vendor driver and the kernel it87_wdt: the plugin only feeds a timer it sees counting, never arms it, and yields to it87_wdt. Not confirmed on this hardware."
