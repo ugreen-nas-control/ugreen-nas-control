@@ -32,32 +32,32 @@ Kernel-module LED and fan plugins (ich777 ugreenleds-driver and its forks, miskc
 
 Columns: **US** this plugin; **FC2** FanCtrl Plus 2; **FC1** FanCtrl Plus; **DAF** Dynamix Auto Fan; **ITK** UGREEN-DXP-FAN-NAS-Driver; **KM** kernel-module LED plugins (ich777, hanssep, guyp2k); **EG** Elliptic and flybrys; **IDX** the two iDX6011 projects; **MSK** miskcoo. `y` yes, `n` no, `~` partial, `?` unverified, `-` not in scope.
 
-| Feature                                                | US      | FC2 | FC1 | DAF | ITK | KM  | EG  | IDX | MSK |
-| ------------------------------------------------------ | ------- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Multi-point fan curves                                 | y       | y   | n   | n   | ~   | -   | -   | ~   | -   |
-| Drives UGREEN fan chips without an extra kernel driver | y       | n   | n   | n   | n   | -   | -   | y   | -   |
-| Several fans with separate inputs                      | ~       | y   | y   | y   | ~   | -   | -   | ~   | -   |
-| Disk temperatures without waking disks                 | y       | y   | y   | y   | ?   | -   | -   | ~   | -   |
-| NVMe as fan input                                      | y       | y   | y   | y   | ?   | -   | -   | n   | -   |
-| GPU, HBA, NIC or custom script as fan input            | y       | y   | n   | n   | n   | -   | -   | n   | -   |
-| Failsafe to 100 percent, BIOS values restored          | y       | ~   | n   | n   | y   | -   | -   | y   | -   |
-| Stall watchdog and notification                        | y       | ~   | n   | n   | y   | -   | -   | y   | -   |
-| Fan calibration (rpm per duty)                         | y       | n   | n   | n   | n   | -   | -   | n   | -   |
-| Fan speed history graph                                | y       | y   | n   | n   | n   | -   | -   | ~   | -   |
-| Fan settings export and import                         | y       | y   | n   | n   | ~   | n   | n   | n   | -   |
-| Fan schedules, PID, mover or parity override           | ~       | n   | n   | n   | n   | -   | -   | n   | -   |
-| Per-LED colour, brightness, effects                    | y       | -   | -   | -   | -   | ~   | y   | y   | y   |
-| Disk-activity LEDs                                     | y       | -   | -   | -   | -   | y   | y   | y   | y   |
-| SMART, standby and parity states on LEDs               | y       | -   | -   | -   | -   | ~   | ~   | ~   | ~   |
-| Network LED (speed, traffic, gateway)                  | y       | -   | -   | -   | -   | y   | y   | ~   | y   |
-| Night mode (LEDs)                                      | y       | -   | -   | -   | -   | ~   | y   | ~   | n   |
-| Identify a bay                                         | y       | -   | -   | -   | -   | n   | y   | n   | ~   |
-| LCD, touch screen, backlight                           | n       | -   | -   | -   | -   | n   | n   | y   | n   |
-| Fan speed in the Unraid footer                         | n       | y   | ?   | ?   | -   | -   | -   | ?   | -   |
-| Monitor-only fan mode (never writes)                   | ~       | y   | ?   | ?   | ?   | -   | -   | ~   | -   |
-| Dashboard tile on Unraid                               | y       | y   | y   | n   | n   | n   | n   | y   | n   |
-| Case view per model                                    | y       | n   | n   | n   | n   | n   | ~   | y   | n   |
-| No kernel module built per Unraid release              | y       | y   | y   | y   | n   | n   | n   | n   | n   |
-| Languages                                              | 7       | n   | n   | n   | n   | n   | n   | n   | n   |
-| CLI or API                                             | ~       | n   | n   | n   | ~   | n   | ~   | n   | y   |
-| In Community Apps                                      | not yet | y   | y   | y   | n   | y   | ?   | ?   | n   |
+| Feature                                                | US  | FC2 | FC1 | DAF | ITK | KM  | EG  | IDX | MSK |
+| ------------------------------------------------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Multi-point fan curves                                 | y   | y   | n   | n   | ~   | -   | -   | ~   | -   |
+| Drives UGREEN fan chips without an extra kernel driver | y   | n   | n   | n   | n   | -   | -   | y   | -   |
+| Several fans with separate inputs                      | ~   | y   | y   | y   | ~   | -   | -   | ~   | -   |
+| Disk temperatures without waking disks                 | y   | y   | y   | y   | ?   | -   | -   | ~   | -   |
+| NVMe as fan input                                      | y   | y   | y   | y   | ?   | -   | -   | n   | -   |
+| GPU, HBA, NIC or custom script as fan input            | y   | y   | n   | n   | n   | -   | -   | n   | -   |
+| Failsafe to 100 percent, BIOS values restored          | y   | ~   | n   | n   | y   | -   | -   | y   | -   |
+| Stall watchdog and notification                        | y   | ~   | n   | n   | y   | -   | -   | y   | -   |
+| Fan calibration (rpm per duty)                         | y   | n   | n   | n   | n   | -   | -   | n   | -   |
+| Fan speed history graph                                | y   | y   | n   | n   | n   | -   | -   | ~   | -   |
+| Fan settings export and import                         | y   | y   | n   | n   | ~   | n   | n   | n   | -   |
+| Fan schedules, PID, mover or parity override           | ~   | n   | n   | n   | n   | -   | -   | n   | -   |
+| Per-LED colour, brightness, effects                    | y   | -   | -   | -   | -   | ~   | y   | y   | y   |
+| Disk-activity LEDs                                     | y   | -   | -   | -   | -   | y   | y   | y   | y   |
+| SMART, standby and parity states on LEDs               | y   | -   | -   | -   | -   | ~   | ~   | ~   | ~   |
+| Network LED (speed, traffic, gateway)                  | y   | -   | -   | -   | -   | y   | y   | ~   | y   |
+| Night mode (LEDs)                                      | y   | -   | -   | -   | -   | ~   | y   | ~   | n   |
+| Identify a bay                                         | y   | -   | -   | -   | -   | n   | y   | n   | ~   |
+| LCD, touch screen, backlight                           | n   | -   | -   | -   | -   | n   | n   | y   | n   |
+| Fan speed in the Unraid footer                         | n   | y   | ?   | ?   | -   | -   | -   | ?   | -   |
+| Monitor-only fan mode (never writes)                   | ~   | y   | ?   | ?   | ?   | -   | -   | ~   | -   |
+| Dashboard tile on Unraid                               | y   | y   | y   | n   | n   | n   | n   | y   | n   |
+| Case view per model                                    | y   | n   | n   | n   | n   | n   | ~   | y   | n   |
+| No kernel module built per Unraid release              | y   | y   | y   | y   | n   | n   | n   | n   | n   |
+| Languages                                              | 7   | n   | n   | n   | n   | n   | n   | n   | n   |
+| CLI or API                                             | ~   | n   | n   | n   | ~   | n   | ~   | n   | y   |
+| In Community Apps                                      | y   | y   | y   | y   | n   | y   | ?   | ?   | n   |

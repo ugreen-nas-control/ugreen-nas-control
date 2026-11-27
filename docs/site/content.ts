@@ -22,8 +22,8 @@ export const HELP = {
     url: `${GITHUB}/discussions/134`
 };
 export const DISCUSSIONS = `${GITHUB}/discussions`;
-/** Flip to true once the Community Applications entry is live: the Apps tab becomes the first install route. */
-export const CA_LIVE = false;
+/** The Community Applications entry is live: the Apps tab is the first install route. */
+export const CA_LIVE = true;
 
 /** Meta description and keywords: the one place besides the hero where the official line name appears for search. */
 export const META_DESC = `The Unraid control plugin for UGREEN NAS (DX, DXP, iDX): fan curves, LEDs, case view, sensors, a dashboard tile, the hardware watchdog petted only when it is running, power on after AC loss and a read-only front-panel view. ${NO_KERNEL_MODULE}. The page runs the real plugin interface on sample data.`;
