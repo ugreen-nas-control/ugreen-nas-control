@@ -76,14 +76,14 @@ func TestAllowOffReachesZeroOnlyWhenCurveSaysZero(t *testing.T) {
 	}
 }
 
-// The DXP2800 GT writes nothing below 25 %, so a lower minimum speed is raised to what runs.
+// Probe models write nothing below 25 %, so a lower minimum speed is raised to what runs.
 func TestApplyModelLimitsRaisesMinPctToTheHardwareFloor(t *testing.T) {
 	low := cfgFrom(t, v2Base+"min_pct=\"10\"\n")
 	if c := ApplyModelLimits(low, "DXP2800 GT"); c.MinPct != csFloorPct {
 		t.Fatalf("DXP2800 GT: min %d", c.MinPct)
 	}
-	if c := ApplyModelLimits(low, "DXP4800 Plus"); c.MinPct != 10 {
-		t.Fatalf("other model: min %d", c.MinPct)
+	if c := ApplyModelLimits(low, "DXP4800 Plus"); c.MinPct != probeFloorPct {
+		t.Fatalf("DXP4800 Plus: min %d", c.MinPct)
 	}
 	if c := ApplyModelLimits(cfgFrom(t, v2Base+"min_pct=\"40\"\n"), "DXP2800 GT"); c.MinPct != 40 {
 		t.Fatalf("higher user value lost: %d", c.MinPct)

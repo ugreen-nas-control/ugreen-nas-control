@@ -55,7 +55,7 @@ export interface FanSupport {
     fans: Record<string, 'cpu' | 'case'>;
     /** How the fans are reached (backend/internal/fan/fanmodels.go FanKind): fixed wiring (default) or a probe whose map the user confirms; fan control stays off until then. */
     kind?: 'fixed' | 'probe';
-    /** Lowest speed the hardware runs at (backend/internal/fan/fanmodels.go minPctFloor): the CS201x of the DXP2800 GT. Absent everywhere else. */
+    /** Lowest speed the hardware runs at (backend/internal/fan/fanmodels.go minPctFloor): every probe model. Absent on the others. */
     minPctFloor?: number;
     /**
      * The EC watchdog the BIOS may arm and the plugin feeds (backend/internal/fan/caps.go WatchdogModel): only the DXP4800 GT and

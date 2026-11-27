@@ -15,7 +15,7 @@ export default {
     led: 'bays',
     caseView: 'full',
     caseVariant: 'rear6800',
-    fan: { chip: 'ITE IT8613E', fans: { fan2: 'cpu', fan3: 'case', fan4: 'case' }, kind: 'probe' },
+    fan: { chip: 'ITE IT8613E', fans: { fan2: 'cpu', fan3: 'case', fan4: 'case' }, kind: 'probe', minPctFloor: 25 },
     verified: {
         leds: {
             status: 'expected',
