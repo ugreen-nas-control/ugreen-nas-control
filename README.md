@@ -54,6 +54,8 @@ Not verified or missing? The probe wizard maps unknown fan wiring in about a min
 
 ## Install
 
+In Unraid, open **Apps** (Community Applications), search **UGREEN NAS Control** and install it. Or by URL:
+
 1. Unraid: **Plugins, Install Plugin**
 2. Paste this URL, hit **Install**:
 
