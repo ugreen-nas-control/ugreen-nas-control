@@ -70,12 +70,10 @@ jobs:
           nix flake update
           if git diff --quiet flake.lock; then echo "flake.lock is current."; exit 0; fi
           branch="chore/flake-update"
-          mkdir -p .changes
-          printf 'Updated the pinned development tools (flake.lock).\n' > .changes/flake-update.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
-          git add flake.lock .changes/flake-update.md
+          git add flake.lock
           git commit -q -m "chore: update flake.lock"
           git push --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
           if [ -z "$(gh pr list --head "$branch" --base next --state open --json number --jq '.[].number')" ]; then
