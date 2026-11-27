@@ -13,7 +13,7 @@ This plugin is the bridge.
 [![Unraid](https://img.shields.io/badge/Unraid-7.2%2B-f15a2c)](docs/unraid.md)<!-- facts:unraid-badge:end -->
 [![License: MIT](https://img.shields.io/github/license/ugreen-nas-control/ugreen-nas-control?color=lightgrey)](LICENSE)
 
-**[Live demo](https://ugreen-nas-control.github.io/ugreen-nas-control/demo/?model=dxp6800-pro)** · [Website](https://ugreen-nas-control.github.io/ugreen-nas-control/) · [Install](#install) · [Models](#your-model-your-status) · [Help](#help) · [All docs](docs/README.md)
+**[Live demo](https://ugreen-nas-control.github.io/ugreen-nas-control/demo/?model=dxp6800-pro)** · [Website](https://ugreen-nas-control.github.io/ugreen-nas-control/) · [Install](#install) · [Community Apps](https://ca.unraid.net/apps/ugreen-nas-control-1fqxcum0nl9pxe) · [Models](#your-model-your-status) · [Help](#help) · [All docs](docs/README.md)
 
 <a href="https://ugreen-nas-control.github.io/ugreen-nas-control/demo/?model=dxp6800-pro"><picture><source media="(prefers-color-scheme: dark)" srcset="https://ugreen-nas-control.github.io/ugreen-nas-control/shots/overview-dark.png"><img src="https://ugreen-nas-control.github.io/ugreen-nas-control/shots/overview-light.png" alt="UGREEN NAS Control overview: the NAS drawn with its bays, drive temperatures and live LED colours" width="860"></picture></a>
 
@@ -54,7 +54,7 @@ Not verified or missing? The probe wizard maps unknown fan wiring in about a min
 
 ## Install
 
-In Unraid, open **Apps** (Community Applications), search **UGREEN NAS Control** and install it. Or by URL:
+In Unraid, open **Apps** ([Community Applications](https://ca.unraid.net/apps/ugreen-nas-control-1fqxcum0nl9pxe)), search **UGREEN NAS Control** and install it. Or by URL:
 
 1. Unraid: **Plugins, Install Plugin**
 2. Paste this URL, hit **Install**:

@@ -11,7 +11,7 @@ import { loadModels } from '../../web/models/index';
 import { CAPABILITIES, type Capability, type Check, type Evidence, type Model, SERIES, monthYear, overallStatus } from '../../web/models/schema';
 import {
     ARM_NOTE,
-    CA_LIVE,
+    CA_URL,
     CAPABILITY_LABEL,
     COMPARE_HEAD,
     EVIDENCE_HELP,
@@ -224,9 +224,7 @@ ${o.extraScript ? `<script>${o.extraScript}</script>\n` : ''}</body>
 const copyBox = () =>
     `<div class="copy"><code tabindex="0" aria-label="Plugin URL">${PLG_URL}</code><button type="button" data-copy="${PLG_URL}" aria-label="Copy the plugin URL">${icon('copy', 18)}<span class="lbl">Copy</span></button></div>`;
 
-const installHint = CA_LIVE
-    ? 'Community Applications: search <b>UGREEN NAS Control</b>. Or in Plugins, Install Plugin, paste this URL:'
-    : 'In Unraid, open Plugins, Install Plugin and paste this URL:';
+const installHint = `<a href="${CA_URL}">Community Applications</a>: search <b>UGREEN NAS Control</b>. Or in Plugins, Install Plugin, paste this URL:`;
 
 const FOOTER = `<footer><div class="foot">
   <nav aria-label="Project"><a href="${GITHUB}">GitHub</a><a href="${DISCUSSIONS}">Discussions</a><a href="${FORUM}">Unraid forum</a><a href="${GITHUB}/blob/main/docs/third-party.md">Credits and licences</a><a href="${GITHUB}/blob/main/LICENSE">MIT license</a></nav>
