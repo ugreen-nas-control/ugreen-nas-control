@@ -118,6 +118,9 @@ function init(): void {
         });
     };
     w.confirm = (message: string) => (push('confirm', message), true);
+    // The page asks "leave the site?" while edits are unsaved. Chrome holds the next navigation on that dialog and nothing answers it.
+    const addListener = w.addEventListener.bind(w);
+    w.addEventListener = (type: string, ...rest: unknown[]) => (type === 'beforeunload' ? undefined : addListener(type, ...rest));
     w.open = (url: string) => (push('open', url), null);
     // The clipboard is recorded, not used: no permission prompt in the test browser, and the text is part of the snapshot.
     Object.defineProperty(navigator, 'clipboard', {

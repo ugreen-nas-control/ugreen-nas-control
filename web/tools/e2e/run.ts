@@ -19,11 +19,12 @@ import { $ } from 'bun';
 import { fixtureHasChip } from '../../models/fixture';
 import { loadModels } from '../../models/index';
 import { format } from '../../../scripts/format';
-import { type ApiRequest, startHarness } from '../harness/serve';
+import { type ApiRequest, type Harness, startHarness } from '../harness/serve';
 import { Session, type StepRecord, VIEWPORT } from './driver';
 import { E2E_NOW, pageInit } from './page-init';
 import { type Ctx, SCENARIOS } from './scenarios';
 
+// The harness reads this. Chrome does not: it takes the zone from its own environment, so `just e2e` sets TZ before bun starts.
 process.env.TZ = 'Europe/Berlin';
 const root = resolve(import.meta.dir, '../../..');
 const GOLDEN = join(import.meta.dir, 'golden.json');
@@ -91,36 +92,53 @@ interface Result {
 }
 
 const JOB_LIMIT_MS = 180000;
+const HEARTBEAT_MS = 30000;
+const elapsed = () => `${((Date.now() - started) / 1000).toFixed(0).padStart(4)} s`;
 
 async function runJob(job: Job, view: Bun.WebView): Promise<Result> {
     const started = Date.now();
     const scenario = SCENARIOS.find(s => s.id === job.scenario)!;
-    const h = await startHarness(job.ctx.id, { js: job.variant, oldRef, requestLog: true, inject: pageInit, now: E2E_NOW, version: '0.0.0' });
-    const session = new Session(view, h);
+    if (verbose) console.log(`${elapsed()}  start ${job.ctx.id}/${job.scenario} [${job.variant}]`);
+    let session: Session | undefined;
+    let h: Harness | undefined;
+    const beat = setInterval(
+        () =>
+            console.log(
+                `${elapsed()}  still running ${job.ctx.id}/${job.scenario}: ${session ? `${session.steps.length} steps, last "${session.steps.at(-1)?.name ?? 'none'}", in ${session.doing || 'nothing'}` : 'harness not up'}`
+            ),
+        HEARTBEAT_MS
+    );
+    const crashSteps: StepRecord[] = [];
     let crash: string | undefined;
+    let timer: Timer | undefined;
+    const limit = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`scenario took longer than ${JOB_LIMIT_MS / 1000} s`)), JOB_LIMIT_MS);
+    });
     try {
-        await view.navigate('about:blank'); // Chrome has no target to resize before the first navigation
-        await view.resize(VIEWPORT.width, VIEWPORT.height);
-        let timer: Timer | undefined;
-        const limit = new Promise<never>((_, reject) => {
-            timer = setTimeout(() => reject(new Error(`scenario took longer than ${JOB_LIMIT_MS / 1000} s`)), JOB_LIMIT_MS);
-        });
-        try {
-            await Promise.race([scenario.run(session, job.ctx), limit]);
-        } finally {
-            clearTimeout(timer);
-        }
+        // Everything that talks to the browser or the harness is inside the limit: a hang there must fail this job, not the whole run.
+        await Promise.race([
+            (async () => {
+                h = await startHarness(job.ctx.id, { js: job.variant, oldRef, requestLog: true, inject: pageInit, now: E2E_NOW, version: '0.0.0' });
+                session = new Session(view, h);
+                await session.blank(VIEWPORT.width, VIEWPORT.height);
+                await scenario.run(session, job.ctx);
+            })(),
+            limit
+        ]);
     } catch (error) {
-        crash = `after step "${session.steps.at(-1)?.name ?? 'start'}": ${(error as Error).message}`;
-        const events = await Promise.race([
-            Promise.resolve().then(() => session.eval<unknown[]>(`window.__e2e?.drain() ?? []`)),
-            Bun.sleep(2000).then(() => [])
-        ]).catch(() => []);
-        session.steps.push({ name: 'CRASH', requests: [], events: events as StepRecord['events'], dom: '', text: '' });
+        crash = `after step "${session?.steps.at(-1)?.name ?? 'start'}": ${(error as Error).message}`;
+        const events = session
+            ? await Promise.race([Promise.resolve().then(() => session!.eval<unknown[]>(`window.__e2e?.drain() ?? []`)), Bun.sleep(2000).then(() => [])]).catch(
+                  () => []
+              )
+            : [];
+        (session?.steps ?? crashSteps).push({ name: 'CRASH', requests: [], events: events as StepRecord['events'], dom: '', text: '' });
     } finally {
-        h.stop();
+        clearTimeout(timer);
+        clearInterval(beat);
+        h?.stop();
     }
-    return { job, steps: session.steps, crash, ms: Date.now() - started };
+    return { job, steps: session?.steps ?? crashSteps, crash, ms: Date.now() - started };
 }
 
 const sorted = (o: object) => JSON.stringify(Object.fromEntries(Object.entries(o).sort(([a], [b]) => (a < b ? -1 : 1))));
@@ -311,15 +329,24 @@ async function worker(): Promise<void> {
     try {
         for (let job = queue.shift(); job; job = queue.shift()) {
             let r = await runJob(job, view);
-            // The page did not even come up (machine busy): once more.
-            if (r.crash && r.steps.length === 1 && !/took longer/.test(r.crash)) r = await runJob(job, view);
-            if (r.crash && /took longer/.test(r.crash)) {
-                // an evaluate may still be in flight: this tab is lost
+            // A call that never answers leaves the tab in an unknown state: replace it.
+            const lost = (c?: string) => Boolean(c && /took longer|did not answer/.test(c));
+            if (lost(r.crash)) {
                 view.close();
                 view = makeView();
             }
+            // The page did not even come up (machine busy): once more.
+            if (r.crash && r.steps.length === 1) {
+                r = await runJob(job, view);
+                if (lost(r.crash)) {
+                    view.close();
+                    view = makeView();
+                }
+            }
             results.push(r);
-            if (verbose) console.log(`${job.ctx.id}/${job.scenario} [${job.variant}] ${r.steps.length} steps ${r.ms} ms${r.crash ? ' CRASH ' + r.crash : ''}`);
+            console.log(
+                `${elapsed()}  done  ${job.ctx.id}/${job.scenario} [${job.variant}] ${r.steps.length} steps ${r.ms} ms${r.crash ? ' CRASH ' + r.crash : ''}`
+            );
         }
     } finally {
         view.close();
