@@ -269,7 +269,7 @@ export const de: Record<Key, string> = {
     'case.inside_hint_4800base':
         'Die Wartungsklappe an der Unterseite nach UGREENs Handbuch und einem Foto der geöffneten Klappe: zwei M.2-Slots links, rechts daneben ein SO-DIMM-Sockel (ab Werk ist ein Modul eingebaut). Welche SSD in welchem M.2-Slot steckt, ist angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
     'case.inside_hint_4800plus':
-        'Die Wartungsklappe an der Unterseite nach dem Foto eines DXP4800-Plus-Besitzers: überlappende RAM-Sockel rechts; M.2-1 (M2-KEYM1) neben dem RAM und M.2-3 (M2-KEYM3) weiter links. DIMM1 ist der obere Sockel näher am Deckel, DIMM2 liegt darunter näher an der Platine. Die SSD-Zuordnung ist bestätigt; welche Speicherangabe der Software zu welchem Sockel gehört, ist noch unbestätigt. Der interne M2-KEYM2-Slot ist nicht dargestellt.',
+        'Die Wartungsklappe an der Unterseite nach dem Foto eines DXP4800-Plus-Besitzers: überlappende RAM-Sockel rechts; M.2-1 (M2-KEYM1) neben dem RAM und M.2-3 (M2-KEYM3) weiter links. DIMM1 ist der vordere Sockel näher am Deckel und überdeckt den anderen; DIMM2 liegt dahinter näher an der Platine. Die SSD-Zuordnung ist bestätigt; welche Speicherangabe der Software zu welchem Sockel gehört, ist noch unbestätigt. Der interne M2-KEYM2-Slot ist nicht dargestellt.',
     'case.inside_hint_4800':
         'Die Wartungsklappe an der Unterseite. Die Slots heißen wie auf der Platine aufgedruckt: M.2-1 ist M2-KEYM1 (neben dem RAM), M.2-3 ist M2-KEYM3; M2-KEYM2 liegt im Gehäuse, für das Systemmodul ab Werk. Die Nummerierung von RAM 1 / RAM 2 ist angenommen; bei einer anderen Belegung bitte ein Issue öffnen.',
     'in.slot_empty': '{label} · leer',
