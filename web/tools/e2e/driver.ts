@@ -17,16 +17,39 @@ export interface StepRecord {
 
 export const VIEWPORT = { width: 1440, height: 900 };
 const SETTLE_MS = 20000;
+/** A browser call that never answers (the tab or the CDP connection is stuck) must name itself instead of eating the scenario limit. */
+const CALL_MS = 40000;
 
 export class Session {
     steps: StepRecord[] = [];
+    /** The browser call in flight, for the runner's progress line. */
+    doing = '';
     constructor(
         readonly view: Bun.WebView,
         readonly h: Harness
     ) {}
 
+    private async call<T>(what: string, run: () => Promise<T>, ms = CALL_MS): Promise<T> {
+        this.doing = what;
+        let timer: Timer | undefined;
+        const limit = new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error(`${what} did not answer within ${ms / 1000} s`)), ms);
+        });
+        try {
+            return await Promise.race([run(), limit]);
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
     eval<T = unknown>(expr: string): Promise<T> {
-        return this.view.evaluate(expr) as Promise<T>;
+        return this.call(`evaluate ${expr.trim().slice(0, 60).replace(/\s+/g, ' ')}`, () => this.view.evaluate(expr) as Promise<T>);
+    }
+
+    /** The first navigation of a fresh tab: Chrome has no target to resize before it. */
+    async blank(width: number, height: number): Promise<void> {
+        await this.call('navigate about:blank', () => this.view.navigate('about:blank'));
+        await this.call('resize', () => this.view.resize(width, height));
     }
 
     private async ready(dash: boolean): Promise<void> {
@@ -80,7 +103,7 @@ export class Session {
     }
 
     async open(opts: { dash?: boolean } = {}): Promise<void> {
-        await this.view.navigate(this.h.url(opts.dash ? { dash: true } : {}));
+        await this.call('navigate to the plugin page', () => this.view.navigate(this.h.url(opts.dash ? { dash: true } : {})));
         await this.ready(Boolean(opts.dash));
         await this.settle();
     }
@@ -121,7 +144,7 @@ export class Session {
 
     async click(selector: string, fx = 0.5): Promise<void> {
         const { x, y } = await this.where(selector, fx);
-        await this.view.click(Math.round(x), Math.round(y));
+        await this.call(`click ${selector}`, () => this.view.click(Math.round(x), Math.round(y)));
     }
 
     go(nav: string): Promise<void> {
@@ -144,7 +167,7 @@ export class Session {
     async type(selector: string, text: string): Promise<void> {
         await this.click(selector);
         await this.eval(`document.querySelector(${JSON.stringify(selector)}).select()`);
-        await this.view.type(text);
+        await this.call(`type into ${selector}`, () => this.view.type(text));
         await this.eval(`document.activeElement.blur()`);
     }
 

@@ -231,7 +231,7 @@ generated-check:
 # --old [ref] compares with the hand-written pre-5.0 UI of a ref (default upstream/main; needs src/web/js), --update rewrites the golden file
 [group('web')]
 e2e *args: web-build
-    bun web/tools/e2e/run.ts {{ args }}
+    TZ=Europe/Berlin bun web/tools/e2e/run.ts {{ args }}
 
 # Use the repo's git hooks (.github/hooks/pre-commit: staged-only format and syntax checks)
 [group('check')]

@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       e2e:
-        description: Run the Linux e2e job (hangs in Chrome/dbus so far)
+        description: Run the Linux e2e job (Chromium; fails on the WebKit golden, see docs/harness.md)
         type: boolean
         default: false
 
@@ -331,11 +331,11 @@ jobs:
       - uses: ./.github/actions/prefetch-nix-src # zizmor: ignore[self-repository] actionlint rejects the $/ form
       - run: nix develop .#web -c just web-check
 
-  # Hangs on Linux so far (Chrome logs dbus errors until the timeout); manual only (workflow_dispatch input e2e), not in ci-ok.
+  # Manual only (workflow_dispatch input e2e), not in ci-ok: the golden is recorded with WebKit, see docs/harness.md.
   e2e:
     if: ${{ inputs.e2e }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -349,6 +349,7 @@ jobs:
           diagnostic-endpoint: ''
       - uses: ./.github/actions/prefetch-nix-src # zizmor: ignore[self-repository] actionlint rejects the $/ form
       - run: nix develop .#e2e -c just e2e --jobs 1 --out .build/e2e
+        timeout-minutes: 15
       - run: nix develop .#e2e -c just shots dxp4800-gt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
