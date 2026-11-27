@@ -2695,7 +2695,8 @@ function main(root: HTMLElement): void {
     }
 
     // Plus: issue 297's owner photo shows overlapping SO-DIMM sockets at the right, M2-KEYM1 beside them and
-    // M2-KEYM3 farther left. The Pro retains the manual's layout until its board is compared.
+    // M2-KEYM3 farther left. DIMM1 overlaps DIMM2, so each label sits on the outer edge of its own socket (DIMM2
+    // above, DIMM1 below) instead of both below. The Pro retains the manual's layout until its board is compared.
     function inside4800Html(hw: Hardware): string {
         const plus = Boolean(caseModel(hw).inside4800plus);
         const m2Left = plus || Boolean(caseModel(hw).m2Left);
@@ -2737,7 +2738,7 @@ function main(root: HTMLElement): void {
                 <rect x="120" y="40" width="760" height="560" rx="4" fill="url(#unc-ribs)"/>
                 <g transform="translate(120 40)">
                     <circle cx="420" cy="22" r="8" fill="#b87333"/><circle cx="22" cy="536" r="8" fill="#b87333"/><circle cx="738" cy="22" r="8" fill="#b87333"/><circle cx="738" cy="536" r="8" fill="#b87333"/>
-                    <g transform="translate(${ramX} 0)">${plus ? `${ram(90, memory[1], 2)}${ram(125, memory[0], 1)}${ramLabel(275, memory[0], 1)}${ramLabel(315, memory[1], 2)}` : `${ram(40, memory[0], 1)}${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}`}</g>
+                    <g transform="translate(${ramX} 0)">${plus ? `${ram(90, memory[1], 2)}${ram(125, memory[0], 1)}${ramLabel(259, memory[0], 1)}${ramLabel(56, memory[1], 2)}` : `${ram(40, memory[0], 1)}${caseModel(hw).ramSlots === 1 ? '' : ram(230, memory[1], 2)}`}</g>
                     ${m2(plus ? 180 : m2Left ? 40 : 440, m2One, 1)}
                     ${m2(plus ? 40 : m2Left ? 180 : 580, m2Two, 2)}
                     ${m2Left ? `<text x="540" y="${plus ? 510 : 440}" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text>` : `<g transform="rotate(-90 700 300)"><text x="700" y="318" style="fill:var(--bd-ink)" font-size="54" font-weight="900" text-anchor="middle" letter-spacing="5">UGREEN</text></g>`}
