@@ -10,6 +10,6 @@
     "check": "bun run lint && bun check --no-script && bun run test && bun run i18n && bun tools/build.ts --verify"
   },
   "devDependencies": {
-    "@types/bun": "1.4.4"
+    "@types/bun": "1.4.5"
   }
 }
