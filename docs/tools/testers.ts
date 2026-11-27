@@ -19,11 +19,12 @@ export const TESTERS: { login: string; did: string }[] = [
     { login: 'jsaltzman', did: 'DXP6800 Pro bug reports, the cause of the failing update check' },
     { login: 'halloleo', did: 'DXP8800 Ultra: diagnostics, LED colour and Identify bay-order confirmation, probe and update error reports (#293, #340)' },
     { login: 'jmsaham', did: 'Fahrenheit display request (#338)' },
+    { login: 'NotRetarded', did: 'Unassigned Devices standby LED idea and confirmation (#146), DXP6800 Pro fan report (#348)' },
     { login: 'rogvalinger-ops', did: 'DXP4800 testing, dual-LAN and single-RAM-slot corrections with photos (#299)' }
 ];
 
 /** Testers on the Unraid forum without a known GitHub account: named, not linked. */
-export const FORUM_TESTERS = ['fkiesler', 'gigios', 'NullNull67', 'cardsdoc', 'gonzlobo', 'NotRetarded'];
+export const FORUM_TESTERS = ['fkiesler', 'gigios', 'NullNull67', 'cardsdoc', 'gonzlobo'];
 
 /** Maintainers, shown first in the README credits. */
 export const MAINTAINERS: { login: string; name: string }[] = [
