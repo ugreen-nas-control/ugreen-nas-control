@@ -404,6 +404,8 @@ jobs:
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           set -euo pipefail
           files="$(gh api --paginate "repos/${REPO}/pulls/${PR}/files" --jq '.[] | "\(.status) \(.filename)"')"
@@ -418,7 +420,10 @@ jobs:
             echo "::error::plugin/ugreen-nas-control.plg and CHANGELOG.md are only changed by the release workflow (branch release/X.Y.Z). Remove them from this PR and add a fragment .changes/<slug>.md instead."
             fail=1
           fi
-          case ",${LABELS}," in
+          bot=false
+          if [ "$AUTHOR" = "dependabot[bot]" ] || { [ "$HEAD_REF" = chore/flake-update ] && [ "$SAME_REPO" = true ]; }; then bot=true; fi
+          case "${bot},${LABELS}," in
+            true,*) echo "Dependency update: fragment not required." ;;
             *,no-changelog,*) echo "Label no-changelog: fragment not required." ;;
             *)
               if ! printf '%s\n' "$files" | grep -Eq '^added \.changes/[^/]+\.md$'; then

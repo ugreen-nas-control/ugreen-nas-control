@@ -21,3 +21,5 @@ Label the PR `no-changelog` instead when:
 - nothing a user sees changes (tests, CI, refactoring, internal tooling);
 - it only edits pending fragments;
 - it fixes or rewords a feature that is not released yet: edit that feature's pending fragment if the user-facing text changes, otherwise nothing.
+
+Dependabot PRs and the weekly `chore/flake-update` PR need neither: the guard skips them. Add a fragment by hand only when a bump changes something users see, such as a security fix in a Go module or a bundled web package.
